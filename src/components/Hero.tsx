@@ -8,7 +8,7 @@ interface HeroProps {
 
 export default function Hero({ activeVideoId, setActiveVideoId }: HeroProps) {
   const heroVideoId = 'hero-main';
-  const youtubeUrl = 'https://www.youtube.com/embed/dQw4w9WgXcQ'; // Replace with actual showreel URL
+  const youtubeUrl = 'https://www.youtube.com/embed/31ZSrj9R2Ps'; // Replace with actual showreel URL
 
   return (
     <section id="home" className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden">
