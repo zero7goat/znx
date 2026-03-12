@@ -27,7 +27,7 @@ const projects = [
     category: 'Motion Graphics',
     thumbnail: 'https://raw.githubusercontent.com/zero7goat/imgs/refs/heads/main/Ui.jpg',
     description: 'Advanced motion graphics for a sci-fi interface concept.',
-    videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ', // Placeholder
+    videoUrl: 'https://www.youtube.com/embed/DqF1hb09M3Y', // Placeholder
   },
   {
     id: 'p4',
