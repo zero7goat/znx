@@ -11,22 +11,22 @@ const projects = [
     category: 'Gaming',
     thumbnail: 'https://raw.githubusercontent.com/zero7goat/imgs/refs/heads/main/Finals.png',
     description: 'High-octane montage with custom transitions and sync-heavy editing.',
-    videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ', // Placeholder
+    videoUrl: 'https://www.youtube.com/embed/hJoa069zB_Y', // Placeholder
   },
   {
     id: 'p2',
     title: 'Flow Style',
     category: 'Cinematic',
     thumbnail: 'https://raw.githubusercontent.com/zero7goat/imgs/refs/heads/main/Flow%20style.jpg',
-    description: 'A moody, atmospheric exploration of urban nightlife with custom color grading.',
-    videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ', // Placeholder
+    description: 'A flow-style edit of Paris with cinematic color grading.',
+    videoUrl: 'https://www.youtube.com/embed/ckmBqLjr4wY', // Placeholder
   },
   {
     id: 'p3',
     title: 'Futuristic UI Design',
     category: 'Motion Graphics',
     thumbnail: 'https://raw.githubusercontent.com/zero7goat/imgs/refs/heads/main/Ui.jpg',
-    description: 'Advanced motion graphics for a sci-fi interface concept.',
+    description: 'Smooth motion graphics enhancing the Fitmart Wellness user interface.',
     videoUrl: 'https://www.youtube.com/embed/DqF1hb09M3Y', // Placeholder
   },
   {
@@ -39,11 +39,11 @@ const projects = [
   },
   {
     id: 'p5',
-    title: 'Call of Duty Highlights',
+    title: 'Resident Evil Edit',
     category: 'Gaming',
-    thumbnail: 'https://raw.githubusercontent.com/zero7goat/imgs/refs/heads/main/Call%20of%20Duty.jpg',
-    description: 'Sync-heavy gameplay edit with 3D tracking and custom VFX.',
-    videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ', // Placeholder
+    thumbnail: 'https://raw.githubusercontent.com/zero7goat/imgs/refs/heads/main/leon.jpg',
+    description: 'Sync-heavy game scenes edit with fine masking and custom VFX.',
+    videoUrl: 'https://www.youtube.com/embed/VmDJrBEpkEs', // Placeholder
   },
   {
     id: 'p6',
