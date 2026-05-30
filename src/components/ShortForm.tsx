@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 // EDITABLE YOUTUBE LINKS FOR SHORTS
 // EACH SHORT FORM VIDEO HAS A SEPARATE LINE IN THE CODE TO BE REPLACED WITH ANY YOUTUBE LINK BELOW:
 const SHORTS_YOUTUBE_URL_1 = "https://youtube.com/shorts/2Ee8kZT6Ahc?feature=share";
-const SHORTS_YOUTUBE_URL_2 = "https://youtube.com/shorts/2Ee8kZT6Ahc?feature=share";
+const SHORTS_YOUTUBE_URL_2 = "https://youtube.com/shorts/aL6UxVzxmUo?feature=share";
 const SHORTS_YOUTUBE_URL_3 = "https://youtube.com/shorts/2Ee8kZT6Ahc?feature=share";
 
 const shorts = [
