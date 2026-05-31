@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 
 // EDITABLE YOUTUBE LINK FOR SHOWREEL VIDEO
-const SHOWREEL_YOUTUBE_URL = "https://youtu.be/hJwTbpZp8pM";
+const SHOWREEL_YOUTUBE_URL = "https://youtu.be/31ZSrj9R2Ps";
 
 function getYouTubeId(url: string) {
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
