@@ -13,19 +13,19 @@ const shorts = [
     id: 's1', 
     videoUrl: SHORTS_YOUTUBE_URL_1, 
     glowColor: 'rgba(29, 78, 216, 0.25)',
-    localThumb: '/Images/thumbnail short form/short1.avif'
+    localThumb: '/Images/thumbnail for short form/short1.avif'
   },
   { 
     id: 's2', 
     videoUrl: SHORTS_YOUTUBE_URL_2, 
     glowColor: 'rgba(249, 115, 22, 0.25)',
-    localThumb: '/Images/thumbnail short form/short2.avif'
+    localThumb: '/Images/thumbnail for short form/short2.avif'
   },
   { 
     id: 's3', 
     videoUrl: SHORTS_YOUTUBE_URL_3, 
     glowColor: 'rgba(217, 119, 6, 0.25)',
-    localThumb: '/Images/thumbnail short form/short1.avif'
+    localThumb: '/Images/thumbnail for short form/short1.avif'
   }
 ];
 
