@@ -202,7 +202,7 @@ export default function ResumeModal({ isOpen, onClose }: ResumeModalProps) {
             >
               <img
                 ref={imageRef}
-                src="/Images/RESUME.png"
+                src="/Images/RESUME.avif"
                 alt="Suyog BC Resume"
                 className="w-auto h-auto max-w-full max-h-[75vh] object-contain rounded-2xl shadow-2xl border border-[var(--theme-border)]"
                 draggable={false}
