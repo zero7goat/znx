@@ -9,7 +9,7 @@ const navLinks = [
   { name: 'About', href: '#about' },
   { name: 'Process', href: '#process' },
   { name: 'Contact', href: '#contact' },
-  { name: 'Resume', href: '/Images/SUYOG BC.png', download: 'SUYOG_BC_Resume.png' },
+  { name: 'Resume', href: '/Images/RESUME.avif', download: 'SUYOG_BC_Resume.avif' },
 ];
 
 interface NavbarProps {
