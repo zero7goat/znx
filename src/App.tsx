@@ -76,10 +76,11 @@ export default function App() {
       '/Images/thumbnail for long form/thumb1.avif',
       '/Images/thumbnail for long form/thumb2.avif',
       '/Images/thumbnail for long form/thumb3.avif',
-      '/Images/thumbnail short form/toe1.png',
-      '/Images/thumbnail short form/toe2.png',
-      '/Images/thumbnail short form/toe3.png',
-      '/Images/port.avif'
+      '/Images/thumbnail for short form/short1.avif',
+      '/Images/thumbnail for short form/short2.avif',
+      '/Images/thumbnail for short form/short3.avif',
+      '/Images/port.avif',
+      '/Images/RESUME.avif'
     ];
 
     let imagesLoaded = false;
