@@ -1,0 +1,66 @@
+@import url('https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700,900&display=swap');
+@import "tailwindcss";
+
+@layer utilities {
+  .font-satoshi {
+    font-family: 'Satoshi', sans-serif;
+  }
+  .font-pinyon {
+    font-family: 'Pinyon Script', cursive;
+  }
+  .font-caveat {
+    font-family: 'Caveat', cursive;
+  }
+  .font-syne {
+    font-family: 'Syne', sans-serif;
+  }
+  .font-mono-tech {
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .font-sans-main {
+    font-family: 'Satoshi', sans-serif;
+  }
+  .font-manrope {
+    font-family: 'Satoshi', sans-serif;
+  }
+  .font-serif-display {
+    font-family: 'DM Serif Display', serif;
+  }
+  .font-instrument {
+    font-family: 'Instrument Serif', serif;
+  }
+  .font-bodoni {
+    font-family: 'Bodoni Moda', serif;
+  }
+  .font-italiana {
+    font-family: 'Italiana', serif;
+  }
+  .font-cormorant {
+    font-family: 'Cormorant Garamond', serif;
+  }
+}
+
+/* Custom smooth scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(120, 120, 120, 0.25);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(120, 120, 120, 0.45);
+}
+
+html, body {
+  overscroll-behavior: auto;
+  font-family: 'Satoshi', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
