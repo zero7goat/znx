@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, lazy, Suspense } from 'react';
 import Lenis from 'lenis';
 import { motion, AnimatePresence } from 'motion/react';
 import IntroScreen from './components/IntroScreen';
@@ -9,15 +9,17 @@ import Services from './components/Services';
 import Newsletter from './components/Newsletter';
 import Footer from './components/Footer';
 import ContactDrawer from './components/ContactDrawer';
-import ServicesPage from './components/ServicesPage';
-import PrivacyPolicyPage from './components/PrivacyPolicyPage';
-import WorksPage from './components/WorksPage';
-import AboutPage from './components/AboutPage';
-import ThreeWorld from './components/ThreeWorld';
 import { NavTab } from './types';
 import { smoothScrollToElement } from './utils/smoothScroll';
 import { initAllCardClothSimulations } from './utils/clothSimulation';
 import { initMouseParallax } from './utils/parallaxPerspective';
+
+// Lazy-loaded routes and heavy WebGL components
+const ServicesPage = lazy(() => import('./components/ServicesPage'));
+const PrivacyPolicyPage = lazy(() => import('./components/PrivacyPolicyPage'));
+const WorksPage = lazy(() => import('./components/WorksPage'));
+const AboutPage = lazy(() => import('./components/AboutPage'));
+const ThreeWorld = lazy(() => import('./components/ThreeWorld'));
 
 export default function App() {
   const [showIntro, setShowIntro] = useState(true);
@@ -372,59 +374,61 @@ export default function App() {
         />
       )}
 
-      {isPrivacyPageOpen ? (
-        <PrivacyPolicyPage
-          onBackToHome={() => handleBackToHome()}
-          onOpenContact={handleOpenContact}
-        />
-      ) : isAboutPageOpen ? (
-        <AboutPage
-          onBackToHome={() => handleBackToHome()}
-          onOpenContact={handleOpenContact}
-          onOpenPrivacy={handleOpenPrivacyPage}
-          onOpenServices={handleOpenServicesPage}
-          onOpenWorks={handleOpenWorksPage}
-        />
-      ) : isWorksPageOpen ? (
-        <WorksPage
-          onBackToHome={() => handleBackToHome()}
-          onOpenContact={handleOpenContact}
-          onOpenPrivacy={handleOpenPrivacyPage}
-        />
-      ) : isServicesPageOpen ? (
-        <ServicesPage
-          onBackToHome={() => handleBackToHome()}
-          onSelectTab={handleSelectTab}
-          onOpenContact={handleOpenContact}
-          onOpenPrivacy={handleOpenPrivacyPage}
-        />
-      ) : (
-        <>
-          {/* WebGL 3D Interactive Background Layer (Cinematic Kage experience translated to ZNX) */}
-          <ThreeWorld />
-
-          <main id="top">
-            {/* Section 1: Hero */}
-            <Hero />
-
-            {/* Section 2: Work */}
-            <Work onOpenWorks={handleOpenWorksPage} />
-
-            {/* Section 3: Services */}
-            <Services onOpenWorks={handleOpenWorksPage} />
-          </main>
-
-          {/* Newsletter & Footer */}
-          <Newsletter onOpenContact={handleOpenContact} />
-          <Footer
+      <Suspense fallback={null}>
+        {isPrivacyPageOpen ? (
+          <PrivacyPolicyPage
+            onBackToHome={() => handleBackToHome()}
+            onOpenContact={handleOpenContact}
+          />
+        ) : isAboutPageOpen ? (
+          <AboutPage
+            onBackToHome={() => handleBackToHome()}
+            onOpenContact={handleOpenContact}
             onOpenPrivacy={handleOpenPrivacyPage}
             onOpenServices={handleOpenServicesPage}
             onOpenWorks={handleOpenWorksPage}
-            onOpenAbout={handleOpenAboutPage}
-            onNavigateToHome={handleBackToHome}
           />
-        </>
-      )}
+        ) : isWorksPageOpen ? (
+          <WorksPage
+            onBackToHome={() => handleBackToHome()}
+            onOpenContact={handleOpenContact}
+            onOpenPrivacy={handleOpenPrivacyPage}
+          />
+        ) : isServicesPageOpen ? (
+          <ServicesPage
+            onBackToHome={() => handleBackToHome()}
+            onSelectTab={handleSelectTab}
+            onOpenContact={handleOpenContact}
+            onOpenPrivacy={handleOpenPrivacyPage}
+          />
+        ) : (
+          <>
+            {/* WebGL 3D Interactive Background Layer (Cinematic Kage experience translated to ZNX) */}
+            <ThreeWorld />
+
+            <main id="top">
+              {/* Section 1: Hero */}
+              <Hero />
+
+              {/* Section 2: Work */}
+              <Work onOpenWorks={handleOpenWorksPage} />
+
+              {/* Section 3: Services */}
+              <Services onOpenWorks={handleOpenWorksPage} />
+            </main>
+
+            {/* Newsletter & Footer */}
+            <Newsletter onOpenContact={handleOpenContact} />
+            <Footer
+              onOpenPrivacy={handleOpenPrivacyPage}
+              onOpenServices={handleOpenServicesPage}
+              onOpenWorks={handleOpenWorksPage}
+              onOpenAbout={handleOpenAboutPage}
+              onNavigateToHome={handleBackToHome}
+            />
+          </>
+        )}
+      </Suspense>
 
       {/* Modals & Drawers */}
       <ContactDrawer
