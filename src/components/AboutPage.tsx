@@ -112,23 +112,23 @@ const BRAND_LOGOS = [
 const FAQ_ITEMS = [
   {
     number: '01',
-    question: 'Is it form builder?',
-    answer: 'No, this is the web service that provide an API for implementing backend function to HTML form. It just send all data from your website form to convenient messengers or other channels.'
+    question: 'What kind of work do you do?',
+    answer: 'I work across branding, motion design, and web development, helping bring ideas to life through visuals and digital experiences.'
   },
   {
     number: '02',
-    question: 'What I must to do for implementing this to my website form?',
-    answer: 'Simply sign up, create a new form endpoint, copy the provided integration code, and paste it into your HTML form action attribute.'
+    question: 'Who do you work with?',
+    answer: 'I work with brands, startups, creators, and people with ideas worth building. If the project feels right, I\'m open to exploring it.'
   },
   {
     number: '03',
-    question: 'Are the instructions different for integration with different messengers?',
-    answer: 'Yes, each messenger integration (Telegram, Discord, Slack, Email) includes step-by-step guidance tailored to its specific webhook and bot settings.'
+    question: 'How does a project usually start?',
+    answer: 'It starts with a conversation. We discuss your idea, what you\'re trying to achieve, and what makes sense for the project before moving into the actual work.'
   },
   {
     number: '04',
-    question: 'Is FlashForm a paid product?',
-    answer: 'FlashForm offers a generous free tier for personal projects and affordable paid plans for higher volume production applications.'
+    question: 'How do I get started?',
+    answer: 'Just reach out through the contact form or email me with a little about your project. I\'ll get back to you, and we can take it from there.'
   }
 ];
 
@@ -368,9 +368,6 @@ export default function AboutPage({
             >
               <span className="text-xs sm:text-sm font-sans tracking-widest uppercase text-[#ef4444] font-semibold">
                 About Me
-              </span>
-              <span className="text-xs sm:text-sm font-mono text-[#ef4444] font-semibold">
-                (07)
               </span>
             </motion.div>
 

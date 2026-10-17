@@ -177,7 +177,7 @@ export default function WorkShowcase({ onOpenWorks }: WorkShowcaseProps) {
   };
 
   return (
-    <section id="work" data-light="false" className="sticky top-0 z-10 bg-[#05070a] text-white min-h-screen flex flex-col justify-center py-10 sm:py-16 md:py-20 px-4 sm:px-8 border-none overflow-x-clip select-none isolation-isolate">
+    <section id="work" data-light="false" className="sticky top-0 z-10 bg-[#05070a] text-white min-h-screen flex flex-col justify-center py-10 sm:py-16 md:py-20 px-4 sm:px-8 border-none overflow-x-clip select-none transform-gpu [backface-visibility:hidden]">
       <div className="max-w-7xl mx-auto w-full">
         
         {/* Eyebrow Tag - Exactly synced with Services WHAT I DO typography */}

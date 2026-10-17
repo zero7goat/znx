@@ -130,9 +130,34 @@ export default function ServicesPage({
   onOpenContact,
   onOpenPrivacy,
 }: ServicesPageProps) {
-  // Always scroll to top on mount
+  // Check for target service section in URL hash or query on mount
   useEffect(() => {
-    window.scrollTo(0, 0);
+    const hash = window.location.hash;
+    const match = hash.match(/[?&]service=([^&]+)/) || hash.match(/#service-(.+)/) || hash.match(/#([a-z0-9]+)$/);
+    if (match && match[1] && match[1] !== 'services') {
+      const targetId = match[1];
+      const positionTarget = () => {
+        const el = document.getElementById(targetId) || document.getElementById(`service-${targetId}`);
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          const targetY = rect.top + window.pageYOffset - 80;
+          window.scrollTo(0, targetY);
+          if ((window as any).lenis) {
+            (window as any).lenis.scrollTo(targetY, { immediate: true });
+          }
+        }
+      };
+
+      positionTarget();
+      requestAnimationFrame(positionTarget);
+      const timer = setTimeout(positionTarget, 120);
+      return () => clearTimeout(timer);
+    } else {
+      window.scrollTo(0, 0);
+      if ((window as any).lenis) {
+        (window as any).lenis.scrollTo(0, { immediate: true });
+      }
+    }
   }, []);
 
   const [hasMouse, setHasMouse] = useState(false);
@@ -214,39 +239,106 @@ export default function ServicesPage({
     }
   };
 
-  // Clean, distinct background color plateaus for White (#FAF8F5), Red (#ef4444), and Black (#0a0a0a)
-  const { scrollYProgress } = useScroll();
-  const pageBgColor = useTransform(
-    scrollYProgress,
-    [0, 0.28, 0.38, 0.62, 0.72, 1],
-    [
-      '#FAF8F5', // White plateau
-      '#FAF8F5', // White until 28% scroll
-      '#ef4444', // Clean transition to Red
-      '#ef4444', // Red plateau until 62% scroll
-      '#0a0a0a', // Clean transition to Black
-      '#0a0a0a', // Black plateau through footer
-    ]
-  );
+  // Direct, frame-accurate background color interpolation for White (#FAF8F5), Red (#ef4444), and Black (#0a0a0a)
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function hexToRgb(hex: string): [number, number, number] {
+      const num = parseInt(hex.replace('#', ''), 16);
+      return [(num >> 16) & 255, (num >> 8) & 255, num & 255];
+    }
+
+    function interpolateColor(color1: string, color2: string, factor: number): string {
+      const [r1, g1, b1] = hexToRgb(color1);
+      const [r2, g2, b2] = hexToRgb(color2);
+      const r = Math.round(r1 + factor * (r2 - r1));
+      const g = Math.round(g1 + factor * (g2 - g1));
+      const b = Math.round(b1 + factor * (b2 - b1));
+      return `rgb(${r}, ${g}, ${b})`;
+    }
+
+    let animationFrameId: number;
+
+    const updateBg = () => {
+      const scrollY = window.scrollY || window.pageYOffset || 0;
+      const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+      const progress = Math.min(1, Math.max(0, scrollY / maxScroll));
+
+      let color = '#FAF8F5';
+      if (scrollY <= 180 || progress <= 0.28) {
+        color = '#FAF8F5';
+      } else if (progress <= 0.38) {
+        const t = (progress - 0.28) / 0.10;
+        color = interpolateColor('#FAF8F5', '#ef4444', t);
+      } else if (progress <= 0.62) {
+        color = '#ef4444';
+      } else if (progress <= 0.72) {
+        const t = (progress - 0.62) / 0.10;
+        color = interpolateColor('#ef4444', '#0a0a0a', t);
+      } else {
+        color = '#0a0a0a';
+      }
+
+      if (containerRef.current) {
+        containerRef.current.style.backgroundColor = color;
+      }
+    };
+
+    const onScroll = () => {
+      cancelAnimationFrame(animationFrameId);
+      animationFrameId = requestAnimationFrame(updateBg);
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    
+    updateBg();
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    };
+  }, []);
 
   return (
-    <motion.div
-      style={{ backgroundColor: pageBgColor }}
-      className="min-h-screen text-slate-950 font-sans select-none flex flex-col justify-between overflow-x-hidden relative"
+    <div
+      ref={containerRef}
+      style={{ backgroundColor: '#FAF8F5' }}
+      className="min-h-screen text-slate-950 font-sans select-none flex flex-col justify-between overflow-x-hidden relative transition-colors duration-75"
     >
 
       {/* 1. TOP HEADER */}
       <header className="w-full px-6 sm:px-12 py-6 flex items-center justify-between bg-transparent relative z-40">
         
-        {/* Left: Back Arrow Button */}
-        <button
-          onClick={onBackToHome}
-          className="group flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-full border border-slate-200/80 bg-white/80 backdrop-blur-sm text-slate-800 transition-all duration-300 focus:outline-none shadow-sm hover:shadow hover:bg-slate-100/80 cursor-pointer"
-          aria-label="Back to Home"
+        {/* Left: ZNX Logo replacing back arrow */}
+        <a
+          href="#top"
+          onClick={(e) => {
+            e.preventDefault();
+            if (onBackToHome) onBackToHome();
+          }}
+          className="group flex items-center select-none cursor-pointer"
+          aria-label="ZNX Studio Home"
           title="Back to Home"
         >
-          <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-300 group-hover:-translate-x-0.5" />
-        </button>
+          <img
+            src="/Logo.png"
+            alt="ZNX Studio Logo"
+            referrerPolicy="no-referrer"
+            onError={(e) => {
+              const target = e.currentTarget;
+              if (target.src.endsWith('/Logo.png')) {
+                target.src = '/images/Logo.png';
+              } else if (target.src.endsWith('/images/Logo.png')) {
+                target.src = '/Logo.avif';
+              } else if (target.src.endsWith('/images/Logo.avif')) {
+                target.src = '/images/Logo.avif';
+              }
+            }}
+            className="h-8 sm:h-9 md:h-10 w-auto object-contain brightness-0 group-hover:opacity-85 transition-opacity"
+          />
+        </a>
 
         {/* Right: Actions */}
         <div className="flex items-center gap-4">
@@ -311,11 +403,12 @@ export default function ServicesPage({
           return (
             <motion.div
               key={service.id}
+              id={service.id}
               initial={{ opacity: 0, y: 70, filter: 'blur(8px)' }}
               whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
               viewport={{ once: false, amount: 0.1 }}
               transition={{ duration: 1.3, ease: [0.16, 1, 0.3, 1] }}
-              className="w-full flex flex-col will-change-transform"
+              className="w-full flex flex-col will-change-transform scroll-mt-24 sm:scroll-mt-32"
             >
               
               {/* Clean Translucent Black and Gray Gradient Title */}
@@ -453,6 +546,6 @@ export default function ServicesPage({
         onNavigateToHome={onBackToHome}
       />
 
-    </motion.div>
+    </div>
   );
 }

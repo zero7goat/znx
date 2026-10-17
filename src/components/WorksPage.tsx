@@ -360,18 +360,34 @@ export default function WorksPage({
       
       {/* 1. TOP HEADER (STAYS AT THE TOP OF THE PAGE, SCROLLS NATURALLY, NO LOGO) */}
       <header className="w-full px-4 sm:px-8 py-6 flex items-center justify-between bg-transparent relative z-40">
-        {/* Left: Back Button */}
-        <button
-          onClick={onBackToHome}
-          className="group flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/10 backdrop-blur-md text-white transition-all duration-300 focus:outline-none shadow-sm hover:shadow hover:bg-white hover:text-black cursor-pointer"
-          aria-label="Back to Home"
+        {/* Left: ZNX Logo replacing back button */}
+        <a
+          href="#top"
+          onClick={(e) => {
+            e.preventDefault();
+            if (onBackToHome) onBackToHome();
+          }}
+          className="group flex items-center select-none cursor-pointer"
+          aria-label="ZNX Studio Home"
           title="Back to Home"
         >
-          <ArrowLeft className="w-4 h-4 transition-transform duration-300 group-hover:-translate-x-0.5" />
-        </button>
-
-        {/* Center: Empty spacer */}
-        <div className="w-10 sm:w-11" />
+          <img
+            src="/Logo.png"
+            alt="ZNX Studio Logo"
+            referrerPolicy="no-referrer"
+            onError={(e) => {
+              const target = e.currentTarget;
+              if (target.src.endsWith('/Logo.png')) {
+                target.src = '/images/Logo.png';
+              } else if (target.src.endsWith('/images/Logo.png')) {
+                target.src = '/Logo.avif';
+              } else if (target.src.endsWith('/images/Logo.avif')) {
+                target.src = '/images/Logo.avif';
+              }
+            }}
+            className="h-8 sm:h-9 md:h-10 w-auto object-contain brightness-0 invert group-hover:opacity-85 transition-opacity"
+          />
+        </a>
 
         {/* Right: Contact CTA matching Home page style */}
         {onOpenContact ? (
@@ -651,7 +667,7 @@ export default function WorksPage({
           {/* Bottom Social Links Bar */}
           <div className="relative z-10 border-t border-white/10 pt-6 sm:pt-8 mt-12 sm:mt-16 flex flex-row sm:grid sm:grid-cols-3 gap-6 sm:gap-4 text-xs font-mono-tech tracking-widest uppercase text-slate-300">
             <a
-              href="https://youtube.com/@znxstudio"
+              href="https://www.youtube.com/@znxmotions"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 hover:text-white transition-colors cursor-pointer w-fit"
@@ -669,7 +685,7 @@ export default function WorksPage({
               <span className="hidden sm:inline">LINKEDIN</span>
             </a>
             <a
-              href="https://instagram.com"
+              href="https://www.instagram.com/theznx/"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 hover:text-white transition-colors cursor-pointer w-fit"

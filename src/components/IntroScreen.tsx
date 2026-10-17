@@ -116,7 +116,7 @@ export default function IntroScreen({ onComplete }: IntroScreenProps) {
         >
           {/* Centered text: loading... all small letters */}
           <div className="flex flex-col items-center gap-2">
-            <span className="text-[14px] sm:text-[16px] font-mono tracking-[0.25em] text-black/80 animate-pulse">
+            <span className="text-[14px] sm:text-[16px] font-mono-tech tracking-[0.25em] text-black/80 animate-pulse">
               loading...
             </span>
           </div>

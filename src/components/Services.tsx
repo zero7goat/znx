@@ -9,17 +9,18 @@ interface ServiceItem {
 }
 
 interface MajorServicesSectionProps {
+  onOpenServices?: (serviceId?: string) => void;
   onOpenWorks?: () => void;
 }
 
 const SERVICES: ServiceItem[] = [
-  { id: '01', number: '(01)', name: 'Branding' },
-  { id: '02', number: '(02)', name: 'UX/UI Design' },
-  { id: '03', number: '(03)', name: 'Web & Development' },
-  { id: '04', number: '(04)', name: '3D / Motion' },
+  { id: 'branding', number: '(01)', name: 'Branding' },
+  { id: 'uxui', number: '(02)', name: 'UX/UI Design' },
+  { id: 'webdev', number: '(03)', name: 'Web & Development' },
+  { id: 'motion3d', number: '(04)', name: '3D / Motion' },
 ];
 
-export default function MajorServicesSection({ onOpenWorks }: MajorServicesSectionProps) {
+export default function MajorServicesSection({ onOpenServices }: MajorServicesSectionProps) {
   const [isTouchDevice, setIsTouchDevice] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
@@ -52,7 +53,7 @@ export default function MajorServicesSection({ onOpenWorks }: MajorServicesSecti
     <section
       id="services"
       data-light="false"
-      className="relative z-20 bg-[#05070a] text-white py-24 sm:py-32 px-6 sm:px-12 md:px-20 border-t border-white/10 shadow-[0_-40px_100px_rgba(0,0,0,0.95)] select-none flex items-center justify-center min-h-screen"
+      className="relative z-20 bg-[#05070a] text-white py-24 sm:py-32 px-6 sm:px-12 md:px-20 border-t border-white/10 shadow-[0_-40px_100px_rgba(0,0,0,0.95)] select-none flex items-center justify-center min-h-screen transform-gpu [backface-visibility:hidden]"
       style={{ color: '#ffffff', backgroundColor: '#05070a' }}
     >
       {/* Anchor for About navigation */}
@@ -104,10 +105,10 @@ export default function MajorServicesSection({ onOpenWorks }: MajorServicesSecti
           >
             <button
               onClick={() => {
-                if (onOpenWorks) {
-                  onOpenWorks();
+                if (onOpenServices) {
+                  onOpenServices();
                 } else {
-                  window.location.hash = '#/works';
+                  window.location.hash = '#/services';
                 }
               }}
               className="group bg-white text-black px-10 py-4 rounded-none text-xs font-mono-tech font-bold tracking-[0.2em] uppercase flex items-center gap-2.5 shadow-xl hover:bg-neutral-200 active:scale-95 transition-all cursor-pointer"
@@ -130,6 +131,13 @@ export default function MajorServicesSection({ onOpenWorks }: MajorServicesSecti
             return (
               <motion.div
                 key={service.id}
+                onClick={() => {
+                  if (onOpenServices) {
+                    onOpenServices(service.id);
+                  } else {
+                    window.location.hash = `#/services?service=${service.id}`;
+                  }
+                }}
                 initial={{ opacity: 0, y: 15 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}

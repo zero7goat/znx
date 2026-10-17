@@ -32,8 +32,15 @@ export default function App() {
   const [isPageTransitioning, setIsPageTransitioning] = useState(false);
   const lenisRef = useRef<Lenis | null>(null);
 
-  // Global preloader for all critical website images (including Services page assets)
+  // Global preloader for all critical website images and lazy route chunks
   useEffect(() => {
+    // 1. Prefetch lazy route chunks in background for instant transition
+    import('./components/ServicesPage');
+    import('./components/WorksPage');
+    import('./components/AboutPage');
+    import('./components/PrivacyPolicyPage');
+
+    // 2. Preload all key images into browser cache immediately
     const imagesToPreload = [
       '/images/smallimg.avif',
       '/images/small img.avif',
@@ -74,13 +81,24 @@ export default function App() {
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash;
-      if (hash === '#/services' || hash === '#services-page') {
+      if (hash.startsWith('#/services') || hash.startsWith('#services-page')) {
         setIsServicesPageOpen(true);
         setIsAboutPageOpen(false);
         setIsPrivacyPageOpen(false);
         setIsWorksPageOpen(false);
         setActiveTab('services');
         setShowIntro(false);
+
+        const match = hash.match(/[?&]service=([^&]+)/) || hash.match(/#service-(.+)/) || hash.match(/#([a-z0-9]+)$/);
+        if (match && match[1] && match[1] !== 'services') {
+          const serviceId = match[1];
+          setTimeout(() => {
+            const el = document.getElementById(serviceId) || document.getElementById(`service-${serviceId}`);
+            if (el) {
+              el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+          }, 350);
+        }
       } else if (hash === '#/about' || hash === '#about') {
         setIsAboutPageOpen(true);
         setIsServicesPageOpen(false);
@@ -114,27 +132,50 @@ export default function App() {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
-  const handleOpenServicesPage = () => {
+  const handleOpenServicesPage = (serviceId?: string) => {
     setIsPageTransitioning(true);
-    window.scrollTo(0, 0);
-    if (lenisRef.current) {
-      lenisRef.current.scrollTo(0, { immediate: true });
-    }
+
     setTimeout(() => {
       setIsServicesPageOpen(true);
       setIsPrivacyPageOpen(false);
       setIsWorksPageOpen(false);
       setActiveTab('services');
-      window.location.hash = '#/services';
-      window.scrollTo(0, 0);
-      if (lenisRef.current) {
-        lenisRef.current.scrollTo(0, { immediate: true });
+      window.location.hash = serviceId ? `#/services?service=${serviceId}` : '#/services';
+
+      if (serviceId) {
+        requestAnimationFrame(() => {
+          const el = document.getElementById(serviceId) || document.getElementById(`service-${serviceId}`);
+          if (el) {
+            const rect = el.getBoundingClientRect();
+            const targetY = rect.top + window.pageYOffset - 80;
+            window.scrollTo(0, targetY);
+            if (lenisRef.current) {
+              lenisRef.current.scrollTo(targetY, { immediate: true });
+            }
+          }
+        });
+      } else {
+        window.scrollTo(0, 0);
+        if (lenisRef.current) {
+          lenisRef.current.scrollTo(0, { immediate: true });
+        }
       }
     }, 400);
 
     setTimeout(() => {
+      if (serviceId) {
+        const el = document.getElementById(serviceId) || document.getElementById(`service-${serviceId}`);
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          const targetY = rect.top + window.pageYOffset - 80;
+          window.scrollTo(0, targetY);
+          if (lenisRef.current) {
+            lenisRef.current.scrollTo(targetY, { immediate: true });
+          }
+        }
+      }
       setIsPageTransitioning(false);
-    }, 800);
+    }, 750);
   };
 
   const handleOpenWorksPage = () => {
@@ -262,12 +303,12 @@ export default function App() {
     if (showIntro) return;
 
     const lenis = new Lenis({
-      lerp: 0.035, // Very heavy, ultra-smooth, slow momentum drag
-      duration: 2.2, // Extended 2.2s slow gliding deceleration
+      lerp: 0.085, // Silky smooth fluid momentum synced with compositing
+      duration: 1.2, // Smooth gliding deceleration
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // Natural exponential deceleration
       smoothWheel: true,
-      wheelMultiplier: 0.55, // 0.55 multiplier makes mouse wheel movement noticeably slower, controlled, and heavy
-      touchMultiplier: 1.2,
+      wheelMultiplier: 0.85, // Smooth, controlled wheel scrolling
+      touchMultiplier: 1.1,
     });
 
     lenisRef.current = lenis;
@@ -414,7 +455,7 @@ export default function App() {
               <Work onOpenWorks={handleOpenWorksPage} />
 
               {/* Section 3: Services */}
-              <Services onOpenWorks={handleOpenWorksPage} />
+              <Services onOpenServices={handleOpenServicesPage} onOpenWorks={handleOpenWorksPage} />
             </main>
 
             {/* Newsletter & Footer */}

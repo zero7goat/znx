@@ -78,15 +78,34 @@ export default function PrivacyPolicyPage({
     >
       {/* Top Header */}
       <header className="w-full px-6 sm:px-12 py-6 flex items-center justify-between bg-transparent relative z-40 border-b border-slate-900/60">
-        {/* Left: Back Arrow Button */}
-        <button
-          onClick={onBackToHome}
-          className="group flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-slate-900/80 backdrop-blur-sm text-slate-200 transition-all duration-300 focus:outline-none shadow-sm hover:bg-slate-800 cursor-pointer"
-          aria-label="Back to Home"
+        {/* Left: ZNX Logo replacing back arrow */}
+        <a
+          href="#top"
+          onClick={(e) => {
+            e.preventDefault();
+            if (onBackToHome) onBackToHome();
+          }}
+          className="group flex items-center select-none cursor-pointer"
+          aria-label="ZNX Studio Home"
           title="Back to Home"
         >
-          <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-300 group-hover:-translate-x-0.5" />
-        </button>
+          <img
+            src="/Logo.png"
+            alt="ZNX Studio Logo"
+            referrerPolicy="no-referrer"
+            onError={(e) => {
+              const target = e.currentTarget;
+              if (target.src.endsWith('/Logo.png')) {
+                target.src = '/images/Logo.png';
+              } else if (target.src.endsWith('/images/Logo.png')) {
+                target.src = '/Logo.avif';
+              } else if (target.src.endsWith('/images/Logo.avif')) {
+                target.src = '/images/Logo.avif';
+              }
+            }}
+            className="h-8 sm:h-9 md:h-10 w-auto object-contain brightness-0 invert group-hover:opacity-85 transition-opacity"
+          />
+        </a>
 
         {/* Center: Brand name */}
         <span className="text-xs font-mono-tech tracking-[0.25em] text-slate-400 uppercase hidden sm:block">
@@ -115,7 +134,7 @@ export default function PrivacyPolicyPage({
           </h1>
 
           <p className="text-xs sm:text-sm font-mono-tech text-slate-400 tracking-wide uppercase mb-6">
-            Effective date: 15th of March 2025
+            Effective date: October 17, 2026
           </p>
 
           <p className="text-base sm:text-lg text-slate-300 font-sans font-light leading-relaxed max-w-3xl">

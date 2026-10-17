@@ -76,7 +76,7 @@ export default function Navbar({ activeTab, onSelectTab, onOpenContact }: Navbar
   }, [isOpen]);
 
   const tabs: { id: NavTab; label: string }[] = [
-    { id: 'work', label: 'WORK' },
+    { id: 'work', label: 'WORKS' },
     { id: 'services', label: 'SERVICES' },
     { id: 'about', label: 'ABOUT' },
   ];
