@@ -1,6 +1,6 @@
 {
-  "name": "Hello World",
-  "description": "A clean and minimalist Hello World web application.",
+  "name": "ZNX Studio — Motion Design Agency & Digital Product Studio",
+  "description": "ZNX Studio is an independent motion design agency and digital product studio specializing in branding, web engineering, and motion visual systems.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

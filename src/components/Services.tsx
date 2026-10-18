@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { ArrowRight } from 'lucide-react';
+import ScrollReveal from './ScrollReveal';
 
 interface ServiceItem {
   id: string;
@@ -53,7 +54,7 @@ export default function MajorServicesSection({ onOpenServices }: MajorServicesSe
     <section
       id="services"
       data-light="false"
-      className="relative z-20 bg-[#05070a] text-white py-24 sm:py-32 px-6 sm:px-12 md:px-20 border-t border-white/10 shadow-[0_-40px_100px_rgba(0,0,0,0.95)] select-none flex items-center justify-center min-h-screen transform-gpu [backface-visibility:hidden]"
+      className="relative z-20 bg-[#05070a] text-white py-24 sm:py-32 px-6 sm:px-12 md:px-20 border-t border-white/15 shadow-[0_-60px_140px_rgba(0,0,0,0.98)] select-none flex items-center justify-center min-h-screen"
       style={{ color: '#ffffff', backgroundColor: '#05070a' }}
     >
       {/* Anchor for About navigation */}
@@ -63,60 +64,44 @@ export default function MajorServicesSection({ onOpenServices }: MajorServicesSe
         
         {/* Left Column: Typography & Button */}
         <div className="lg:col-span-5 flex flex-col items-start text-left pt-2">
-          <motion.span
-            initial={{ opacity: 0, y: 15 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="text-[11px] sm:text-[13px] font-manrope tracking-[0.25em] uppercase font-bold block mb-1 text-red-500"
-            style={{ color: '#ef4444' }}
-          >
-            WHAT I DO
-          </motion.span>
-          
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
-            className="text-4xl sm:text-6xl md:text-7xl font-bodoni font-bold tracking-tight leading-none mt-3 mb-6 uppercase text-white"
-            style={{ color: '#ffffff' }}
-          >
-            Services
-          </motion.h2>
-
-          <motion.p
-            initial={{ opacity: 0, y: 15 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
-            className="text-[16px] sm:text-[18px] leading-relaxed max-w-sm font-manrope tracking-normal text-white/90"
-            style={{ color: '#ffffff' }}
-          >
-            From concept to final cut, I offer end-to-end creative solutions for brands, artists, and businesses looking to tell their story visually.
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
-            className="mt-8"
-          >
-            <button
-              onClick={() => {
-                if (onOpenServices) {
-                  onOpenServices();
-                } else {
-                  window.location.hash = '#/services';
-                }
-              }}
-              className="group bg-white text-black px-10 py-4 rounded-none text-xs font-mono-tech font-bold tracking-[0.2em] uppercase flex items-center gap-2.5 shadow-xl hover:bg-neutral-200 active:scale-95 transition-all cursor-pointer"
+          <ScrollReveal yOffset={25} duration={0.9}>
+            <span
+              className="text-[11px] sm:text-[13px] font-manrope tracking-[0.25em] uppercase font-bold block mb-1 text-red-500"
+              style={{ color: '#ef4444' }}
             >
-              <span className="text-black font-bold">VIEW ALL SERVICES</span>
-              <ArrowRight className="w-4 h-4 text-black transition-transform duration-300 group-hover:translate-x-1" />
-            </button>
-          </motion.div>
+              WHAT I DO
+            </span>
+            
+            <h2
+              className="text-4xl sm:text-6xl md:text-7xl font-bodoni font-bold tracking-tight leading-none mt-3 mb-6 uppercase text-white"
+              style={{ color: '#ffffff' }}
+            >
+              Services
+            </h2>
+
+            <p
+              className="text-[16px] sm:text-[18px] leading-relaxed max-w-sm font-manrope tracking-normal text-white/90"
+              style={{ color: '#ffffff' }}
+            >
+              From concept to final cut, I offer end-to-end creative solutions for brands, artists, and businesses looking to tell their story visually.
+            </p>
+
+            <div className="mt-8">
+              <button
+                onClick={() => {
+                  if (onOpenServices) {
+                    onOpenServices();
+                  } else {
+                    window.location.hash = '#/services';
+                  }
+                }}
+                className="group bg-white text-black px-10 py-4 rounded-none text-xs font-mono-tech font-bold tracking-[0.2em] uppercase flex items-center gap-2.5 shadow-xl hover:bg-neutral-200 active:scale-95 transition-all cursor-pointer"
+              >
+                <span className="text-black font-bold">VIEW ALL SERVICES</span>
+                <ArrowRight className="w-4 h-4 text-black transition-transform duration-300 group-hover:translate-x-1" />
+              </button>
+            </div>
+          </ScrollReveal>
         </div>
 
         {/* Right Column: Stacked Services List */}

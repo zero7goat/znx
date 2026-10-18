@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, useMotionValue, useSpring } from 'motion/react';
 import { ArrowUpRight } from 'lucide-react';
 import { smoothScrollTo } from '../utils/smoothScroll';
+import ScrollReveal from './ScrollReveal';
 
 interface HeroSectionProps {
   onOpenShowreel?: () => void;

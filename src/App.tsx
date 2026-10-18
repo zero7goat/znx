@@ -13,6 +13,7 @@ import { NavTab } from './types';
 import { smoothScrollToElement } from './utils/smoothScroll';
 import { initAllCardClothSimulations } from './utils/clothSimulation';
 import { initMouseParallax } from './utils/parallaxPerspective';
+import { preloadRouteAssets } from './utils/assetPreloader';
 
 // Lazy-loaded routes and heavy WebGL components
 const ServicesPage = lazy(() => import('./components/ServicesPage'));
@@ -34,40 +35,13 @@ export default function App() {
 
   // Global preloader for all critical website images and lazy route chunks
   useEffect(() => {
-    // 1. Prefetch lazy route chunks in background for instant transition
+    // Prefetch lazy route chunks in background for instant transition
     import('./components/ServicesPage');
     import('./components/WorksPage');
     import('./components/AboutPage');
     import('./components/PrivacyPolicyPage');
 
-    // 2. Preload all key images into browser cache immediately
-    const imagesToPreload = [
-      '/images/smallimg.avif',
-      '/images/small img.avif',
-      '/images/bigimg.avif',
-      '/images/roselogo.png',
-      '/images/Logo.png',
-      'https://i.pinimg.com/1200x/2b/89/1f/2b891f6e5c20c30901939bd83d7d5e77.jpg',
-      'https://i.pinimg.com/736x/0c/8e/1c/0c8e1c3cca5be58498a8df4106c4bc9c.jpg',
-      'https://i.pinimg.com/1200x/df/79/aa/df79aaf64ed99b6f53270093ecab1aca.jpg',
-      'https://i.pinimg.com/736x/b9/fb/e1/b9fbe1f7212bc95491709d5b919515c4.jpg',
-      'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1800&q=80',
-      '/images/work1.jpg',
-      '/images/work2.jpg',
-      '/images/work3.jpg',
-      '/images/work4.jpg',
-      '/images/work5.jpg',
-      '/images/services hero.avif',
-      '/images/hero.avif',
-      '/images/eye.avif',
-      '/images/1221.avif',
-      '/1221.avif',
-    ];
-
-    imagesToPreload.forEach((src) => {
-      const img = new Image();
-      img.src = src;
-    });
+    preloadRouteAssets('home');
   }, []);
 
   // Clear hash on first load to guarantee loading the homepage
@@ -79,9 +53,10 @@ export default function App() {
 
   // Sync route with window location hash
   useEffect(() => {
-    const handleHashChange = () => {
+    const handleHashChange = async () => {
       const hash = window.location.hash;
       if (hash.startsWith('#/services') || hash.startsWith('#services-page')) {
+        await preloadRouteAssets('services');
         setIsServicesPageOpen(true);
         setIsAboutPageOpen(false);
         setIsPrivacyPageOpen(false);
@@ -100,6 +75,7 @@ export default function App() {
           }, 350);
         }
       } else if (hash === '#/about' || hash === '#about') {
+        await preloadRouteAssets('about');
         setIsAboutPageOpen(true);
         setIsServicesPageOpen(false);
         setIsPrivacyPageOpen(false);
@@ -107,12 +83,14 @@ export default function App() {
         setActiveTab('about');
         setShowIntro(false);
       } else if (hash === '#/privacy' || hash === '#privacy') {
+        await preloadRouteAssets('privacy');
         setIsPrivacyPageOpen(true);
         setIsAboutPageOpen(false);
         setIsServicesPageOpen(false);
         setIsWorksPageOpen(false);
         setShowIntro(false);
       } else if (hash === '#/works' || hash === '#works') {
+        await preloadRouteAssets('works');
         setIsWorksPageOpen(true);
         setIsAboutPageOpen(false);
         setIsServicesPageOpen(false);
@@ -132,38 +110,21 @@ export default function App() {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
-  const handleOpenServicesPage = (serviceId?: string) => {
+  const handleOpenServicesPage = async (serviceId?: string) => {
     setIsPageTransitioning(true);
 
-    setTimeout(() => {
-      setIsServicesPageOpen(true);
-      setIsPrivacyPageOpen(false);
-      setIsWorksPageOpen(false);
-      setActiveTab('services');
-      window.location.hash = serviceId ? `#/services?service=${serviceId}` : '#/services';
+    // Preload destination critical assets & fonts while transition curtain is visible
+    await preloadRouteAssets('services');
 
-      if (serviceId) {
-        requestAnimationFrame(() => {
-          const el = document.getElementById(serviceId) || document.getElementById(`service-${serviceId}`);
-          if (el) {
-            const rect = el.getBoundingClientRect();
-            const targetY = rect.top + window.pageYOffset - 80;
-            window.scrollTo(0, targetY);
-            if (lenisRef.current) {
-              lenisRef.current.scrollTo(targetY, { immediate: true });
-            }
-          }
-        });
-      } else {
-        window.scrollTo(0, 0);
-        if (lenisRef.current) {
-          lenisRef.current.scrollTo(0, { immediate: true });
-        }
-      }
-    }, 400);
+    setIsServicesPageOpen(true);
+    setIsAboutPageOpen(false);
+    setIsPrivacyPageOpen(false);
+    setIsWorksPageOpen(false);
+    setActiveTab('services');
+    window.location.hash = serviceId ? `#/services?service=${serviceId}` : '#/services';
 
-    setTimeout(() => {
-      if (serviceId) {
+    if (serviceId) {
+      requestAnimationFrame(() => {
         const el = document.getElementById(serviceId) || document.getElementById(`service-${serviceId}`);
         if (el) {
           const rect = el.getBoundingClientRect();
@@ -173,107 +134,104 @@ export default function App() {
             lenisRef.current.scrollTo(targetY, { immediate: true });
           }
         }
-      }
-      setIsPageTransitioning(false);
-    }, 750);
-  };
-
-  const handleOpenWorksPage = () => {
-    setIsPageTransitioning(true);
-    window.scrollTo(0, 0);
-    if (lenisRef.current) {
-      lenisRef.current.scrollTo(0, { immediate: true });
-    }
-    setTimeout(() => {
-      setIsWorksPageOpen(true);
-      setIsServicesPageOpen(false);
-      setIsPrivacyPageOpen(false);
-      setActiveTab('work');
-      window.location.hash = '#/works';
-      window.scrollTo(0, 0);
-      if (lenisRef.current) {
-        lenisRef.current.scrollTo(0, { immediate: true });
-      }
-    }, 400);
-
-    setTimeout(() => {
-      setIsPageTransitioning(false);
-    }, 800);
-  };
-
-  const handleOpenPrivacyPage = () => {
-    setIsPageTransitioning(true);
-    window.scrollTo(0, 0);
-    if (lenisRef.current) {
-      lenisRef.current.scrollTo(0, { immediate: true });
-    }
-    setTimeout(() => {
-      setIsPrivacyPageOpen(true);
-      setIsServicesPageOpen(false);
-      setIsAboutPageOpen(false);
-      setIsWorksPageOpen(false);
-      window.location.hash = '#/privacy';
-      window.scrollTo(0, 0);
-      if (lenisRef.current) {
-        lenisRef.current.scrollTo(0, { immediate: true });
-      }
-    }, 400);
-
-    setTimeout(() => {
-      setIsPageTransitioning(false);
-    }, 800);
-  };
-
-  const handleOpenAboutPage = () => {
-    setIsPageTransitioning(true);
-    window.scrollTo(0, 0);
-    if (lenisRef.current) {
-      lenisRef.current.scrollTo(0, { immediate: true });
-    }
-    setTimeout(() => {
-      setIsAboutPageOpen(true);
-      setIsServicesPageOpen(false);
-      setIsPrivacyPageOpen(false);
-      setIsWorksPageOpen(false);
-      setActiveTab('about');
-      window.location.hash = '#/about';
-      window.scrollTo(0, 0);
-      if (lenisRef.current) {
-        lenisRef.current.scrollTo(0, { immediate: true });
-      }
-    }, 400);
-
-    setTimeout(() => {
-      setIsPageTransitioning(false);
-    }, 800);
-  };
-
-  const handleBackToHome = (targetSection?: string) => {
-    setIsPageTransitioning(true);
-    setTimeout(() => {
-      setIsServicesPageOpen(false);
-      setIsAboutPageOpen(false);
-      setIsPrivacyPageOpen(false);
-      setIsWorksPageOpen(false);
-      window.location.hash = targetSection ? `#${targetSection}` : '';
-
-      requestAnimationFrame(() => {
-        setTimeout(() => {
-          if (targetSection) {
-            smoothScrollToElement(targetSection, 800);
-          } else {
-            window.scrollTo(0, 0);
-            if (lenisRef.current) {
-              lenisRef.current.scrollTo(0, { immediate: true });
-            }
-          }
-        }, 50);
       });
-    }, 400);
+    } else {
+      window.scrollTo(0, 0);
+      if (lenisRef.current) {
+        lenisRef.current.scrollTo(0, { immediate: true });
+      }
+    }
 
     setTimeout(() => {
       setIsPageTransitioning(false);
-    }, 850);
+    }, 250);
+  };
+
+  const handleOpenWorksPage = async () => {
+    setIsPageTransitioning(true);
+
+    await preloadRouteAssets('works');
+
+    setIsWorksPageOpen(true);
+    setIsServicesPageOpen(false);
+    setIsAboutPageOpen(false);
+    setIsPrivacyPageOpen(false);
+    setActiveTab('work');
+    window.location.hash = '#/works';
+    window.scrollTo(0, 0);
+    if (lenisRef.current) {
+      lenisRef.current.scrollTo(0, { immediate: true });
+    }
+
+    setTimeout(() => {
+      setIsPageTransitioning(false);
+    }, 250);
+  };
+
+  const handleOpenPrivacyPage = async () => {
+    setIsPageTransitioning(true);
+
+    await preloadRouteAssets('privacy');
+
+    setIsPrivacyPageOpen(true);
+    setIsServicesPageOpen(false);
+    setIsAboutPageOpen(false);
+    setIsWorksPageOpen(false);
+    window.location.hash = '#/privacy';
+    window.scrollTo(0, 0);
+    if (lenisRef.current) {
+      lenisRef.current.scrollTo(0, { immediate: true });
+    }
+
+    setTimeout(() => {
+      setIsPageTransitioning(false);
+    }, 250);
+  };
+
+  const handleOpenAboutPage = async () => {
+    setIsPageTransitioning(true);
+
+    await preloadRouteAssets('about');
+
+    setIsAboutPageOpen(true);
+    setIsServicesPageOpen(false);
+    setIsPrivacyPageOpen(false);
+    setIsWorksPageOpen(false);
+    setActiveTab('about');
+    window.location.hash = '#/about';
+    window.scrollTo(0, 0);
+    if (lenisRef.current) {
+      lenisRef.current.scrollTo(0, { immediate: true });
+    }
+
+    setTimeout(() => {
+      setIsPageTransitioning(false);
+    }, 250);
+  };
+
+  const handleBackToHome = async (targetSection?: string) => {
+    setIsPageTransitioning(true);
+
+    await preloadRouteAssets('home');
+
+    setIsServicesPageOpen(false);
+    setIsAboutPageOpen(false);
+    setIsPrivacyPageOpen(false);
+    setIsWorksPageOpen(false);
+    window.location.hash = targetSection ? `#${targetSection}` : '';
+
+    if (targetSection) {
+      smoothScrollToElement(targetSection, 800);
+    } else {
+      window.scrollTo(0, 0);
+      if (lenisRef.current) {
+        lenisRef.current.scrollTo(0, { immediate: true });
+      }
+    }
+
+    setTimeout(() => {
+      setIsPageTransitioning(false);
+    }, 250);
   };
 
   const handleOpenContact = () => {

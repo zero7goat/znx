@@ -3,6 +3,7 @@ import { motion, useMotionValue, useSpring } from 'motion/react';
 import { ArrowLeft, ArrowUpRight, ShieldCheck, ArrowRight } from 'lucide-react';
 import Footer from './Footer';
 import Newsletter from './Newsletter';
+import ScrollReveal from './ScrollReveal';
 
 interface PrivacyPolicyPageProps {
   onBackToHome: (section?: string) => void;
@@ -128,7 +129,7 @@ export default function PrivacyPolicyPage({
       <main className="max-w-4xl mx-auto px-6 sm:px-12 py-16 sm:py-24">
         
         {/* Header Title Section */}
-        <div className="mb-16 border-b border-slate-800/80 pb-12">
+        <ScrollReveal yOffset={25} duration={0.9} className="mb-16 border-b border-slate-800/80 pb-12">
           <h1 className="text-4xl sm:text-6xl md:text-7xl font-bodoni font-bold tracking-tight text-white uppercase mb-6">
             Privacy Policy
           </h1>
@@ -140,7 +141,7 @@ export default function PrivacyPolicyPage({
           <p className="text-base sm:text-lg text-slate-300 font-sans font-light leading-relaxed max-w-3xl">
             This Privacy Policy explains how ZNX Studio collects, uses and protects personal data when you visit <span className="text-white font-normal underline underline-offset-4">studio-znx.com</span> (the "Site") or contact us. Please read it alongside our Cookie Preferences and Terms of Use.
           </p>
-        </div>
+        </ScrollReveal>
 
         {/* Policy Body Content (No clickable links in explanations) */}
         <div className="space-y-16 text-slate-300 font-sans text-sm sm:text-base leading-relaxed">

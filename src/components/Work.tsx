@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, WheelEvent } from 'react';
 import { motion } from 'motion/react';
 import { ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
 import ShowreelModal from './ShowreelModal';
+import ScrollReveal from './ScrollReveal';
 
 interface WorkItem {
   id: string;
@@ -177,23 +178,25 @@ export default function WorkShowcase({ onOpenWorks }: WorkShowcaseProps) {
   };
 
   return (
-    <section id="work" data-light="false" className="sticky top-0 z-10 bg-[#05070a] text-white min-h-screen flex flex-col justify-center py-10 sm:py-16 md:py-20 px-4 sm:px-8 border-none overflow-x-clip select-none transform-gpu [backface-visibility:hidden]">
+    <section id="work" data-light="false" className="sticky top-0 z-10 bg-[#05070a] text-white min-h-screen flex flex-col justify-center py-10 sm:py-16 md:py-20 px-4 sm:px-8 border-none overflow-hidden select-none">
       <div className="max-w-7xl mx-auto w-full">
         
-        {/* Eyebrow Tag - Exactly synced with Services WHAT I DO typography */}
-        <div className="flex items-center justify-center gap-1.5 mb-2">
-          <span
-            className="text-[11px] sm:text-[13px] font-manrope tracking-[0.25em] uppercase font-bold block text-red-500"
-            style={{ color: '#ef4444' }}
-          >
-            SELECTED WORK
-          </span>
-        </div>
+        <ScrollReveal yOffset={25} duration={0.9}>
+          {/* Eyebrow Tag - Exactly synced with Services WHAT I DO typography */}
+          <div className="flex items-center justify-center gap-1.5 mb-2">
+            <span
+              className="text-[11px] sm:text-[13px] font-manrope tracking-[0.25em] uppercase font-bold block text-red-500"
+              style={{ color: '#ef4444' }}
+            >
+              SELECTED WORK
+            </span>
+          </div>
 
-        {/* Main Section Header */}
-        <h2 className="text-4xl sm:text-6xl md:text-7xl font-bodoni font-bold tracking-tight text-white text-center uppercase mb-12 sm:mb-16">
-          FEATURED WORK
-        </h2>
+          {/* Main Section Header */}
+          <h2 className="text-4xl sm:text-6xl md:text-7xl font-bodoni font-bold tracking-tight text-white text-center uppercase mb-12 sm:mb-16">
+            FEATURED WORK
+          </h2>
+        </ScrollReveal>
 
         {/* 3D Perspective Stage Showcase — Native pan-y preserved for frictionless mobile scrolling */}
         <div 

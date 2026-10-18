@@ -3,6 +3,7 @@ import { motion, useScroll, useTransform } from 'motion/react';
 import { ArrowUpRight, ChevronRight, Linkedin, Instagram, Youtube, ArrowLeft } from 'lucide-react';
 import { NavTab } from '../types';
 import Footer from './Footer';
+import ScrollReveal from './ScrollReveal';
 
 interface ServicesPageProps {
   onBackToHome?: () => void;
@@ -124,6 +125,89 @@ const SERVICES_DATA: ServiceCategory[] = [
   },
 ];
 
+const HERO_IMAGE_SOURCES = [
+  '/images/bigimg.avif',
+  'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=800&auto=format&fit=crop',
+  '/images/smallimg.avif',
+  'https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?q=80&w=800&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=800&auto=format&fit=crop',
+  '/images/1221.avif',
+  'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?q=80&w=800&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=800&auto=format&fit=crop',
+];
+
+const HeroImageCycler = React.memo(function HeroImageCycler() {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isDecoded, setIsDecoded] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+
+    // Asynchronously pre-decode all images into GPU memory before activating the cycler
+    const decodePromises = HERO_IMAGE_SOURCES.map((src) => {
+      return new Promise<void>((resolve) => {
+        const img = new Image();
+        img.src = src;
+        const htmlImg = img as HTMLImageElement;
+        if (typeof htmlImg.decode === 'function') {
+          htmlImg.decode().then(() => resolve()).catch(() => resolve());
+        } else {
+          if (htmlImg.complete) {
+            resolve();
+          } else {
+            htmlImg.onload = () => resolve();
+            htmlImg.onerror = () => resolve();
+          }
+        }
+      });
+    });
+
+    Promise.all(decodePromises).then(() => {
+      if (mounted) {
+        setIsDecoded(true);
+      }
+    });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isDecoded) return;
+
+    // Cycle image every 220ms with GPU hardware-accelerated crossfade
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % HERO_IMAGE_SOURCES.length);
+    }, 220);
+
+    return () => clearInterval(interval);
+  }, [isDecoded]);
+
+  return (
+    <div className="w-full h-full relative overflow-hidden bg-slate-950">
+      {HERO_IMAGE_SOURCES.map((src, idx) => {
+        const isActive = idx === currentIndex;
+        return (
+          <img
+            key={src + idx}
+            src={src}
+            alt="ZNX Studio Showcase"
+            className={`absolute inset-0 w-full h-full object-cover object-center pointer-events-none transition-opacity duration-200 ease-out transform-gpu ${
+              isActive ? 'opacity-100 z-10' : 'opacity-0 z-0'
+            }`}
+            style={{
+              willChange: 'opacity',
+              transform: 'translateZ(0)',
+            }}
+          />
+        );
+      })}
+    </div>
+  );
+});
+
 export default function ServicesPage({
   onBackToHome,
   onSelectTab,
@@ -177,10 +261,7 @@ export default function ServicesPage({
 
   // Image links requested by user
   const BIG_IMAGE_URL = '/images/bigimg.avif';
-  const SMALL_IMAGE_URL = '/images/smallimg.avif';
-
   const [bigImgSrc, setBigImgSrc] = useState(BIG_IMAGE_URL);
-  const [smallImgSrc, setSmallImgSrc] = useState(SMALL_IMAGE_URL);
   const [isContentLoaded, setIsContentLoaded] = useState(false);
 
   // Preload all critical assets before revealing page
@@ -188,7 +269,6 @@ export default function ServicesPage({
     let mounted = true;
     const urlsToPreload = [
       BIG_IMAGE_URL,
-      SMALL_IMAGE_URL,
       '/images/roselogo.png',
       ...SERVICES_DATA.map((s) => s.image),
       'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1800&q=80',
@@ -232,28 +312,24 @@ export default function ServicesPage({
     }
   };
 
-  const handleSmallImgError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-    const target = e.currentTarget;
-    if (!target.src.endsWith('/images/smallimg.avif') && !target.src.endsWith('/images/small%20img.avif')) {
-      target.src = '/images/smallimg.avif';
-    }
-  };
-
   // Direct, frame-accurate background color interpolation for White (#FAF8F5), Red (#ef4444), and Black (#0a0a0a)
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function hexToRgb(hex: string): [number, number, number] {
-      const num = parseInt(hex.replace('#', ''), 16);
+      let c = hex.replace('#', '');
+      if (c.length === 3) c = c.split('').map((x) => x + x).join('');
+      const num = parseInt(c, 16);
       return [(num >> 16) & 255, (num >> 8) & 255, num & 255];
     }
 
     function interpolateColor(color1: string, color2: string, factor: number): string {
+      const clampFactor = Math.min(1, Math.max(0, factor));
       const [r1, g1, b1] = hexToRgb(color1);
       const [r2, g2, b2] = hexToRgb(color2);
-      const r = Math.round(r1 + factor * (r2 - r1));
-      const g = Math.round(g1 + factor * (g2 - g1));
-      const b = Math.round(b1 + factor * (b2 - b1));
+      const r = Math.round(r1 + clampFactor * (r2 - r1));
+      const g = Math.round(g1 + clampFactor * (g2 - g1));
+      const b = Math.round(b1 + clampFactor * (b2 - b1));
       return `rgb(${r}, ${g}, ${b})`;
     }
 
@@ -265,15 +341,15 @@ export default function ServicesPage({
       const progress = Math.min(1, Math.max(0, scrollY / maxScroll));
 
       let color = '#FAF8F5';
-      if (scrollY <= 180 || progress <= 0.28) {
+      if (progress <= 0.22) {
         color = '#FAF8F5';
       } else if (progress <= 0.38) {
-        const t = (progress - 0.28) / 0.10;
+        const t = (progress - 0.22) / 0.16;
         color = interpolateColor('#FAF8F5', '#ef4444', t);
-      } else if (progress <= 0.62) {
+      } else if (progress <= 0.60) {
         color = '#ef4444';
-      } else if (progress <= 0.72) {
-        const t = (progress - 0.62) / 0.10;
+      } else if (progress <= 0.78) {
+        const t = (progress - 0.60) / 0.18;
         color = interpolateColor('#ef4444', '#0a0a0a', t);
       } else {
         color = '#0a0a0a';
@@ -291,7 +367,7 @@ export default function ServicesPage({
 
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onScroll, { passive: true });
-    
+
     updateBg();
 
     return () => {
@@ -304,9 +380,18 @@ export default function ServicesPage({
   return (
     <div
       ref={containerRef}
-      style={{ backgroundColor: '#FAF8F5' }}
-      className="min-h-screen text-slate-950 font-sans select-none flex flex-col justify-between overflow-x-hidden relative transition-colors duration-75"
+      style={{ backgroundColor: '#FAF8F5', transition: 'background-color 300ms ease-out' }}
+      className="min-h-screen text-slate-950 font-sans select-none flex flex-col justify-between overflow-x-hidden relative"
     >
+      <style>{`
+        @keyframes cursorBlink {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0; }
+        }
+        .animate-cursor-blink {
+          animation: cursorBlink 0.8s step-end infinite;
+        }
+      `}</style>
 
       {/* 1. TOP HEADER */}
       <header className="w-full px-6 sm:px-12 py-6 flex items-center justify-between bg-transparent relative z-40">
@@ -355,43 +440,48 @@ export default function ServicesPage({
 
       </header>
 
-      {/* 2. MAIN TITLE SECTION ("What [Small Image] we do") - Perfectly scaled for mobile so words never overflow */}
-      <section className="w-full px-2 sm:px-8 pt-8 sm:pt-20 md:pt-28 lg:pt-36 pb-6 text-center flex flex-col items-center justify-center overflow-x-clip [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-        <motion.h1
-          initial={{ opacity: 0, y: 25 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="text-[2.2rem] xs:text-[2.75rem] sm:text-6xl md:text-8xl lg:text-[9.5rem] font-bodoni font-normal text-slate-950 tracking-tight leading-none flex items-center justify-center flex-nowrap w-full max-w-full select-none gap-x-[0.18em] sm:gap-x-[0.25em] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
-        >
-          <span>What</span>
+      {/* 2. GRID HERO SECTION (Matching image.png layout) */}
+      <section className="w-full my-4 sm:my-8 border-y border-black/15 select-none overflow-hidden">
+        <div className="w-full max-w-[1400px] mx-auto grid grid-cols-1 md:grid-cols-12">
+          
+          {/* LEFT SIDEBAR GRID CELL (Desktop column span 3) */}
+          <div className="hidden md:flex md:col-span-3 flex-col justify-between border-r border-black/15 p-6 sm:p-8 text-[11px] font-mono uppercase tracking-widest text-slate-500 select-none">
+            <div className="pt-2">01 / CAPABILITIES</div>
+            <div className="py-16 text-slate-400 leading-relaxed">ZNX STUDIO · DESIGNING FOR THE INTERNET</div>
+            <div className="pb-2">BRANDING & MOTION</div>
+          </div>
 
-          {/* Clean Inline Image Slot */}
-          <span className="inline-flex items-center justify-center align-middle shrink-0 h-[0.75em] w-[1.33em] relative overflow-clip [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-            <img
-              src={smallImgSrc}
-              alt="What we do small preview"
-              referrerPolicy="no-referrer"
-              onError={handleSmallImgError}
-              className="w-full h-full object-cover rounded-none border-none shrink-0"
-            />
-          </span>
+          {/* CENTER HERO GRID CELL (Main column span 6) */}
+          <div className="col-span-1 md:col-span-6 flex flex-col md:border-r border-black/15">
+            
+            {/* TOP CELL: "We" */}
+            <div className="w-full py-8 sm:py-12 md:py-16 border-b border-black/15 flex items-center justify-center bg-transparent">
+              <h1 className="text-7xl sm:text-8xl md:text-9xl lg:text-[10.5rem] font-bodoni font-normal text-slate-950 tracking-tight leading-none text-center">
+                We
+              </h1>
+            </div>
 
-          <span>we</span>
-          <span>do</span>
-        </motion.h1>
-      </section>
+            {/* MIDDLE CELL: Rapidly changing image with grid lines touching picture edges directly */}
+            <div className="w-full border-b border-black/15 relative overflow-hidden bg-slate-950 aspect-[4/3] sm:aspect-[16/10] md:aspect-[3/2] max-h-[520px]">
+              <HeroImageCycler />
+            </div>
 
-      {/* 3. BIG MAIN CAMPAIGN IMAGE CONTAINER - Uniform aspect ratio (16/9) on mobile, tablet, and desktop */}
-      <section className="w-full px-0 mx-0 pb-0">
-        <div className="relative w-full aspect-[16/9] rounded-none overflow-hidden bg-slate-950 border-none flex items-center justify-center">
-          {/* Base Big Image */}
-          <img
-            src={bigImgSrc}
-            alt="What we do campaign visual"
-            referrerPolicy="no-referrer"
-            onError={handleBigImgError}
-            className="w-full h-full object-cover object-center pointer-events-none rounded-none border-none opacity-100"
-          />
+            {/* BOTTOM CELL: "Do" */}
+            <div className="w-full py-8 sm:py-12 md:py-16 flex items-center justify-center bg-transparent">
+              <h1 className="text-7xl sm:text-8xl md:text-9xl lg:text-[10.5rem] font-bodoni font-normal text-slate-950 tracking-tight leading-none text-center">
+                Do
+              </h1>
+            </div>
+
+          </div>
+
+          {/* RIGHT SIDEBAR GRID CELL (Desktop column span 3) */}
+          <div className="hidden md:flex md:col-span-3 flex-col justify-between p-6 sm:p-8 text-[11px] font-mono uppercase tracking-widest text-slate-500 select-none">
+            <div className="pt-2 text-right">WHAT WE DO</div>
+            <div className="py-16 text-right text-slate-400 leading-relaxed">DESIGN WITH INTENTION</div>
+            <div className="pb-2 text-right">(2026)</div>
+          </div>
+
         </div>
       </section>
 
@@ -401,15 +491,13 @@ export default function ServicesPage({
           const isRightAligned = service.align === 'right';
 
           return (
-            <motion.div
+            <ScrollReveal
               key={service.id}
-              id={service.id}
-              initial={{ opacity: 0, y: 70, filter: 'blur(8px)' }}
-              whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-              viewport={{ once: false, amount: 0.1 }}
-              transition={{ duration: 1.3, ease: [0.16, 1, 0.3, 1] }}
-              className="w-full flex flex-col will-change-transform scroll-mt-24 sm:scroll-mt-32"
+              yOffset={35}
+              duration={0.95}
+              className="w-full flex flex-col scroll-mt-24 sm:scroll-mt-32"
             >
+              <div id={service.id}>
               
               {/* Clean Translucent Black and Gray Gradient Title */}
               <div className={`w-full mb-3 sm:mb-5 text-center ${isRightAligned ? 'sm:text-right' : 'sm:text-left'}`}>
@@ -494,49 +582,45 @@ export default function ServicesPage({
                 </div>
 
               </div>
-
-            </motion.div>
+            </div>
+          </ScrollReveal>
           );
         })}
       </section>
 
       {/* 6. CTA BANNER SECTION (MATCHES ABOUT PAGE CTA) */}
-      <motion.section
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '-80px' }}
-        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        className="px-4 md:px-12 lg:px-16 max-w-7xl mx-auto py-16"
-      >
-        <div className="bg-[#0c0c0c] border border-white/10 rounded-2xl p-8 sm:p-14 md:p-16 text-center relative overflow-hidden shadow-md shadow-black/20">
-          <div className="absolute -top-24 -left-24 w-72 h-72 bg-white/5 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-white/5 rounded-full blur-3xl pointer-events-none" />
+      <section className="px-4 md:px-12 lg:px-16 max-w-7xl mx-auto py-16">
+        <ScrollReveal yOffset={35} duration={0.9}>
+          <div className="bg-[#0c0c0c] border border-white/10 rounded-2xl p-8 sm:p-14 md:p-16 text-center relative overflow-hidden shadow-md shadow-black/20">
+            <div className="absolute -top-24 -left-24 w-72 h-72 bg-white/5 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-white/5 rounded-full blur-3xl pointer-events-none" />
 
-          <h2 className="text-3xl sm:text-5xl lg:text-6xl font-syne font-bold text-white max-w-3xl mx-auto leading-tight">
-            Ready to push boundaries together?
-          </h2>
+            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-syne font-bold text-white max-w-3xl mx-auto leading-tight">
+              Ready to push boundaries together?
+            </h2>
 
-          <p className="font-bodoni italic text-lg sm:text-2xl text-neutral-300 max-w-2xl mx-auto mt-4">
-            Let's build an iconic digital presence for your brand.
-          </p>
+            <p className="font-bodoni italic text-lg sm:text-2xl text-neutral-300 max-w-2xl mx-auto mt-4">
+              Let's build an iconic digital presence for your brand.
+            </p>
 
-          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <button
-              onClick={onOpenContact}
-              className="w-full sm:w-auto bg-white text-black px-8 py-3.5 rounded-full font-mono-tech font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-neutral-200 transition-all cursor-pointer"
-            >
-              <span>START A PROJECT</span>
-              <ArrowUpRight className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => onSelectTab?.('work')}
-              className="w-full sm:w-auto border border-white/20 bg-white/[0.03] text-white px-8 py-3.5 rounded-full font-mono-tech font-semibold text-xs uppercase tracking-widest hover:bg-white/10 transition-all cursor-pointer"
-            >
-              VIEW WORKS
-            </button>
+            <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+              <button
+                onClick={onOpenContact}
+                className="w-full sm:w-auto bg-white text-black px-8 py-3.5 rounded-full font-mono-tech font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-neutral-200 transition-all cursor-pointer"
+              >
+                <span>START A PROJECT</span>
+                <ArrowUpRight className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => onSelectTab?.('work')}
+                className="w-full sm:w-auto border border-white/20 bg-white/[0.03] text-white px-8 py-3.5 rounded-full font-mono-tech font-semibold text-xs uppercase tracking-widest hover:bg-white/10 transition-all cursor-pointer"
+              >
+                VIEW WORKS
+              </button>
+            </div>
           </div>
-        </div>
-      </motion.section>
+        </ScrollReveal>
+      </section>
 
       {/* 7. FOOTER */}
       <Footer

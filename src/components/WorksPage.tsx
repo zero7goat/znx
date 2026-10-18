@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { ArrowLeft, ChevronDown, ChevronUp, ArrowUpRight, Youtube, Linkedin, Instagram } from 'lucide-react';
 import Footer from './Footer';
 import ShowreelModal from './ShowreelModal';
+import ScrollReveal from './ScrollReveal';
 
 interface WorksPageProps {
   onBackToHome: () => void;
@@ -568,64 +569,61 @@ export default function WorksPage({
         <motion.div layout className="grid grid-cols-1 md:grid-cols-2 gap-1.5 sm:gap-2 md:gap-2.5">
           <AnimatePresence mode="popLayout">
             {displayWorks.map((item, idx) => (
-              <motion.div
+              <ScrollReveal
                 key={item.id}
-                layout
-                initial={{ opacity: 0, y: 40, scale: 0.96 }}
-                whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                viewport={{ once: false, amount: 0.15 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{
-                  duration: 0.75,
-                  ease: [0.16, 1, 0.3, 1],
-                  delay: (idx % 2) * 0.05,
-                }}
-                onClick={() => {
-                  setSelectedVideo({
-                    isOpen: true,
-                    url: item.videoUrl,
-                    title: item.title,
-                  });
-                }}
-                className="relative group cursor-pointer w-full aspect-[16/10] sm:aspect-[16/10.2]"
+                staggerIndex={idx % 2}
+                yOffset={35}
+                scale={0.98}
+                duration={0.85}
               >
-                {/* Image Container (Smoothly crops bottom edge without zooming or scaling the image) */}
-                <div className="relative w-full h-full overflow-hidden rounded-md sm:rounded-lg bg-[#111] transition-[clip-path] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] [clip-path:inset(0_0_0_0)] group-hover:[clip-path:inset(0_0_2.25rem_0)] sm:group-hover:[clip-path:inset(0_0_2.5rem_0)]">
-                  <img
-                    src={item.src}
-                    alt={item.title}
-                    referrerPolicy="no-referrer"
-                    onError={(e) => {
-                      e.currentTarget.src = item.fallback;
-                    }}
-                    className="w-full h-full object-cover object-center pointer-events-none select-none"
-                  />
+                <div
+                  onClick={() => {
+                    setSelectedVideo({
+                      isOpen: true,
+                      url: item.videoUrl,
+                      title: item.title,
+                    });
+                  }}
+                  className="relative group cursor-pointer w-full aspect-[16/10] sm:aspect-[16/10.2]"
+                >
+                  {/* Image Container (Smoothly crops bottom edge without zooming or scaling the image) */}
+                  <div className="relative w-full h-full overflow-hidden rounded-md sm:rounded-lg bg-[#111] transition-[clip-path] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] [clip-path:inset(0_0_0_0)] group-hover:[clip-path:inset(0_0_2.25rem_0)] sm:group-hover:[clip-path:inset(0_0_2.5rem_0)]">
+                    <img
+                      src={item.src}
+                      alt={item.title}
+                      referrerPolicy="no-referrer"
+                      onError={(e) => {
+                        e.currentTarget.src = item.fallback;
+                      }}
+                      className="w-full h-full object-cover object-center pointer-events-none select-none"
+                    />
 
-                  {/* White Play Button Overlay - Matching Showreel button styling */}
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/10 transition-colors duration-300 pointer-events-none z-10">
-                    <div className="transform transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] filter drop-shadow-[0_8px_16px_rgba(0,0,0,0.6)] group-hover:scale-110">
-                      <svg 
-                        className="w-9 h-9 sm:w-11 sm:h-11 fill-white stroke-white" 
-                        viewBox="0 0 24 24"
-                        strokeWidth="3.5"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M8 5.5v13l10-6.5z" />
-                      </svg>
+                    {/* White Play Button Overlay - Matching Showreel button styling */}
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/10 transition-colors duration-300 pointer-events-none z-10">
+                      <div className="transform transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] filter drop-shadow-[0_8px_16px_rgba(0,0,0,0.6)] group-hover:scale-110">
+                        <svg 
+                          className="w-9 h-9 sm:w-11 sm:h-11 fill-white stroke-white" 
+                          viewBox="0 0 24 24"
+                          strokeWidth="3.5"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M8 5.5v13l10-6.5z" />
+                        </svg>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Bottom Info Bar Revealed Beneath Compressed Image (Title on Left, Category on Right) */}
-                <div className="absolute bottom-0 inset-x-0 h-9 sm:h-10 flex items-center justify-between px-1.5 pb-1 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] delay-100">
-                  <h3 className="text-sm sm:text-base md:text-lg font-sans font-semibold text-white tracking-tight">
-                    {item.title}
-                  </h3>
-                  <span className="text-xs sm:text-sm font-sans text-slate-400 font-normal">
-                    {item.category}
-                  </span>
+                  {/* Bottom Info Bar Revealed Beneath Compressed Image (Title on Left, Category on Right) */}
+                  <div className="absolute bottom-0 inset-x-0 h-9 sm:h-10 flex items-center justify-between px-1.5 pb-1 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] delay-100">
+                    <h3 className="text-sm sm:text-base md:text-lg font-sans font-semibold text-white tracking-tight">
+                      {item.title}
+                    </h3>
+                    <span className="text-xs sm:text-sm font-sans text-slate-400 font-normal">
+                      {item.category}
+                    </span>
+                  </div>
                 </div>
-              </motion.div>
+              </ScrollReveal>
             ))}
           </AnimatePresence>
         </motion.div>
@@ -633,7 +631,8 @@ export default function WorksPage({
 
       {/* 5. CTA BANNER SECTION */}
       <section className="w-full px-4 sm:px-8 pt-16 sm:pt-24 pb-12 sm:pb-16 max-w-[1700px] mx-auto">
-        <div className="relative rounded-[2rem] sm:rounded-[2.5rem] bg-[#0c0c0c] overflow-hidden p-8 sm:p-12 md:p-16 min-h-[420px] sm:min-h-[480px] flex flex-col justify-between shadow-md shadow-black/20 group">
+        <ScrollReveal yOffset={30} duration={0.9}>
+          <div className="relative rounded-[2rem] sm:rounded-[2.5rem] bg-[#0c0c0c] overflow-hidden p-8 sm:p-12 md:p-16 min-h-[420px] sm:min-h-[480px] flex flex-col justify-between shadow-md shadow-black/20 group">
           {/* Grassy / Atmospheric Landscape Background Image on right */}
           <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
             <img
@@ -695,7 +694,8 @@ export default function WorksPage({
             </a>
           </div>
         </div>
-      </section>
+      </ScrollReveal>
+    </section>
 
       {/* 6. FOOTER */}
       <Footer

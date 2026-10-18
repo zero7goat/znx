@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { motion, useScroll, useTransform, MotionValue, AnimatePresence } from 'motion/react';
 import { ArrowUpRight } from 'lucide-react';
 import Footer from './Footer';
+import ScrollReveal from './ScrollReveal';
 
 interface AboutPageProps {
   onBackToHome: (targetSection?: string) => void;
@@ -306,13 +307,8 @@ export default function AboutPage({
       </section>
 
       {/* About Me Section - Introduction */}
-      <motion.section
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '-80px' }}
-        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        className="px-4 md:px-12 lg:px-16 max-w-7xl mx-auto pt-12 sm:pt-16 pb-16 sm:pb-20 bg-[#0a0a0a] relative"
-      >
+      <section className="px-4 md:px-12 lg:px-16 max-w-7xl mx-auto pt-12 sm:pt-16 pb-16 sm:pb-20 bg-[#0a0a0a] relative">
+        <ScrollReveal yOffset={35} duration={0.95}>
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
           {/* Left Column: Portrait Image Container with Scattered ZNX Graphic */}
           <motion.div
@@ -324,7 +320,7 @@ export default function AboutPage({
           >
             <div className="relative w-full max-w-sm sm:max-w-md">
               {/* Image box: preserving natural original image aspect ratio, no cropping or zooming */}
-              <div className="rounded-2xl overflow-hidden bg-neutral-950 relative shadow-2xl pointer-events-auto select-none">
+              <div className="rounded-2xl overflow-hidden bg-neutral-950 relative shadow-2xl pointer-events-auto select-none min-h-[360px] sm:min-h-[440px] aspect-[3/4]">
                 <img
                   src="/images/1221.avif"
                   alt="Founder"
@@ -425,9 +421,10 @@ export default function AboutPage({
                 Suyog Ballu
               </span>
             </motion.div>
+            </div>
           </div>
-        </div>
-      </motion.section>
+        </ScrollReveal>
+      </section>
 
       {/* Infinite Moving Logo Marquee (Clients / Brand Logos - No top/bottom divider lines) */}
       <motion.section
@@ -467,119 +464,103 @@ export default function AboutPage({
         </div>
       </motion.section>
 
-      {/* FAQ Section - FAQ text is WHITE, questions are WHITE, numbers are RED (#ef4444), answers expand & collapse slow and smooth */}
-      <motion.section
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '-80px' }}
-        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        className="py-20 sm:py-28 px-6 sm:px-12 md:px-20 bg-[#0a0a0a] text-white relative z-10 select-none"
-      >
-        <div className="max-w-6xl mx-auto">
-          {/* Giant FAQ Title in crisp, ultra-high resolution Syne Black typography */}
-          <motion.h2
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="text-7xl sm:text-9xl md:text-[11rem] lg:text-[13rem] font-syne font-black uppercase tracking-tight text-white text-center mb-12 sm:mb-16 leading-none antialiased select-none"
-          >
-            FAQ
-          </motion.h2>
+      {/* FAQ Section */}
+      <section className="py-20 sm:py-28 px-6 sm:px-12 md:px-20 bg-[#0a0a0a] text-white relative z-10 select-none">
+        <ScrollReveal yOffset={35} duration={0.95}>
+          <div className="max-w-6xl mx-auto">
+            {/* Giant FAQ Title in crisp typography */}
+            <h2 className="text-7xl sm:text-9xl md:text-[11rem] lg:text-[13rem] font-syne font-black uppercase tracking-tight text-white text-center mb-12 sm:mb-16 leading-none antialiased select-none">
+              FAQ
+            </h2>
 
-          {/* FAQ Accordion List */}
-          <div className="border-t border-white/20">
-            {FAQ_ITEMS.map((item, idx) => {
-              const isOpen = openFaqIndex === idx;
-              return (
-                <div
-                  key={item.number}
-                  className="border-b border-white/20"
-                >
-                  <button
-                    onClick={() => setOpenFaqIndex(isOpen ? null : idx)}
-                    className="w-full py-6 sm:py-8 flex items-start sm:items-center justify-between text-left gap-6 group cursor-pointer focus:outline-none"
-                  >
-                    <div className="flex items-start sm:items-center gap-6 sm:gap-12 flex-1">
-                      {/* Numbers in RED (#ef4444) */}
-                      <span className="font-mono text-base sm:text-lg text-[#ef4444] font-bold min-w-[2.5rem]">
-                        {item.number}
-                      </span>
-                      {/* Questions in WHITE */}
-                      <span className="font-sans text-lg sm:text-2xl font-medium text-white tracking-tight group-hover:text-neutral-300 transition-colors">
-                        {item.question}
-                      </span>
-                    </div>
-                    {/* Arrow Icon */}
-                    <span className="text-xl sm:text-2xl text-white font-bold shrink-0 transition-transform duration-300">
-                      {isOpen ? '↑' : '↓'}
-                    </span>
-                  </button>
-
-                  {/* 100% glitch-free CSS Grid template-rows transition for slow & buttery opening AND closing */}
+            {/* FAQ Accordion List */}
+            <div className="border-t border-white/20">
+              {FAQ_ITEMS.map((item, idx) => {
+                const isOpen = openFaqIndex === idx;
+                return (
                   <div
-                    className={`grid transition-[grid-template-rows,opacity] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-                      isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0 pointer-events-none'
-                    }`}
+                    key={item.number}
+                    className="border-b border-white/20"
                   >
-                    <div className="overflow-hidden pl-[3.5rem] sm:pl-[5.5rem] pr-6 pb-6 sm:pb-8">
-                      <p className="font-sans text-sm sm:text-base text-neutral-300 max-w-3xl leading-relaxed">
-                        {item.answer}
-                      </p>
+                    <button
+                      onClick={() => setOpenFaqIndex(isOpen ? null : idx)}
+                      className="w-full py-6 sm:py-8 flex items-start sm:items-center justify-between text-left gap-6 group cursor-pointer focus:outline-none"
+                    >
+                      <div className="flex items-start sm:items-center gap-6 sm:gap-12 flex-1">
+                        {/* Numbers in RED (#ef4444) */}
+                        <span className="font-mono text-base sm:text-lg text-[#ef4444] font-bold min-w-[2.5rem]">
+                          {item.number}
+                        </span>
+                        {/* Questions in WHITE */}
+                        <span className="font-sans text-lg sm:text-2xl font-medium text-white tracking-tight group-hover:text-neutral-300 transition-colors">
+                          {item.question}
+                        </span>
+                      </div>
+                      {/* Arrow Icon */}
+                      <span className="text-xl sm:text-2xl text-white font-bold shrink-0 transition-transform duration-300">
+                        {isOpen ? '↑' : '↓'}
+                      </span>
+                    </button>
+
+                    {/* CSS Grid template-rows transition for slow & buttery opening AND closing */}
+                    <div
+                      className={`grid transition-[grid-template-rows,opacity] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                        isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0 pointer-events-none'
+                      }`}
+                    >
+                      <div className="overflow-hidden pl-[3.5rem] sm:pl-[5.5rem] pr-6 pb-6 sm:pb-8">
+                        <p className="font-sans text-sm sm:text-base text-neutral-300 max-w-3xl leading-relaxed">
+                          {item.answer}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
-        </div>
-      </motion.section>
-
-
+        </ScrollReveal>
+      </section>
 
       {/* CTA Section */}
-      <motion.section
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '-80px' }}
-        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        className="px-4 md:px-12 lg:px-16 max-w-7xl mx-auto py-16"
-      >
-        <div className="bg-[#0c0c0c] border border-white/10 rounded-2xl p-8 sm:p-14 md:p-16 text-center relative overflow-hidden shadow-md shadow-black/20">
-          <div className="absolute -top-24 -left-24 w-72 h-72 bg-white/5 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-white/5 rounded-full blur-3xl pointer-events-none" />
+      <section className="px-4 md:px-12 lg:px-16 max-w-7xl mx-auto py-16">
+        <ScrollReveal yOffset={35} duration={0.95}>
+          <div className="bg-[#0c0c0c] border border-white/10 rounded-2xl p-8 sm:p-14 md:p-16 text-center relative overflow-hidden shadow-md shadow-black/20">
+            <div className="absolute -top-24 -left-24 w-72 h-72 bg-white/5 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-white/5 rounded-full blur-3xl pointer-events-none" />
 
-          <h2 className="text-3xl sm:text-5xl lg:text-6xl font-syne font-bold text-white max-w-3xl mx-auto leading-tight">
-            Ready to push boundaries together?
-          </h2>
+            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-syne font-bold text-white max-w-3xl mx-auto leading-tight">
+              Ready to push boundaries together?
+            </h2>
 
-          <p className="font-bodoni italic text-lg sm:text-2xl text-neutral-300 max-w-2xl mx-auto mt-4">
-            Let's build an iconic digital presence for your brand.
-          </p>
+            <p className="font-bodoni italic text-lg sm:text-2xl text-neutral-300 max-w-2xl mx-auto mt-4">
+              Let's build an iconic digital presence for your brand.
+            </p>
 
-          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <button
-              onClick={handleStartProject}
-              className="w-full sm:w-auto bg-white text-black px-8 py-3.5 rounded-full font-mono-tech font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-neutral-200 transition-all cursor-pointer"
-            >
-              <span>START A PROJECT</span>
-              <ArrowUpRight className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => {
-                if (onOpenWorks) {
-                  onOpenWorks();
-                } else {
-                  window.location.hash = '#/works';
-                }
-              }}
-              className="w-full sm:w-auto border border-white/20 bg-white/[0.03] text-white px-8 py-3.5 rounded-full font-mono-tech font-semibold text-xs uppercase tracking-widest hover:bg-white/10 transition-all cursor-pointer"
-            >
-              VIEW WORKS
-            </button>
+            <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+              <button
+                onClick={handleStartProject}
+                className="w-full sm:w-auto bg-white text-black px-8 py-3.5 rounded-full font-mono-tech font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-neutral-200 transition-all cursor-pointer"
+              >
+                <span>START A PROJECT</span>
+                <ArrowUpRight className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => {
+                  if (onOpenWorks) {
+                    onOpenWorks();
+                  } else {
+                    window.location.hash = '#/works';
+                  }
+                }}
+                className="w-full sm:w-auto border border-white/20 bg-white/[0.03] text-white px-8 py-3.5 rounded-full font-mono-tech font-semibold text-xs uppercase tracking-widest hover:bg-white/10 transition-all cursor-pointer"
+              >
+                VIEW WORKS
+              </button>
+            </div>
           </div>
-        </div>
-      </motion.section>
+        </ScrollReveal>
+      </section>
 
       {/* Global Footer Component */}
       <Footer
