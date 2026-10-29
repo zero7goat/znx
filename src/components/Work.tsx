@@ -187,7 +187,7 @@ export default function WorkShowcase({ onOpenWorks }: WorkShowcaseProps) {
     <section
       id="work"
       data-light="false"
-      className="sticky top-0 [@media(max-height:700px)]:relative z-10 bg-[#0a0a0a] text-white min-h-screen flex flex-col justify-center pt-24 pb-10 sm:pt-28 sm:pb-14 px-4 sm:px-8 border-none overflow-hidden select-none shadow-[0_-40px_80px_rgba(0,0,0,0.55)]"
+      className="sticky top-0 [@media(max-height:700px)]:relative z-10 bg-[#0a0a0a] text-white min-h-svh flex flex-col justify-center pt-24 pb-10 sm:pt-28 sm:pb-14 px-4 sm:px-8 border-none overflow-hidden select-none shadow-[0_-40px_80px_rgba(0,0,0,0.55)]"
     >
       <motion.div style={recedeStyle} className="max-w-7xl mx-auto w-full">
         

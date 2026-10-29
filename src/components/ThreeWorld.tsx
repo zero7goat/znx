@@ -63,12 +63,27 @@ const ImagePlaneShader = {
   `
 };
 
-export default function ThreeWorld() {
+interface ThreeWorldProps {
+  /** Keep rendering at every scroll position (pages where the canvas stays visible as a backdrop) */
+  fullPage?: boolean;
+}
+
+export default function ThreeWorld({ fullPage = false }: ThreeWorldProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollProgRef = useRef(0);
   const smoothProgRef = useRef(0);
   const scrollSpeedRef = useRef(0);
   const mouseRef = useRef({ tx: 0, ty: 0, mx: 0, my: 0 });
+  // Read inside the render loop so switching pages never rebuilds the scene
+  const fullPageRef = useRef(fullPage);
+  fullPageRef.current = fullPage;
+  const remeasureRef = useRef<() => void>(() => {});
+
+  // Page content swaps underneath the canvas; re-measure scroll anchors once it has rendered
+  useEffect(() => {
+    const id = requestAnimationFrame(() => remeasureRef.current());
+    return () => cancelAnimationFrame(id);
+  }, [fullPage]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -128,32 +143,6 @@ export default function ThreeWorld() {
 
     const curveP = new THREE.CatmullRomCurve3(pointsP, false, 'catmullrom', 0.42);
     const curveT = new THREE.CatmullRomCurve3(pointsT, false, 'catmullrom', 0.42);
-
-    // ── 4. Generate Central Core Wireframe Mesh (Hero Landmark) ──
-    const coreGroup = new THREE.Group();
-    coreGroup.position.set(0, 0, 0);
-    scene.add(coreGroup);
-
-    const icosahedronGeo = new THREE.IcosahedronGeometry(2.2, 1);
-    const wireframeMat = new THREE.MeshBasicMaterial({
-      color: 0x802223,
-      wireframe: true,
-      transparent: true,
-      opacity: 0.35,
-    });
-    const coreMesh = new THREE.Mesh(icosahedronGeo, wireframeMat);
-    coreGroup.add(coreMesh);
-
-    // Inner glowing core sphere
-    const octaGeo = new THREE.OctahedronGeometry(0.8, 1);
-    const glowCoreMat = new THREE.MeshBasicMaterial({
-      color: 0xe0231c,
-      wireframe: true,
-      transparent: true,
-      opacity: 0.6,
-    });
-    const innerGlowMesh = new THREE.Mesh(octaGeo, glowCoreMat);
-    coreGroup.add(innerGlowMesh);
 
     // ── 5. Load Floating Portfolio Image Planes (Work Section) ──
     const textureLoader = new THREE.TextureLoader();
@@ -247,16 +236,74 @@ export default function ThreeWorld() {
       window.addEventListener('mousemove', handlePointerMove, { passive: true });
     }
 
+    // ── 9b. Device-orientation parallax (touch devices) ──
+    // Tilting the phone feeds the same camera-drift targets as the desktop mouse; the render
+    // loop already smooths them, so the handler only writes two numbers (no React state).
+    const ORIENTATION_RANGE_DEG = 20;
+    let orientationBase: { x: number; y: number } | null = null;
+    const handleOrientation = (e: DeviceOrientationEvent) => {
+      if (e.beta == null || e.gamma == null) return;
+      // Map device axes onto screen axes for the current screen rotation
+      const angle = screen.orientation?.angle ?? 0;
+      let x = e.gamma;
+      let y = e.beta;
+      if (angle === 90) {
+        x = e.beta;
+        y = -e.gamma;
+      } else if (angle === 270 || angle === -90) {
+        x = -e.beta;
+        y = e.gamma;
+      }
+      // The first reading is "neutral"; drift the neutral slowly so the effect re-centres
+      // to however the phone is being held
+      if (!orientationBase) orientationBase = { x, y };
+      orientationBase.x += (x - orientationBase.x) * 0.003;
+      orientationBase.y += (y - orientationBase.y) * 0.003;
+      mouseRef.current.tx = THREE.MathUtils.clamp((x - orientationBase.x) / ORIENTATION_RANGE_DEG, -1, 1);
+      mouseRef.current.ty = THREE.MathUtils.clamp(-(y - orientationBase.y) / ORIENTATION_RANGE_DEG, -1, 1);
+    };
+    const resetOrientationBase = () => {
+      orientationBase = null;
+    };
+
+    let orientationListening = false;
+    const startOrientation = () => {
+      if (orientationListening) return;
+      orientationListening = true;
+      window.addEventListener('deviceorientation', handleOrientation, { passive: true });
+      screen.orientation?.addEventListener('change', resetOrientationBase);
+    };
+    // iOS 13+ only grants sensor access from inside a user gesture, so ask on the first tap
+    const OrientationEventCtor = (window as unknown as {
+      DeviceOrientationEvent?: { requestPermission?: () => Promise<string> };
+    }).DeviceOrientationEvent;
+    const requestOrientationPermission = () => {
+      window.removeEventListener('touchend', requestOrientationPermission);
+      OrientationEventCtor?.requestPermission?.()
+        .then((state) => {
+          if (state === 'granted') startOrientation();
+        })
+        .catch(() => {});
+    };
+    if (isMobile && !reduceMotion && OrientationEventCtor) {
+      if (typeof OrientationEventCtor.requestPermission === 'function') {
+        window.addEventListener('touchend', requestOrientationPermission, { passive: true });
+      } else {
+        startOrientation();
+      }
+    }
+
     // ── 7. High-Performance Cached Scroll Stage Measurement ──
     let cachedAnchors: number[] = [0, 800, 1600, 2400];
-    // The canvas is only visible behind the hero; every later section has an opaque background
-    let heroBottom = window.innerHeight;
+    // On the homepage the canvas is only visible until the (opaque) Work section has fully
+    // covered the hero; past that point the loop idles
+    let coverEnd = window.innerHeight;
     const updateAnchors = () => {
       const scrollY = window.scrollY;
       const vpH = window.innerHeight;
-      const heroEl = document.getElementById('hero');
-      // offsetTop ignores sticky positioning, so this is the hero's layout bottom even while pinned
-      heroBottom = heroEl ? heroEl.offsetTop + heroEl.offsetHeight : vpH;
+      const workEl = document.getElementById('work');
+      // offsetTop ignores sticky positioning, so this is Work's layout position even while pinned
+      coverEnd = workEl ? workEl.offsetTop : vpH;
       const sections = ['top', 'work', 'services'];
       
       cachedAnchors = sections.map((id, index) => {
@@ -297,6 +344,10 @@ export default function ThreeWorld() {
 
     updateAnchors();
     measureScrollProgress();
+    remeasureRef.current = () => {
+      updateAnchors();
+      measureScrollProgress();
+    };
 
     window.addEventListener('scroll', measureScrollProgress, { passive: true });
 
@@ -310,8 +361,8 @@ export default function ThreeWorld() {
     const animate = (time: number) => {
       animFrameId = requestAnimationFrame(animate);
 
-      // Idle when the tab is hidden or the hero (the only place the canvas shows) is scrolled away
-      if (document.hidden || window.scrollY > heroBottom) {
+      // Idle when the tab is hidden, or on the homepage once the canvas is fully covered
+      if (document.hidden || (!fullPageRef.current && window.scrollY > coverEnd)) {
         lastTime = time;
         return;
       }
@@ -352,11 +403,6 @@ export default function ThreeWorld() {
       const targetFov = CAM_WAYPOINTS[Math.min(Math.floor(smoothProgRef.current), CAM_WAYPOINTS.length - 1)].fov;
       camera.fov = aspect < 1.0 ? targetFov * 1.25 : targetFov;
       camera.updateProjectionMatrix();
-
-      // ── Animate Scene Meshes ──
-      // Slow rotation on the nested wireframe
-      coreGroup.rotation.y = elapsed * 0.16;
-      coreGroup.rotation.x = elapsed * 0.08;
 
       // Pass time and scroll speed values to Image Plane shaders
       planeMeshes.forEach((mesh) => {
@@ -426,8 +472,9 @@ export default function ThreeWorld() {
     };
 
     window.addEventListener('resize', handleResize, { passive: true });
-    // Section heights settle after fonts/images load; re-measure once the page is ready
-    window.addEventListener('load', updateAnchors);
+    // Section heights settle after fonts/images/lazy routes load; re-measure whenever the page resizes
+    const resizeObserver = new ResizeObserver(() => remeasureRef.current());
+    resizeObserver.observe(document.body);
 
     // ── 13. Component Cleanup ──
     return () => {
@@ -435,7 +482,10 @@ export default function ThreeWorld() {
       window.removeEventListener('mousemove', handlePointerMove);
       window.removeEventListener('scroll', measureScrollProgress);
       window.removeEventListener('resize', handleResize);
-      window.removeEventListener('load', updateAnchors);
+      resizeObserver.disconnect();
+      window.removeEventListener('touchend', requestOrientationPermission);
+      window.removeEventListener('deviceorientation', handleOrientation);
+      screen.orientation?.removeEventListener('change', resetOrientationBase);
       container.removeChild(renderer.domElement);
       renderer.dispose();
       scene.clear();
@@ -445,7 +495,7 @@ export default function ThreeWorld() {
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 w-full h-full pointer-events-none select-none z-0 overflow-hidden bg-[#05070a]"
+      className="fixed inset-0 w-full h-full pointer-events-none select-none z-0 overflow-hidden bg-[#0a0a0a]"
       style={{ mixBlendMode: 'normal' }}
     />
   );

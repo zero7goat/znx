@@ -222,6 +222,7 @@ export default function AboutPage({
   onOpenWorks,
 }: AboutPageProps) {
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
+  const marqueeRef = useRef<HTMLDivElement>(null);
 
   // Always scroll to top when mounting About Page
   useEffect(() => {
@@ -250,7 +251,14 @@ export default function AboutPage({
           animation: marqueeRightToLeft 44s linear infinite;
           will-change: transform;
         }
-        .animate-brand-marquee:hover {
+        /* Pause on hover only for real hover devices: on touch screens :hover "sticks" after a tap,
+           which would leave the strip paused. Touch uses press-and-hold (is-paused) instead. */
+        @media (hover: hover) {
+          .animate-brand-marquee:hover {
+            animation-play-state: paused;
+          }
+        }
+        .animate-brand-marquee.is-paused {
           animation-play-state: paused;
         }
       `}</style>
@@ -440,8 +448,18 @@ export default function AboutPage({
         <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-28 sm:w-48 md:w-64 lg:w-80 bg-gradient-to-l from-[#0a0a0a] via-[#0a0a0a]/90 to-transparent z-20" />
 
         {/* Marquee Loop Track */}
-        <div className="w-full overflow-hidden cursor-pointer select-none py-4">
-          <div className="animate-brand-marquee flex items-center">
+        <div
+          className="w-full overflow-hidden cursor-pointer select-none py-4 [-webkit-touch-callout:none]"
+          // Press and hold pauses the strip; any release, cancel (e.g. the user starts scrolling
+          // vertically) or leaving resumes it. pan-y keeps native vertical page scrolling.
+          style={{ touchAction: 'pan-y' }}
+          onPointerDown={() => marqueeRef.current?.classList.add('is-paused')}
+          onPointerUp={() => marqueeRef.current?.classList.remove('is-paused')}
+          onPointerCancel={() => marqueeRef.current?.classList.remove('is-paused')}
+          onPointerLeave={() => marqueeRef.current?.classList.remove('is-paused')}
+          onContextMenu={(e) => e.preventDefault()}
+        >
+          <div ref={marqueeRef} className="animate-brand-marquee flex items-center">
             {/* Two identical halves + trailing padding (not gap) so the -50% loop lands exactly on the seam */}
             {[...BRAND_LOGOS, ...BRAND_LOGOS].map((brand, idx) => (
               <div
@@ -509,14 +527,18 @@ export default function AboutPage({
 
                     {/* CSS Grid template-rows transition for slow & buttery opening AND closing */}
                     <div
-                      className={`grid transition-[grid-template-rows,opacity] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                      className={`grid transition-[grid-template-rows,opacity] duration-[600ms] ease-[cubic-bezier(0.65,0,0.35,1)] ${
                         isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0 pointer-events-none'
                       }`}
                     >
-                      <div className="overflow-hidden pl-[3.5rem] sm:pl-[5.5rem] pr-6 pb-6 sm:pb-8">
-                        <p className="font-sans text-sm sm:text-base text-neutral-300 max-w-3xl leading-relaxed">
-                          {item.answer}
-                        </p>
+                      {/* Padding lives on an inner element: on the collapsing (0fr) element it would keep
+                          ~2rem of height when "closed" and make rows jump */}
+                      <div className="overflow-hidden min-h-0">
+                        <div className="pl-[3.5rem] sm:pl-[5.5rem] pr-6 pb-6 sm:pb-8">
+                          <p className="font-sans text-sm sm:text-base text-neutral-300 max-w-3xl leading-relaxed">
+                            {item.answer}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>

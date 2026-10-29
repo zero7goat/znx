@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react';
 import { Youtube, Instagram, Linkedin } from 'lucide-react';
 import { smoothScrollTo } from '../utils/smoothScroll';
 import ScrollReveal from './ScrollReveal';
@@ -17,6 +18,34 @@ export default function Footer({
   onOpenAbout,
   onNavigateToHome,
 }: FooterProps = {}) {
+  const wordmarkRef = useRef<HTMLDivElement>(null);
+  const [isWordmarkVisible, setIsWordmarkVisible] = useState(false);
+
+  useEffect(() => {
+    const el = wordmarkRef.current;
+    if (!el) return;
+    if (
+      typeof IntersectionObserver === 'undefined' ||
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ) {
+      setIsWordmarkVisible(true);
+      return;
+    }
+    // No negative rootMargin: the wrapper sits at the very bottom of the page, so shrinking the
+    // root (as the generic reveal does) could leave it permanently "outside" on short screens
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsWordmarkVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.15 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <footer className="w-full bg-[#0a0a0a] text-white select-none overflow-hidden border-t border-white/[0.08] relative z-40 isolate">
       <div className="w-full px-4 pt-14 pb-0 sm:px-8 md:px-12 md:pt-20 lg:px-16 relative flex flex-col justify-between">
@@ -126,21 +155,28 @@ export default function Footer({
           </ScrollReveal>
         </div>
 
-        {/* Giant ZNX wordmark: full-bleed, sized in vw so it spans the width at every breakpoint,
-            with the bottom of the letters deliberately cropped by the footer edge (em-based, so the
-            crop is identical on mobile and desktop). Rises into place on reveal. */}
+        {/* Giant ZNX wordmark: full-bleed, sized in vw so it spans the width at every breakpoint.
+            The footer edge deliberately crops the lower half of the letters: with line-height 1, Syne's
+            baseline sits at 0.825em and its cap height is 0.64em, so a -0.47em bottom margin leaves just
+            over the top half visible (em-based, so the crop is identical on every screen).
+            Reveal: the word rises from behind that edge. The observer watches the unclipped, untransformed
+            wrapper, not the moving text, so it reliably fires the first time the footer is reached. */}
         <div
+          ref={wordmarkRef}
           aria-hidden="true"
           className="-mx-4 sm:-mx-8 md:-mx-12 lg:-mx-16 mt-14 sm:mt-20 overflow-hidden select-none pointer-events-none"
         >
-          <ScrollReveal yOffset={40} duration={1.1}>
-            <span
-              className="block text-center font-syne font-extrabold leading-[0.8] tracking-[-0.05em] text-transparent bg-clip-text bg-gradient-to-b from-white via-neutral-300 to-neutral-600 whitespace-nowrap"
-              style={{ fontSize: 'clamp(4.5rem, 27vw, 30rem)', marginBottom: '-0.11em' }}
-            >
-              ZNX
-            </span>
-          </ScrollReveal>
+          <span
+            className="block text-center font-syne font-extrabold leading-none tracking-[-0.05em] text-transparent bg-clip-text bg-gradient-to-b from-white via-neutral-300 to-neutral-600 whitespace-nowrap transition-[transform,opacity] duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
+            style={{
+              fontSize: 'clamp(4.5rem, 27vw, 30rem)',
+              marginBottom: '-0.47em',
+              transform: isWordmarkVisible ? 'translateY(0)' : 'translateY(55%)',
+              opacity: isWordmarkVisible ? 1 : 0,
+            }}
+          >
+            ZNX
+          </span>
         </div>
       </div>
     </footer>

@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, useScroll, useTransform } from 'motion/react';
-import { ArrowUpRight, ChevronRight, Linkedin, Instagram, Youtube, ArrowLeft } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, ChevronRight } from 'lucide-react';
+import { smoothScrollTo } from '../utils/smoothScroll';
 import { NavTab } from '../types';
 import Footer from './Footer';
 import ScrollReveal from './ScrollReveal';
@@ -236,77 +237,9 @@ export default function ServicesPage({
     }
   }, []);
 
-  // Direct, frame-accurate background color interpolation for White (#FAF8F5), Red (#ef4444), and Black (#0a0a0a)
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    function hexToRgb(hex: string): [number, number, number] {
-      let c = hex.replace('#', '');
-      if (c.length === 3) c = c.split('').map((x) => x + x).join('');
-      const num = parseInt(c, 16);
-      return [(num >> 16) & 255, (num >> 8) & 255, num & 255];
-    }
-
-    function interpolateColor(color1: string, color2: string, factor: number): string {
-      const clampFactor = Math.min(1, Math.max(0, factor));
-      const [r1, g1, b1] = hexToRgb(color1);
-      const [r2, g2, b2] = hexToRgb(color2);
-      const r = Math.round(r1 + clampFactor * (r2 - r1));
-      const g = Math.round(g1 + clampFactor * (g2 - g1));
-      const b = Math.round(b1 + clampFactor * (b2 - b1));
-      return `rgb(${r}, ${g}, ${b})`;
-    }
-
-    let animationFrameId: number;
-
-    const updateBg = () => {
-      const scrollY = window.scrollY || window.pageYOffset || 0;
-      const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
-      const progress = Math.min(1, Math.max(0, scrollY / maxScroll));
-
-      let color = '#FAF8F5';
-      if (progress <= 0.22) {
-        color = '#FAF8F5';
-      } else if (progress <= 0.38) {
-        const t = (progress - 0.22) / 0.16;
-        color = interpolateColor('#FAF8F5', '#ef4444', t);
-      } else if (progress <= 0.60) {
-        color = '#ef4444';
-      } else if (progress <= 0.78) {
-        const t = (progress - 0.60) / 0.18;
-        color = interpolateColor('#ef4444', '#0a0a0a', t);
-      } else {
-        color = '#0a0a0a';
-      }
-
-      if (containerRef.current) {
-        containerRef.current.style.backgroundColor = color;
-      }
-    };
-
-    const onScroll = () => {
-      cancelAnimationFrame(animationFrameId);
-      animationFrameId = requestAnimationFrame(updateBg);
-    };
-
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll, { passive: true });
-
-    updateBg();
-
-    return () => {
-      cancelAnimationFrame(animationFrameId);
-      window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('resize', onScroll);
-    };
-  }, []);
-
   return (
-    <div
-      ref={containerRef}
-      style={{ backgroundColor: '#FAF8F5' }}
-      className="min-h-screen text-neutral-950 font-sans select-none flex flex-col justify-between overflow-x-hidden relative"
-    >
+    <div className="min-h-screen text-white font-sans select-none flex flex-col justify-between overflow-x-hidden relative">
+      {/* Transparent over the site's black background, so the fixed snow-particle canvas shows throughout */}
       <style>{`
         @keyframes cursorBlink {
           0%, 100% { opacity: 1; }
@@ -345,7 +278,7 @@ export default function ServicesPage({
                 target.src = '/images/Logo.avif';
               }
             }}
-            className="h-8 sm:h-9 md:h-10 w-auto object-contain brightness-0 group-hover:opacity-85 transition-opacity"
+            className="h-8 sm:h-9 md:h-10 w-auto object-contain brightness-0 invert group-hover:opacity-85 transition-opacity"
           />
         </a>
 
@@ -353,7 +286,7 @@ export default function ServicesPage({
         <div className="flex items-center gap-4">
           <button
             onClick={onOpenContact}
-            className="group text-[11px] sm:text-xs font-medium tracking-widest uppercase text-neutral-800 flex items-center gap-1 focus:outline-none cursor-pointer"
+            className="group text-[11px] sm:text-xs font-medium tracking-widest uppercase text-white flex items-center gap-1 cursor-pointer"
           >
             <FlipBlock>
               <span>LET'S TALK</span>
@@ -364,49 +297,64 @@ export default function ServicesPage({
 
       </header>
 
-      {/* 2. GRID HERO SECTION (Matching image.png layout) */}
-      <section className="w-full my-4 sm:my-8 border-y border-black/15 select-none overflow-hidden">
-        <div className="w-full max-w-[1400px] mx-auto grid grid-cols-1 md:grid-cols-12">
-          
-          {/* LEFT SIDEBAR GRID CELL (Desktop column span 3) */}
-          <div className="hidden md:flex md:col-span-3 flex-col justify-between border-r border-black/15 p-6 sm:p-8 text-[11px] font-mono uppercase tracking-widest text-neutral-500 select-none">
-            <div className="pt-2">01 / CAPABILITIES</div>
-            <div className="py-16 text-neutral-400 leading-relaxed">ZNX STUDIO · DESIGNING FOR THE INTERNET</div>
-            <div className="pb-2">BRANDING & MOTION</div>
-          </div>
-
-          {/* CENTER HERO GRID CELL (Main column span 6) */}
-          <div className="col-span-1 md:col-span-6 flex flex-col md:border-r border-black/15">
-            
-            {/* TOP CELL: "We" */}
-            <div className="w-full py-8 sm:py-12 md:py-16 border-b border-black/15 flex items-center justify-center bg-transparent">
-              <h1 className="text-7xl sm:text-8xl md:text-9xl lg:text-[10.5rem] font-bodoni font-normal text-neutral-950 tracking-tight leading-none text-center">
-                We
+      {/* 2. INTRO: what the studio offers, the cycling showcase, and an index into the four services */}
+      <section className="w-full max-w-[1400px] mx-auto px-6 sm:px-12 md:px-16 pt-10 sm:pt-16 pb-6 sm:pb-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-end">
+          <div className="lg:col-span-7">
+            <ScrollReveal yOffset={20} duration={1}>
+              <span className="znx-eyebrow mb-5">Services · Design with intention</span>
+            </ScrollReveal>
+            <ScrollReveal yOffset={24} duration={1.1} delay={0.1}>
+              <h1 className="font-bodoni font-normal text-white tracking-tight leading-[1.02] text-[clamp(2.75rem,1.4rem+5vw,6.25rem)] [text-wrap:balance]">
+                Design, digital experiences <span className="italic text-neutral-400">&amp;</span> the technology behind them.
               </h1>
-            </div>
-
-            {/* MIDDLE CELL: Rapidly changing image with grid lines touching picture edges directly */}
-            <div className="w-full border-b border-black/15 relative overflow-hidden bg-neutral-950 aspect-[4/3] sm:aspect-[16/10] md:aspect-[3/2] max-h-[520px]">
-              <HeroImageCycler />
-            </div>
-
-            {/* BOTTOM CELL: "Do" */}
-            <div className="w-full py-8 sm:py-12 md:py-16 flex items-center justify-center bg-transparent">
-              <h1 className="text-7xl sm:text-8xl md:text-9xl lg:text-[10.5rem] font-bodoni font-normal text-neutral-950 tracking-tight leading-none text-center">
-                Do
-              </h1>
-            </div>
-
+            </ScrollReveal>
+            <ScrollReveal yOffset={20} duration={1} delay={0.2}>
+              <p className="mt-6 sm:mt-8 max-w-xl text-base sm:text-lg leading-relaxed text-neutral-300">
+                ZNX is an independent studio for brands that want to be seen and used. We shape identities, design interfaces, build fast websites and bring them to life with motion, as one team from first idea to launch.
+              </p>
+            </ScrollReveal>
           </div>
 
-          {/* RIGHT SIDEBAR GRID CELL (Desktop column span 3) */}
-          <div className="hidden md:flex md:col-span-3 flex-col justify-between p-6 sm:p-8 text-[11px] font-mono uppercase tracking-widest text-neutral-500 select-none">
-            <div className="pt-2 text-right">WHAT WE DO</div>
-            <div className="py-16 text-right text-neutral-400 leading-relaxed">DESIGN WITH INTENTION</div>
-            <div className="pb-2 text-right">(2026)</div>
+          <div className="lg:col-span-5">
+            <ScrollReveal yOffset={30} duration={1.1} delay={0.15}>
+              <div className="relative w-full aspect-[4/3] lg:aspect-[4/5] max-h-[560px] overflow-hidden rounded-2xl border border-white/10 bg-neutral-950">
+                <HeroImageCycler />
+              </div>
+              <div className="mt-3 flex items-center justify-between gap-4">
+                <span className="znx-label">ZNX Studio · Designing for the internet</span>
+                <span className="znx-label">(2026)</span>
+              </div>
+            </ScrollReveal>
           </div>
-
         </div>
+
+        {/* Service index: jumps to each service below */}
+        <ScrollReveal yOffset={20} duration={1} delay={0.1}>
+          <nav aria-label="Services" className="mt-14 sm:mt-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 border-t border-white/10">
+            {SERVICES_DATA.map((service, idx) => (
+              <a
+                key={service.id}
+                href={`#/services?service=${service.id}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  const el = document.getElementById(service.id);
+                  if (el) smoothScrollTo(el.getBoundingClientRect().top + window.scrollY - 80, 1000);
+                }}
+                className="group flex items-start justify-between gap-4 py-5 sm:py-6 sm:pr-6 border-b border-white/10"
+              >
+                <span className="flex flex-col gap-2">
+                  <span className="font-mono-tech text-[11px] tracking-widest text-neutral-500 transition-colors duration-300 group-hover:text-[#ef4444]">
+                    ({String(idx + 1).padStart(2, '0')})
+                  </span>
+                  <span className="font-syne font-bold text-xl sm:text-2xl tracking-tight text-white">{service.title}</span>
+                  <span className="znx-label">{service.subtitle}</span>
+                </span>
+                <ArrowDownRight className="mt-1 w-5 h-5 shrink-0 text-neutral-500 transition-[color,transform] duration-300 group-hover:text-white group-hover:translate-x-0.5 group-hover:translate-y-0.5" />
+              </a>
+            ))}
+          </nav>
+        </ScrollReveal>
       </section>
 
       {/* 5. ALL SERVICES SHOWCASE BLOCKS (Stacked Layout) */}
@@ -426,7 +374,7 @@ export default function ServicesPage({
               {/* Clean Translucent Black and Gray Gradient Title */}
               <div className={`w-full mb-3 sm:mb-5 text-center ${isRightAligned ? 'sm:text-right' : 'sm:text-left'}`}>
                 <h3
-                  className="inline-block text-[2.5rem] sm:text-7xl md:text-8xl lg:text-[8.5rem] font-syne font-bold bg-gradient-to-r from-neutral-950 via-neutral-700 to-neutral-400 bg-clip-text text-transparent tracking-tight leading-[1.05] pb-[0.08em] select-none text-center"
+                  className="inline-block text-[2.5rem] sm:text-7xl md:text-8xl lg:text-[8.5rem] font-syne font-bold bg-gradient-to-r from-white via-neutral-300 to-neutral-600 bg-clip-text text-transparent tracking-tight leading-[1.05] pb-[0.08em] select-none text-center"
                   style={{
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
@@ -457,20 +405,20 @@ export default function ServicesPage({
 
                 {/* GREY DETAILS CARD */}
                 <div
-                  className={`lg:col-span-6 bg-[#EDEAE3] rounded-sm p-6 sm:p-10 md:p-12 flex flex-col justify-between border-none shadow-sm ${
+                  className={`lg:col-span-6 bg-white/[0.03] border border-white/10 rounded-sm p-6 sm:p-10 md:p-12 flex flex-col justify-between ${
                     isRightAligned ? 'lg:order-1' : 'lg:order-2'
                   }`}
                 >
                   {/* Top Right Explanatory Paragraph */}
                   <div className="w-full flex justify-center sm:justify-end mb-8 sm:mb-12">
-                    <p className="text-xs sm:text-sm text-neutral-500 leading-relaxed font-sans max-w-md text-center sm:text-left">
+                    <p className="text-sm text-neutral-400 leading-relaxed font-sans max-w-md text-center sm:text-left">
                       {service.description}
                     </p>
                   </div>
 
                   {/* Subtitle Header with Dot Grid Icon */}
                   <div className="flex items-center gap-3 mb-6 sm:mb-8">
-                    <div className="grid grid-cols-3 gap-1 w-5 h-5 text-neutral-700">
+                    <div className="grid grid-cols-3 gap-1 w-5 h-5 text-[#ef4444]">
                       <span className="w-1 h-1 rounded-full bg-current" />
                       <span className="w-1 h-1 rounded-full bg-current" />
                       <span className="w-1 h-1 rounded-full bg-current" />
@@ -482,23 +430,23 @@ export default function ServicesPage({
                       <span className="w-1 h-1 rounded-full bg-current" />
                     </div>
 
-                    <h4 className="text-xl sm:text-2xl md:text-3xl font-sans font-medium text-neutral-900 tracking-tight">
+                    <h4 className="text-xl sm:text-2xl md:text-3xl font-sans font-medium text-white tracking-tight">
                       {service.subtitle}
                     </h4>
                   </div>
 
                   {/* Capabilities List */}
-                  <div className="flex flex-col border-t border-neutral-300/40 divide-y divide-neutral-300/40">
+                  <div className="flex flex-col border-t border-white/10 divide-y divide-white/10">
                     {service.capabilities.map((cap, i) => (
                       <div
                         key={i}
                         className="py-3.5 sm:py-4.5 flex items-center justify-between group cursor-pointer transition-all duration-300"
                       >
-                        <span className="text-sm sm:text-base text-neutral-800 font-sans font-normal group-hover:text-neutral-950 transition-colors">
+                        <span className="text-sm sm:text-base text-neutral-300 font-sans font-normal group-hover:text-white transition-colors">
                           {cap}
                         </span>
                         
-                        <div className="text-neutral-500 group-hover:text-neutral-950 group-hover:translate-x-1 transition-all">
+                        <div className="text-neutral-500 group-hover:text-white group-hover:translate-x-1 transition-[color,transform] duration-300">
                           <ChevronRight className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
                         </div>
                       </div>

@@ -34,6 +34,23 @@ function FlipBlock({
   );
 }
 
+// Mobile drawer motion: unhurried but still responsive (~0.55s open, ~0.45s close)
+const DRAWER_EASE = [0.22, 1, 0.36, 1] as const;
+const mobileDrawerVariants = {
+  closed: {
+    y: '-100%',
+    transition: { duration: 0.45, ease: [0.65, 0, 0.35, 1] as const, staggerChildren: 0.02, staggerDirection: -1 },
+  },
+  open: {
+    y: 0,
+    transition: { duration: 0.55, ease: DRAWER_EASE, delayChildren: 0.15, staggerChildren: 0.05 },
+  },
+};
+const mobileItemVariants = {
+  closed: { opacity: 0, y: -10, transition: { duration: 0.18, ease: 'easeIn' as const } },
+  open: { opacity: 1, y: 0, transition: { duration: 0.4, ease: DRAWER_EASE } },
+};
+
 export default function Navbar({ activeTab, onSelectTab, onOpenContact }: NavbarProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -109,54 +126,62 @@ export default function Navbar({ activeTab, onSelectTab, onOpenContact }: Navbar
 
   return (
     <>
-      {/* MOBILE CIRCULAR TOGGLE BUTTON (Morphed to circle by default on mobile) */}
+      {/* MOBILE CIRCULAR TOGGLE BUTTON: the three lines morph into an X (CSS transforms) */}
       <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[100] sm:hidden pointer-events-auto select-none">
         <button
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          onClick={() => setIsMobileMenuOpen((open) => !open)}
           aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
           aria-expanded={isMobileMenuOpen}
           style={{ touchAction: 'manipulation' }}
-          className="w-12 h-12 rounded-full bg-black/95 text-white border border-white/20 flex flex-col items-center justify-center gap-1.5 cursor-pointer shadow-lg shadow-black/60 focus:outline-none active:scale-90 transition-transform duration-200"
+          className="relative w-12 h-12 rounded-full bg-black/95 text-white border border-white/20 cursor-pointer shadow-lg shadow-black/60 active:scale-90 transition-transform duration-200"
         >
-          {isMobileMenuOpen ? (
-            <X className="w-5 h-5 text-white transition-transform duration-200" />
-          ) : (
-            <>
-              <span className="w-5 h-[1.5px] bg-white rounded-full" />
-              <span className="w-3.5 h-[1.5px] bg-white rounded-full" />
-              <span className="w-5 h-[1.5px] bg-white rounded-full" />
-            </>
-          )}
+          <span
+            aria-hidden="true"
+            className={`absolute left-1/2 top-1/2 h-[1.5px] w-5 -ml-2.5 rounded-full bg-white transition-transform duration-500 ease-[cubic-bezier(0.65,0,0.35,1)] ${
+              isMobileMenuOpen ? 'translate-y-0 rotate-45' : '-translate-y-[6px]'
+            }`}
+          />
+          <span
+            aria-hidden="true"
+            className={`absolute left-1/2 top-1/2 h-[1.5px] w-3.5 -ml-[7px] rounded-full bg-white transition-[opacity,transform] duration-300 ease-out ${
+              isMobileMenuOpen ? 'opacity-0 scale-x-0' : 'opacity-100'
+            }`}
+          />
+          <span
+            aria-hidden="true"
+            className={`absolute left-1/2 top-1/2 h-[1.5px] w-5 -ml-2.5 rounded-full bg-white transition-transform duration-500 ease-[cubic-bezier(0.65,0,0.35,1)] ${
+              isMobileMenuOpen ? 'translate-y-0 -rotate-45' : 'translate-y-[6px]'
+            }`}
+          />
         </button>
       </div>
 
-      {/* MOBILE POPUP DRAWER & BACKDROP (HIGH PERFORMANCE 120FPS GPU ACCELERATED) */}
+      {/* MOBILE DRAWER & BACKDROP: panel slides down, then its rows fade in with a short stagger;
+          closing reverses (rows out first, then the panel). Transform/opacity only. */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <>
-            {/* Soft Fast Backdrop Overlay (Solid high-perf dark overlay, no heavy blur) */}
+            {/* Backdrop (solid dim, no blur) */}
             <motion.div
               key="mobile-backdrop"
               initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.22, ease: 'easeOut' }}
+              animate={{ opacity: 1, transition: { duration: 0.45, ease: 'easeOut' } }}
+              exit={{ opacity: 0, transition: { duration: 0.4, ease: 'easeIn', delay: 0.05 } }}
               onClick={() => setIsMobileMenuOpen(false)}
               className="fixed inset-0 z-[90] bg-black/75 sm:hidden"
             />
 
-            {/* Mobile Sheet / Drawer Card */}
+            {/* Drawer panel */}
             <motion.div
               key="mobile-drawer"
-              initial={{ y: '-100%' }}
-              animate={{ y: 0 }}
-              exit={{ y: '-100%' }}
-              transition={{ duration: 0.28, ease: [0.32, 0.72, 0, 1] }}
-              style={{ willChange: 'transform' }}
+              variants={mobileDrawerVariants}
+              initial="closed"
+              animate="open"
+              exit="closed"
               className="fixed top-0 left-0 right-0 w-full z-[95] bg-[#0c0c0c] text-white flex flex-col p-5 rounded-none border-b border-white/10 shadow-2xl sm:hidden select-none"
             >
               {/* Top Header inside Popup (White ZNX Logo Image) */}
-              <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <motion.div variants={mobileItemVariants} className="flex items-center justify-between border-b border-white/10 pb-3">
                 <img
                   src="/Logo.png"
                   alt="ZNX Studio Logo"
@@ -176,13 +201,14 @@ export default function Navbar({ activeTab, onSelectTab, onOpenContact }: Navbar
                 <span className="text-[9px] font-mono-tech text-neutral-400 uppercase tracking-[0.2em]">
                   MENU
                 </span>
-              </div>
+              </motion.div>
 
               {/* Navigation Options List */}
               <div className="flex flex-col gap-2 py-4">
                 {tabs.map((tab, idx) => (
-                  <button
+                  <motion.button
                     key={tab.id}
+                    variants={mobileItemVariants}
                     onClick={() => handleTabClick(tab.id)}
                     style={{ touchAction: 'manipulation' }}
                     className="text-left text-base font-sans font-semibold tracking-wide text-neutral-200 hover:text-white uppercase flex items-center justify-between border-b border-white/[0.04] py-2 transition-colors active:text-white"
@@ -191,10 +217,11 @@ export default function Navbar({ activeTab, onSelectTab, onOpenContact }: Navbar
                     <span className="text-[10px] font-mono-tech text-neutral-500 font-normal">
                       0{idx + 1}
                     </span>
-                  </button>
+                  </motion.button>
                 ))}
 
-                <a
+                <motion.a
+                  variants={mobileItemVariants}
                   href="#/privacy"
                   onClick={(e) => {
                     e.preventDefault();
@@ -205,11 +232,11 @@ export default function Navbar({ activeTab, onSelectTab, onOpenContact }: Navbar
                   className="text-left text-xs font-sans font-medium tracking-wider text-neutral-400 hover:text-white uppercase py-2 transition-colors"
                 >
                   PRIVACY POLICY
-                </a>
+                </motion.a>
               </div>
 
               {/* Bottom Actions & Contact */}
-              <div className="flex flex-col gap-3 pt-3 border-t border-white/10">
+              <motion.div variants={mobileItemVariants} className="flex flex-col gap-3 pt-3 border-t border-white/10">
                 <button
                   onClick={() => {
                     setIsMobileMenuOpen(false);
@@ -228,7 +255,7 @@ export default function Navbar({ activeTab, onSelectTab, onOpenContact }: Navbar
                     contactmeznx@gmail.com
                   </a>
                 </div>
-              </div>
+              </motion.div>
             </motion.div>
           </>
         )}

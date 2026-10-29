@@ -81,7 +81,7 @@ export default function HeroSection({ onOpenShowreel }: HeroSectionProps) {
     <section
       id="hero"
       data-light="false"
-      className="sticky top-0 z-0 [@media(max-height:600px)]:relative min-h-screen text-white flex flex-col justify-between pt-24 pb-12 px-6 sm:px-12 overflow-hidden select-none bg-transparent"
+      className="sticky top-0 z-0 [@media(max-height:500px)]:relative min-h-svh text-white flex flex-col justify-between pt-24 pb-12 px-6 sm:px-12 overflow-hidden select-none bg-transparent"
     >
       {/* Background Subtle Grid / Accents */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.03] bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:32px_32px]" />
@@ -137,12 +137,14 @@ export default function HeroSection({ onOpenShowreel }: HeroSectionProps) {
       <motion.div style={recedeStyle} className="relative max-w-7xl mx-auto w-full flex-1 flex flex-col items-center justify-center my-auto py-12">
         <div className="relative w-full max-w-4xl flex flex-col items-center justify-center">
           
-          {/* Big Static Background Typography Behind Showreel Image (Light gray, all caps, reduced opacity, zero animation lag) */}
+          {/* Big "SHOWREEL" typography. From lg up it sits behind the image and peeks out at both sides
+              (the word is ~6em wide, wider than the image). Below lg the image is as wide as the word,
+              so it would be fully hidden: there it stacks above the image instead, sized to fit. */}
           <div 
             aria-hidden="true"
-            className="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0 overflow-visible"
+            className="relative mb-3 sm:mb-5 lg:mb-0 lg:absolute lg:inset-0 flex items-center justify-center pointer-events-none select-none z-0 overflow-visible"
           >
-            <span className="text-[17vw] sm:text-[14vw] md:text-[12vw] lg:text-[11.5rem] font-sans font-black tracking-wider uppercase text-neutral-300 opacity-25 select-none leading-none whitespace-nowrap">
+            <span className="text-[14.5vw] md:text-[11vw] lg:text-[11.5rem] font-sans font-black tracking-wider uppercase text-neutral-300 opacity-40 lg:opacity-25 select-none leading-none whitespace-nowrap">
               SHOWREEL
             </span>
           </div>
@@ -156,7 +158,7 @@ export default function HeroSection({ onOpenShowreel }: HeroSectionProps) {
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
             onClick={handleShowreelClick}
-            className="parallax-bg-wrapper custom-hover-card relative z-10 w-full max-w-xl sm:max-w-2xl aspect-[16/10] sm:aspect-[16/9] rounded-none border-none bg-black overflow-hidden shadow-2xl opacity-100 cursor-pointer transform-gpu"
+            className="parallax-bg-wrapper custom-hover-card relative z-10 w-full max-w-xl sm:max-w-2xl [@media(max-height:500px)]:max-w-md aspect-[16/10] sm:aspect-[16/9] rounded-none border-none bg-black overflow-hidden shadow-2xl opacity-100 cursor-pointer transform-gpu"
           >
             {isPlayingVideo ? (
               /* Immediate 3D Autoplay YouTube Player */
@@ -239,6 +241,9 @@ export default function HeroSection({ onOpenShowreel }: HeroSectionProps) {
       </motion.div>
     </section>
     {/* Marks where the next section starts; drives the recede while it covers this one */}
+    {/* Hold: transparent runway that keeps the pinned hero fully visible and centred for part of a
+        screen before Featured Work starts sliding over it (svh so mobile browser bars don't skew it) */}
+    <div aria-hidden="true" className="h-[45svh] pointer-events-none [@media(max-height:500px)]:hidden" />
     <div ref={markerRef} aria-hidden="true" />
     </>
   );

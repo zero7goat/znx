@@ -178,7 +178,7 @@ export default function App() {
 
 
   return (
-    <div className={`min-h-screen ${isServicesPageOpen ? 'bg-[#FAF8F5] text-neutral-950' : 'bg-[#0a0a0a] text-white'} font-sans selection:bg-white selection:text-black relative`}>
+    <div className={`min-h-screen bg-[#0a0a0a] text-white font-sans selection:bg-white selection:text-black relative`}>
       {/* Cinematic Film Grain Noise Overlay (Desktop only to prevent mobile scroll layer recomposition) */}
       <div 
         className="hidden sm:block fixed inset-0 z-[999999] pointer-events-none opacity-[0.022]"
@@ -237,6 +237,14 @@ export default function App() {
         />
       )}
 
+      {/* WebGL snow-particle backdrop: shared by Home and Services and kept mounted between them.
+          On Services it stays visible for the whole page (fullPage). */}
+      {(page === 'home' || isServicesPageOpen) && (
+        <Suspense fallback={null}>
+          <ThreeWorld fullPage={isServicesPageOpen} />
+        </Suspense>
+      )}
+
       <Suspense fallback={null}>
         {isPrivacyPageOpen ? (
           <PrivacyPolicyPage
@@ -269,9 +277,6 @@ export default function App() {
           />
         ) : (
           <>
-            {/* WebGL 3D Interactive Background Layer (Cinematic Kage experience translated to ZNX) */}
-            <ThreeWorld />
-
             <main id="top">
               {/* Section 1: Hero */}
               <Hero />
