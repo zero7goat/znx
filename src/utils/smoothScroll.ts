@@ -1,9 +1,6 @@
 export function smoothScrollTo(targetY: number, duration = 1200) {
-  if (typeof window !== 'undefined' && (window as any).lenis) {
-    (window as any).lenis.scrollTo(targetY, {
-      duration: duration / 1000,
-      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-    });
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    window.scrollTo(0, targetY);
     return;
   }
 
@@ -18,7 +15,25 @@ export function smoothScrollTo(targetY: number, duration = 1200) {
     return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
   };
 
+  // Hand control straight back to the user if they scroll during the animation
+  let cancelled = false;
+  const cancel = () => {
+    cancelled = true;
+  };
+  const stopListening = () => {
+    window.removeEventListener('wheel', cancel);
+    window.removeEventListener('touchstart', cancel);
+    window.removeEventListener('keydown', cancel);
+  };
+  window.addEventListener('wheel', cancel, { passive: true });
+  window.addEventListener('touchstart', cancel, { passive: true });
+  window.addEventListener('keydown', cancel);
+
   const step = (currentTime: number) => {
+    if (cancelled) {
+      stopListening();
+      return;
+    }
     if (startTime === null) startTime = currentTime;
     const timeElapsed = currentTime - startTime;
     const progress = Math.min(timeElapsed / duration, 1);
@@ -28,6 +43,8 @@ export function smoothScrollTo(targetY: number, duration = 1200) {
 
     if (timeElapsed < duration) {
       requestAnimationFrame(step);
+    } else {
+      stopListening();
     }
   };
 

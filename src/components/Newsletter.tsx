@@ -6,7 +6,7 @@ interface ProjectInquiryProps {
 
 export default function Newsletter({ onOpenContact }: ProjectInquiryProps) {
   return (
-    <section id="newsletter" className="relative z-30 w-full bg-[#05070a] text-white py-20 sm:py-28 md:py-36 px-6 sm:px-12 md:px-20 overflow-hidden select-none isolate">
+    <section id="newsletter" className="relative z-30 w-full bg-[#0a0a0a] text-white py-20 sm:py-28 md:py-36 px-6 sm:px-12 md:px-20 overflow-hidden select-none isolate">
       {/* Background Graphic resembling majestic forest / rocky surface */}
       <div 
         className="absolute inset-0 bg-cover bg-center opacity-55 mix-blend-luminosity pointer-events-none transform-none transition-none"
@@ -22,11 +22,9 @@ export default function Newsletter({ onOpenContact }: ProjectInquiryProps) {
         
         {/* Left Side: Typography */}
         <ScrollReveal yOffset={25} duration={0.95} className="space-y-4 max-w-2xl">
-          <p className="text-[11px] sm:text-[13px] font-manrope tracking-[0.25em] text-neutral-400 uppercase font-semibold">
-            LET'S CREATE TOGETHER
-          </p>
+          <span className="znx-eyebrow">LET'S CREATE TOGETHER</span>
           
-          <h2 className="text-4xl sm:text-5xl md:text-6xl font-bodoni font-bold uppercase tracking-tight text-white leading-[1.05]">
+          <h2 className="znx-heading text-white">
             Have a project <br /> in mind?
           </h2>
         </ScrollReveal>

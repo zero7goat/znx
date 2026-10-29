@@ -86,7 +86,7 @@ export default function ThreeWorld() {
 
     // ── 1. Create Scene, Camera, and WebGL Renderer ──
     const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x05070a, 0.035);
+    scene.fog = new THREE.FogExp2(0x0a0a0a, 0.035);
 
     const camera = new THREE.PerspectiveCamera(
       CAM_WAYPOINTS[0].fov,
@@ -103,7 +103,7 @@ export default function ThreeWorld() {
     });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.0 : 2.0));
-    renderer.setClearColor(0x05070a, 1);
+    renderer.setClearColor(0x0a0a0a, 1);
     renderer.domElement.style.position = 'absolute';
     renderer.domElement.style.inset = '0';
     renderer.domElement.style.width = '100%';
@@ -255,7 +255,8 @@ export default function ThreeWorld() {
       const scrollY = window.scrollY;
       const vpH = window.innerHeight;
       const heroEl = document.getElementById('hero');
-      heroBottom = heroEl ? heroEl.getBoundingClientRect().bottom + scrollY : vpH;
+      // offsetTop ignores sticky positioning, so this is the hero's layout bottom even while pinned
+      heroBottom = heroEl ? heroEl.offsetTop + heroEl.offsetHeight : vpH;
       const sections = ['top', 'work', 'services'];
       
       cachedAnchors = sections.map((id, index) => {

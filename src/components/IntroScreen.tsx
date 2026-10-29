@@ -93,7 +93,7 @@ export default function IntroScreen({ onComplete }: IntroScreenProps) {
           </div>
 
           {/* Loading black bar at the very bottom */}
-          <div className="absolute bottom-0 left-0 right-0 h-[4px] bg-slate-300/30 overflow-hidden">
+          <div className="absolute bottom-0 left-0 right-0 h-[4px] bg-neutral-300/30 overflow-hidden">
             <motion.div
               className="h-full bg-black"
               initial={{ width: '0%' }}

@@ -485,7 +485,8 @@ export default function AboutPage({
                   >
                     <button
                       onClick={() => setOpenFaqIndex(isOpen ? null : idx)}
-                      className="w-full py-6 sm:py-8 flex items-start sm:items-center justify-between text-left gap-6 group cursor-pointer focus:outline-none"
+                      aria-expanded={isOpen}
+                      className="w-full py-6 sm:py-8 flex items-start sm:items-center justify-between text-left gap-6 group cursor-pointer"
                     >
                       <div className="flex items-start sm:items-center gap-6 sm:gap-12 flex-1">
                         {/* Numbers in RED (#ef4444) */}
@@ -498,8 +499,11 @@ export default function AboutPage({
                         </span>
                       </div>
                       {/* Arrow Icon */}
-                      <span className="text-xl sm:text-2xl text-white font-bold shrink-0 transition-transform duration-300">
-                        {isOpen ? '↑' : '↓'}
+                      <span
+                        aria-hidden="true"
+                        className={`text-xl sm:text-2xl text-white font-bold shrink-0 transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${isOpen ? 'rotate-180' : ''}`}
+                      >
+                        ↓
                       </span>
                     </button>
 

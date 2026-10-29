@@ -42,7 +42,7 @@ export default function ScrollReveal({
     // Respect user prefers-reduced-motion setting
     if (typeof window !== 'undefined') {
       const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if (prefersReducedMotion) {
+      if (prefersReducedMotion || typeof IntersectionObserver === 'undefined') {
         setIsVisible(true);
         return;
       }
@@ -63,7 +63,9 @@ export default function ScrollReveal({
       },
       {
         root: null,
-        rootMargin,
+        // For one-shot reveals, extend the observed area far above the viewport so content
+        // that was jumped past (End key, anchors, back navigation, fast flicks) still reveals
+        rootMargin: once ? ['99999px', ...rootMargin.split(' ').slice(1)].join(' ') : rootMargin,
         threshold,
       }
     );

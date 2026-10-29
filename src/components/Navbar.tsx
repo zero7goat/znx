@@ -59,6 +59,24 @@ export default function Navbar({ activeTab, onSelectTab, onOpenContact }: Navbar
     };
   }, []);
 
+  // Escape closes whichever menu is open; the mobile sheet also locks page scroll
+  useEffect(() => {
+    if (!isOpen && !isMobileMenuOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsOpen(false);
+        setIsMobileMenuOpen(false);
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    const previousOverflow = document.documentElement.style.overflow;
+    if (isMobileMenuOpen) document.documentElement.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+      document.documentElement.style.overflow = previousOverflow;
+    };
+  }, [isOpen, isMobileMenuOpen]);
+
   // Close menu when clicking outside
   useEffect(() => {
     if (!isOpen) return;
@@ -95,7 +113,8 @@ export default function Navbar({ activeTab, onSelectTab, onOpenContact }: Navbar
       <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[100] sm:hidden pointer-events-auto select-none">
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          aria-label="Toggle Menu"
+          aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={isMobileMenuOpen}
           style={{ touchAction: 'manipulation' }}
           className="w-12 h-12 rounded-full bg-black/95 text-white border border-white/20 flex flex-col items-center justify-center gap-1.5 cursor-pointer shadow-lg shadow-black/60 focus:outline-none active:scale-90 transition-transform duration-200"
         >
@@ -197,7 +216,7 @@ export default function Navbar({ activeTab, onSelectTab, onOpenContact }: Navbar
                     onOpenContact();
                   }}
                   style={{ touchAction: 'manipulation' }}
-                  className="w-full bg-white text-black py-2.5 rounded-none font-mono-tech font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-neutral-200 active:scale-[0.98] transition-all cursor-pointer"
+                  className="znx-btn znx-btn-primary w-full"
                 >
                   <span>LET'S TALK</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -226,6 +245,16 @@ export default function Navbar({ activeTab, onSelectTab, onOpenContact }: Navbar
             }}
             onClick={() => {
               if (navMode === 'circle') {
+                setIsOpen(true);
+              }
+            }}
+            // In circle mode the whole pill acts as the "open menu" button (keyboard too)
+            role={navMode === 'circle' ? 'button' : undefined}
+            tabIndex={navMode === 'circle' ? 0 : undefined}
+            aria-label={navMode === 'circle' ? 'Open navigation menu' : undefined}
+            onKeyDown={(e) => {
+              if (navMode === 'circle' && (e.key === 'Enter' || e.key === ' ')) {
+                e.preventDefault();
                 setIsOpen(true);
               }
             }}
@@ -271,7 +300,7 @@ export default function Navbar({ activeTab, onSelectTab, onOpenContact }: Navbar
                           handleTabClick(tab.id);
                         }}
                         className={`group relative text-[11px] sm:text-[12px] font-semibold tracking-[0.2em] uppercase transition-colors duration-300 py-1 ${
-                          isActive ? 'text-white font-bold' : 'text-slate-400 hover:text-white'
+                          isActive ? 'text-white font-bold' : 'text-neutral-400 hover:text-white'
                         }`}
                       >
                         <FlipBlock hoverColorClass="text-white font-bold">{tab.label}</FlipBlock>
@@ -299,7 +328,7 @@ export default function Navbar({ activeTab, onSelectTab, onOpenContact }: Navbar
                           handleTabClick(tab.id);
                         }}
                         className={`group relative text-[11px] sm:text-[12px] font-semibold tracking-[0.2em] uppercase transition-colors duration-300 py-1 ${
-                          isActive ? 'text-white font-bold' : 'text-slate-400 hover:text-white'
+                          isActive ? 'text-white font-bold' : 'text-neutral-400 hover:text-white'
                         }`}
                       >
                         <FlipBlock hoverColorClass="text-white font-bold">{tab.label}</FlipBlock>
@@ -315,9 +344,9 @@ export default function Navbar({ activeTab, onSelectTab, onOpenContact }: Navbar
                       setIsOpen(false);
                       onOpenContact();
                     }}
-                    className="group flex items-center gap-1.5 text-[11px] sm:text-[12px] font-semibold tracking-wider uppercase py-1 text-white hover:text-slate-300 transition-colors"
+                    className="group flex items-center gap-1.5 text-[11px] sm:text-[12px] font-semibold tracking-wider uppercase py-1 text-white hover:text-neutral-300 transition-colors"
                   >
-                    <FlipBlock hoverColorClass="text-slate-300">
+                    <FlipBlock hoverColorClass="text-neutral-300">
                       <span>LET'S TALK</span>
                       <ArrowUpRight className="w-3.5 h-3.5" />
                     </FlipBlock>
@@ -328,7 +357,7 @@ export default function Navbar({ activeTab, onSelectTab, onOpenContact }: Navbar
                       e.stopPropagation();
                       setIsOpen(false);
                     }}
-                    className="p-1 rounded-full text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+                    className="p-1 rounded-full text-neutral-400 hover:text-white hover:bg-white/10 transition-colors"
                     aria-label="Close menu"
                   >
                     <X className="w-4 h-4" />

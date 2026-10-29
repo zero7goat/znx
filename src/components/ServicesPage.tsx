@@ -184,7 +184,7 @@ const HeroImageCycler = React.memo(function HeroImageCycler() {
   }, [isDecoded, sources.length]);
 
   return (
-    <div className="w-full h-full relative overflow-hidden bg-slate-950">
+    <div className="w-full h-full relative overflow-hidden bg-neutral-950">
       {sources.map((src, idx) => {
         const isActive = idx === currentIndex;
         return (
@@ -224,9 +224,6 @@ export default function ServicesPage({
           const rect = el.getBoundingClientRect();
           const targetY = rect.top + window.pageYOffset - 80;
           window.scrollTo(0, targetY);
-          if ((window as any).lenis) {
-            (window as any).lenis.scrollTo(targetY, { immediate: true });
-          }
         }
       };
 
@@ -236,9 +233,6 @@ export default function ServicesPage({
       return () => clearTimeout(timer);
     } else {
       window.scrollTo(0, 0);
-      if ((window as any).lenis) {
-        (window as any).lenis.scrollTo(0, { immediate: true });
-      }
     }
   }, []);
 
@@ -311,7 +305,7 @@ export default function ServicesPage({
     <div
       ref={containerRef}
       style={{ backgroundColor: '#FAF8F5' }}
-      className="min-h-screen text-slate-950 font-sans select-none flex flex-col justify-between overflow-x-hidden relative"
+      className="min-h-screen text-neutral-950 font-sans select-none flex flex-col justify-between overflow-x-hidden relative"
     >
       <style>{`
         @keyframes cursorBlink {
@@ -359,7 +353,7 @@ export default function ServicesPage({
         <div className="flex items-center gap-4">
           <button
             onClick={onOpenContact}
-            className="group text-[11px] sm:text-xs font-medium tracking-widest uppercase text-slate-800 flex items-center gap-1 focus:outline-none cursor-pointer"
+            className="group text-[11px] sm:text-xs font-medium tracking-widest uppercase text-neutral-800 flex items-center gap-1 focus:outline-none cursor-pointer"
           >
             <FlipBlock>
               <span>LET'S TALK</span>
@@ -375,9 +369,9 @@ export default function ServicesPage({
         <div className="w-full max-w-[1400px] mx-auto grid grid-cols-1 md:grid-cols-12">
           
           {/* LEFT SIDEBAR GRID CELL (Desktop column span 3) */}
-          <div className="hidden md:flex md:col-span-3 flex-col justify-between border-r border-black/15 p-6 sm:p-8 text-[11px] font-mono uppercase tracking-widest text-slate-500 select-none">
+          <div className="hidden md:flex md:col-span-3 flex-col justify-between border-r border-black/15 p-6 sm:p-8 text-[11px] font-mono uppercase tracking-widest text-neutral-500 select-none">
             <div className="pt-2">01 / CAPABILITIES</div>
-            <div className="py-16 text-slate-400 leading-relaxed">ZNX STUDIO · DESIGNING FOR THE INTERNET</div>
+            <div className="py-16 text-neutral-400 leading-relaxed">ZNX STUDIO · DESIGNING FOR THE INTERNET</div>
             <div className="pb-2">BRANDING & MOTION</div>
           </div>
 
@@ -386,19 +380,19 @@ export default function ServicesPage({
             
             {/* TOP CELL: "We" */}
             <div className="w-full py-8 sm:py-12 md:py-16 border-b border-black/15 flex items-center justify-center bg-transparent">
-              <h1 className="text-7xl sm:text-8xl md:text-9xl lg:text-[10.5rem] font-bodoni font-normal text-slate-950 tracking-tight leading-none text-center">
+              <h1 className="text-7xl sm:text-8xl md:text-9xl lg:text-[10.5rem] font-bodoni font-normal text-neutral-950 tracking-tight leading-none text-center">
                 We
               </h1>
             </div>
 
             {/* MIDDLE CELL: Rapidly changing image with grid lines touching picture edges directly */}
-            <div className="w-full border-b border-black/15 relative overflow-hidden bg-slate-950 aspect-[4/3] sm:aspect-[16/10] md:aspect-[3/2] max-h-[520px]">
+            <div className="w-full border-b border-black/15 relative overflow-hidden bg-neutral-950 aspect-[4/3] sm:aspect-[16/10] md:aspect-[3/2] max-h-[520px]">
               <HeroImageCycler />
             </div>
 
             {/* BOTTOM CELL: "Do" */}
             <div className="w-full py-8 sm:py-12 md:py-16 flex items-center justify-center bg-transparent">
-              <h1 className="text-7xl sm:text-8xl md:text-9xl lg:text-[10.5rem] font-bodoni font-normal text-slate-950 tracking-tight leading-none text-center">
+              <h1 className="text-7xl sm:text-8xl md:text-9xl lg:text-[10.5rem] font-bodoni font-normal text-neutral-950 tracking-tight leading-none text-center">
                 Do
               </h1>
             </div>
@@ -406,9 +400,9 @@ export default function ServicesPage({
           </div>
 
           {/* RIGHT SIDEBAR GRID CELL (Desktop column span 3) */}
-          <div className="hidden md:flex md:col-span-3 flex-col justify-between p-6 sm:p-8 text-[11px] font-mono uppercase tracking-widest text-slate-500 select-none">
+          <div className="hidden md:flex md:col-span-3 flex-col justify-between p-6 sm:p-8 text-[11px] font-mono uppercase tracking-widest text-neutral-500 select-none">
             <div className="pt-2 text-right">WHAT WE DO</div>
-            <div className="py-16 text-right text-slate-400 leading-relaxed">DESIGN WITH INTENTION</div>
+            <div className="py-16 text-right text-neutral-400 leading-relaxed">DESIGN WITH INTENTION</div>
             <div className="pb-2 text-right">(2026)</div>
           </div>
 
@@ -432,7 +426,7 @@ export default function ServicesPage({
               {/* Clean Translucent Black and Gray Gradient Title */}
               <div className={`w-full mb-3 sm:mb-5 text-center ${isRightAligned ? 'sm:text-right' : 'sm:text-left'}`}>
                 <h3
-                  className="inline-block text-5xl sm:text-7xl md:text-8xl lg:text-[9rem] font-sans font-normal bg-gradient-to-r from-slate-950 via-slate-700 to-slate-400 bg-clip-text text-transparent tracking-tight leading-none select-none text-center"
+                  className="inline-block text-[2.5rem] sm:text-7xl md:text-8xl lg:text-[8.5rem] font-syne font-bold bg-gradient-to-r from-neutral-950 via-neutral-700 to-neutral-400 bg-clip-text text-transparent tracking-tight leading-[1.05] pb-[0.08em] select-none text-center"
                   style={{
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
@@ -447,7 +441,7 @@ export default function ServicesPage({
                 
                 {/* IMAGE CARD */}
                 <div
-                  className={`lg:col-span-6 min-h-[380px] sm:min-h-[480px] md:min-h-[540px] rounded-sm overflow-hidden bg-slate-900 border-none shadow-md relative ${
+                  className={`lg:col-span-6 min-h-[380px] sm:min-h-[480px] md:min-h-[540px] rounded-sm overflow-hidden bg-neutral-900 border-none shadow-md relative ${
                     isRightAligned ? 'lg:order-2' : 'lg:order-1'
                   }`}
                 >
@@ -469,14 +463,14 @@ export default function ServicesPage({
                 >
                   {/* Top Right Explanatory Paragraph */}
                   <div className="w-full flex justify-center sm:justify-end mb-8 sm:mb-12">
-                    <p className="text-xs sm:text-sm text-slate-500 leading-relaxed font-sans max-w-md text-center sm:text-left">
+                    <p className="text-xs sm:text-sm text-neutral-500 leading-relaxed font-sans max-w-md text-center sm:text-left">
                       {service.description}
                     </p>
                   </div>
 
                   {/* Subtitle Header with Dot Grid Icon */}
                   <div className="flex items-center gap-3 mb-6 sm:mb-8">
-                    <div className="grid grid-cols-3 gap-1 w-5 h-5 text-slate-700">
+                    <div className="grid grid-cols-3 gap-1 w-5 h-5 text-neutral-700">
                       <span className="w-1 h-1 rounded-full bg-current" />
                       <span className="w-1 h-1 rounded-full bg-current" />
                       <span className="w-1 h-1 rounded-full bg-current" />
@@ -488,23 +482,23 @@ export default function ServicesPage({
                       <span className="w-1 h-1 rounded-full bg-current" />
                     </div>
 
-                    <h4 className="text-xl sm:text-2xl md:text-3xl font-sans font-medium text-slate-900 tracking-tight">
+                    <h4 className="text-xl sm:text-2xl md:text-3xl font-sans font-medium text-neutral-900 tracking-tight">
                       {service.subtitle}
                     </h4>
                   </div>
 
                   {/* Capabilities List */}
-                  <div className="flex flex-col border-t border-slate-300/40 divide-y divide-slate-300/40">
+                  <div className="flex flex-col border-t border-neutral-300/40 divide-y divide-neutral-300/40">
                     {service.capabilities.map((cap, i) => (
                       <div
                         key={i}
                         className="py-3.5 sm:py-4.5 flex items-center justify-between group cursor-pointer transition-all duration-300"
                       >
-                        <span className="text-sm sm:text-base text-slate-800 font-sans font-normal group-hover:text-slate-950 transition-colors">
+                        <span className="text-sm sm:text-base text-neutral-800 font-sans font-normal group-hover:text-neutral-950 transition-colors">
                           {cap}
                         </span>
                         
-                        <div className="text-slate-500 group-hover:text-slate-950 group-hover:translate-x-1 transition-all">
+                        <div className="text-neutral-500 group-hover:text-neutral-950 group-hover:translate-x-1 transition-all">
                           <ChevronRight className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
                         </div>
                       </div>

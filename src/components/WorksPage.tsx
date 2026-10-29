@@ -315,15 +315,22 @@ export default function WorksPage({
 
   const filterRef = useRef<HTMLDivElement>(null);
 
-  // Close filter when clicking outside
+  // Close filter when clicking/tapping outside or pressing Escape
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (event: PointerEvent) => {
       if (filterRef.current && !filterRef.current.contains(event.target as Node)) {
         setActiveDropdown('none');
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setActiveDropdown('none');
+    };
+    document.addEventListener('pointerdown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
   }, []);
 
   // Filter items
@@ -357,7 +364,7 @@ export default function WorksPage({
   const isExpanded = activeDropdown !== 'none';
 
   return (
-    <div className="min-h-screen bg-[#070707] text-white font-sans select-none flex flex-col justify-between relative overflow-x-clip">
+    <div className="min-h-screen bg-[#0a0a0a] text-white font-sans select-none flex flex-col justify-between relative overflow-x-clip">
       
       {/* 1. TOP HEADER (STAYS AT THE TOP OF THE PAGE, SCROLLS NATURALLY, NO LOGO) */}
       <header className="w-full px-4 sm:px-8 py-6 flex items-center justify-between bg-transparent relative z-40">
@@ -431,7 +438,7 @@ export default function WorksPage({
                   {selectedType}
                 </h1>
                 {selectedDomain !== 'Anything' && (
-                  <p className="text-3xl sm:text-5xl md:text-6xl font-serif italic text-slate-400 font-normal mt-2">
+                  <p className="text-3xl sm:text-5xl md:text-6xl font-serif italic text-neutral-400 font-normal mt-2">
                     for {selectedDomain}
                   </p>
                 )}
@@ -447,15 +454,16 @@ export default function WorksPage({
         className="sticky top-20 sm:top-24 z-40 w-full flex flex-col items-center justify-start px-2 sm:px-4 mb-6 sm:mb-8 pointer-events-none"
       >
         {/* Fixed Pill Filter Bar - Completely stationary, clean dark background */}
-        <div className="pointer-events-auto bg-[#181818] text-[10px] sm:text-xs font-mono-tech tracking-wider uppercase text-slate-300 shadow-2xl shadow-black/90 rounded-full py-2.5 sm:py-3.5 px-4 sm:px-8 flex items-center justify-center gap-2 sm:gap-6 whitespace-nowrap h-10 sm:h-12 outline-none select-none">
+        <div className="pointer-events-auto bg-[#181818] text-[10px] sm:text-xs font-mono-tech tracking-wider uppercase text-neutral-300 shadow-2xl shadow-black/90 rounded-full py-2.5 sm:py-3.5 px-4 sm:px-8 flex items-center justify-center gap-2 sm:gap-6 whitespace-nowrap h-10 sm:h-12 outline-none select-none">
           {/* Type Filter Button */}
           <button
             onClick={() => toggleDropdown('type')}
+            aria-expanded={activeDropdown === 'type'}
             className={`flex items-center gap-1 sm:gap-2 hover:text-white transition-colors cursor-pointer outline-none focus:outline-none ${
               activeDropdown === 'type' ? 'text-white font-bold' : ''
             }`}
           >
-            <span className="text-slate-400 font-normal">
+            <span className="text-neutral-400 font-normal">
               <span className="hidden sm:inline">TYPE OF WORK</span>
               <span className="sm:hidden">TYPE</span>
             </span>
@@ -463,7 +471,7 @@ export default function WorksPage({
             {activeDropdown === 'type' ? (
               <ChevronUp className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-white transition-transform duration-300" />
             ) : (
-              <ChevronDown className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-slate-400 transition-transform duration-300" />
+              <ChevronDown className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-neutral-400 transition-transform duration-300" />
             )}
           </button>
 
@@ -472,16 +480,17 @@ export default function WorksPage({
           {/* Domain Filter Button */}
           <button
             onClick={() => toggleDropdown('domain')}
+            aria-expanded={activeDropdown === 'domain'}
             className={`flex items-center gap-1 sm:gap-2 hover:text-white transition-colors cursor-pointer outline-none focus:outline-none ${
               activeDropdown === 'domain' ? 'text-white font-bold' : ''
             }`}
           >
-            <span className="text-slate-400 font-normal">DOMAIN</span>
+            <span className="text-neutral-400 font-normal">DOMAIN</span>
             <span className="font-bold text-white uppercase">{selectedDomain}</span>
             {activeDropdown === 'domain' ? (
               <ChevronUp className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-white transition-transform duration-300" />
             ) : (
-              <ChevronDown className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-slate-400 transition-transform duration-300" />
+              <ChevronDown className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-neutral-400 transition-transform duration-300" />
             )}
           </button>
         </div>
@@ -494,9 +503,9 @@ export default function WorksPage({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-              className="pointer-events-auto absolute top-14 w-[92vw] max-w-lg bg-[#181818] text-xs sm:text-sm font-mono-tech tracking-wider uppercase text-slate-300 rounded-2xl p-4 sm:p-5 shadow-2xl shadow-black/90 border border-white/10 outline-none ring-0 flex flex-col items-center gap-3 select-none overflow-hidden"
+              className="pointer-events-auto absolute top-14 w-[92vw] max-w-lg bg-[#181818] text-xs sm:text-sm font-mono-tech tracking-wider uppercase text-neutral-300 rounded-2xl p-4 sm:p-5 shadow-2xl shadow-black/90 border border-white/10 outline-none ring-0 flex flex-col items-center gap-3 select-none overflow-hidden"
             >
-              <div className="text-[10px] sm:text-xs text-slate-400/70 font-mono-tech tracking-widest uppercase mb-0.5">
+              <div className="text-[10px] sm:text-xs text-neutral-400/70 font-mono-tech tracking-widest uppercase mb-0.5">
                 SELECT {activeDropdown === 'type' ? 'TYPE OF WORK' : 'DOMAIN'}
               </div>
 
@@ -519,10 +528,10 @@ export default function WorksPage({
                               setSelectedType(type);
                               setActiveDropdown('none');
                             }}
-                            className={`text-base sm:text-lg font-serif tracking-tight transition-all duration-300 cursor-pointer outline-none focus:outline-none border-0 ${
+                            className={`text-base sm:text-lg font-serif tracking-tight transition-colors duration-300 cursor-pointer border-0 ${
                               isSelected
-                                ? 'text-white font-medium scale-105'
-                                : 'text-slate-400 hover:text-white'
+                                ? 'text-white font-medium'
+                                : 'text-neutral-400 hover:text-white'
                             }`}
                           >
                             {type}
@@ -538,10 +547,10 @@ export default function WorksPage({
                               setSelectedDomain(domain);
                               setActiveDropdown('none');
                             }}
-                            className={`text-base sm:text-lg font-serif tracking-tight transition-all duration-300 cursor-pointer outline-none focus:outline-none border-0 ${
+                            className={`text-base sm:text-lg font-serif tracking-tight transition-colors duration-300 cursor-pointer border-0 ${
                               isSelected
-                                ? 'text-white font-medium scale-105'
-                                : 'text-slate-400 hover:text-white'
+                                ? 'text-white font-medium'
+                                : 'text-neutral-400 hover:text-white'
                             }`}
                           >
                             {domain}
@@ -560,14 +569,13 @@ export default function WorksPage({
         
         {/* Results Counter if filtering */}
         {(selectedType !== 'Everything' || selectedDomain !== 'Anything') && (
-          <div className="mb-4 text-center text-xs font-mono-tech tracking-widest text-slate-400 uppercase">
+          <div className="mb-4 text-center text-xs font-mono-tech tracking-widest text-neutral-400 uppercase">
             SHOWING {displayWorks.length} WORKS FOR {selectedType.toUpperCase()}{' '}
             {selectedDomain !== 'Anything' ? `• ${selectedDomain.toUpperCase()}` : ''}
           </div>
         )}
 
-        <motion.div layout className="grid grid-cols-1 md:grid-cols-2 gap-1.5 sm:gap-2 md:gap-2.5">
-          <AnimatePresence mode="popLayout">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-1.5 sm:gap-2 md:gap-2.5">
             {displayWorks.map((item, idx) => (
               <ScrollReveal
                 key={item.id}
@@ -587,7 +595,7 @@ export default function WorksPage({
                   className="relative group cursor-pointer w-full aspect-[16/10] sm:aspect-[16/10.2]"
                 >
                   {/* Image Container (Smoothly crops bottom edge without zooming or scaling the image) */}
-                  <div className="relative w-full h-full overflow-hidden rounded-md sm:rounded-lg bg-[#111] transition-[clip-path] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] [clip-path:inset(0_0_0_0)] group-hover:[clip-path:inset(0_0_2.25rem_0)] sm:group-hover:[clip-path:inset(0_0_2.5rem_0)]">
+                  <div className="relative w-full h-full overflow-hidden rounded-md sm:rounded-lg bg-[#111] transition-[clip-path] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] [clip-path:inset(0_0_0_0)] group-hover:[clip-path:inset(0_0_2.25rem_0)] sm:group-hover:[clip-path:inset(0_0_2.5rem_0)] [@media(hover:none)]:[clip-path:inset(0_0_2.25rem_0)]">
                     <img
                       src={item.src}
                       alt={item.title}
@@ -616,25 +624,24 @@ export default function WorksPage({
                   </div>
 
                   {/* Bottom Info Bar Revealed Beneath Compressed Image (Title on Left, Category on Right) */}
-                  <div className="absolute bottom-0 inset-x-0 h-9 sm:h-10 flex items-center justify-between px-1.5 pb-1 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] delay-100">
+                  <div className="absolute bottom-0 inset-x-0 h-9 sm:h-10 flex items-center justify-between px-1.5 pb-1 opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] delay-100">
                     <h3 className="text-sm sm:text-base md:text-lg font-sans font-semibold text-white tracking-tight">
                       {item.title}
                     </h3>
-                    <span className="text-xs sm:text-sm font-sans text-slate-400 font-normal">
+                    <span className="text-xs sm:text-sm font-sans text-neutral-400 font-normal">
                       {item.category}
                     </span>
                   </div>
                 </div>
               </ScrollReveal>
             ))}
-          </AnimatePresence>
-        </motion.div>
+        </div>
       </main>
 
       {/* 5. CTA BANNER SECTION */}
       <section className="w-full px-4 sm:px-8 pt-16 sm:pt-24 pb-12 sm:pb-16 max-w-[1700px] mx-auto">
         <ScrollReveal yOffset={30} duration={0.9}>
-          <div className="relative rounded-[2rem] sm:rounded-[2.5rem] bg-[#0c0c0c] overflow-hidden p-8 sm:p-12 md:p-16 min-h-[420px] sm:min-h-[480px] flex flex-col justify-between shadow-md shadow-black/20 group">
+          <div className="relative rounded-2xl border border-white/10 bg-[#0c0c0c] overflow-hidden p-8 sm:p-12 md:p-16 min-h-[420px] sm:min-h-[480px] flex flex-col justify-between shadow-md shadow-black/20 group">
           {/* Grassy / Atmospheric Landscape Background Image on right */}
           <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
             <img
@@ -659,22 +666,22 @@ export default function WorksPage({
             {/* CTA Button */}
             <button
               onClick={onOpenContact}
-              className="inline-flex items-center gap-2.5 bg-white hover:bg-slate-100 text-black font-sans font-semibold px-7 py-4 rounded-full text-sm sm:text-base transition-all duration-300 hover:scale-[1.03] cursor-pointer group/btn shadow-md shadow-black/20"
+              className="znx-btn znx-btn-primary"
             >
               <span>Book a call</span>
-              <ArrowUpRight className="w-4 h-4 text-black group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform duration-300" />
+              <ArrowUpRight className="w-4 h-4" />
             </button>
           </div>
 
           {/* Bottom Social Links Bar */}
-          <div className="relative z-10 border-t border-white/10 pt-6 sm:pt-8 mt-12 sm:mt-16 flex flex-row sm:grid sm:grid-cols-3 gap-6 sm:gap-4 text-xs font-mono-tech tracking-widest uppercase text-slate-300">
+          <div className="relative z-10 border-t border-white/10 pt-6 sm:pt-8 mt-12 sm:mt-16 flex flex-row sm:grid sm:grid-cols-3 gap-6 sm:gap-4 text-xs font-mono-tech tracking-widest uppercase text-neutral-300">
             <a
               href="https://www.youtube.com/@znxmotions"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 hover:text-white transition-colors cursor-pointer w-fit"
             >
-              <Youtube className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-slate-400" />
+              <Youtube className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-neutral-400" />
               <span className="hidden sm:inline">YOUTUBE</span>
             </a>
             <a
@@ -683,7 +690,7 @@ export default function WorksPage({
               rel="noopener noreferrer"
               className="flex items-center gap-2 hover:text-white transition-colors cursor-pointer w-fit"
             >
-              <Linkedin className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-slate-400" />
+              <Linkedin className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-neutral-400" />
               <span className="hidden sm:inline">LINKEDIN</span>
             </a>
             <a
@@ -692,7 +699,7 @@ export default function WorksPage({
               rel="noopener noreferrer"
               className="flex items-center gap-2 hover:text-white transition-colors cursor-pointer w-fit"
             >
-              <Instagram className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-slate-400" />
+              <Instagram className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-neutral-400" />
               <span className="hidden sm:inline">INSTAGRAM</span>
             </a>
           </div>

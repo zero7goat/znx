@@ -19,7 +19,7 @@ export default function Footer({
 }: FooterProps = {}) {
   return (
     <footer className="w-full bg-[#0a0a0a] text-white select-none overflow-hidden border-t border-white/[0.08] relative z-40 isolate">
-      <div className="w-full px-4 pt-10 pb-0 md:px-12 md:pt-20 lg:px-16 relative overflow-hidden flex flex-col justify-between">
+      <div className="w-full px-4 pt-14 pb-0 sm:px-8 md:px-12 md:pt-20 lg:px-16 relative flex flex-col justify-between">
         <div className="max-w-7xl mx-auto w-full grid grid-cols-1 md:grid-cols-12 gap-8 items-start relative z-10">
           
           {/* Left Panel: Agency Statement */}
@@ -31,7 +31,7 @@ export default function Footer({
 
           {/* Middle Panel: Navigation Link */}
           <ScrollReveal yOffset={25} duration={0.9} delay={0.1} className="md:col-span-3 space-y-3">
-            <span className="text-[9px] font-mono-tech tracking-[0.25em] text-neutral-500 uppercase block font-semibold">
+            <span className="znx-label block">
               EXPLORE
             </span>
             <div className="flex flex-col gap-2">
@@ -43,7 +43,7 @@ export default function Footer({
                     window.location.hash = '#/works';
                   }
                 }}
-                className="text-neutral-300 hover:text-white hover:translate-x-1 transition-all duration-300 cursor-pointer block text-left text-xs sm:text-sm font-sans font-normal"
+                className="text-neutral-300 hover:text-white hover:translate-x-1 transition-[color,transform] duration-300 cursor-pointer block text-left text-sm font-sans font-normal py-0.5"
               >
                 Works
               </button>
@@ -55,7 +55,7 @@ export default function Footer({
                     window.location.hash = '#/services';
                   }
                 }}
-                className="text-neutral-300 hover:text-white hover:translate-x-1 transition-all duration-300 cursor-pointer block text-left text-xs sm:text-sm font-sans font-normal"
+                className="text-neutral-300 hover:text-white hover:translate-x-1 transition-[color,transform] duration-300 cursor-pointer block text-left text-sm font-sans font-normal py-0.5"
               >
                 Services
               </button>
@@ -67,7 +67,7 @@ export default function Footer({
                     window.location.hash = '#/about';
                   }
                 }}
-                className="text-neutral-300 hover:text-white hover:translate-x-1 transition-all duration-300 cursor-pointer block text-left text-xs sm:text-sm font-sans font-normal"
+                className="text-neutral-300 hover:text-white hover:translate-x-1 transition-[color,transform] duration-300 cursor-pointer block text-left text-sm font-sans font-normal py-0.5"
               >
                 About
               </button>
@@ -79,7 +79,7 @@ export default function Footer({
                     window.location.hash = '#/privacy';
                   }
                 }}
-                className="text-neutral-300 hover:text-white hover:translate-x-1 transition-all duration-300 cursor-pointer block text-left text-xs sm:text-sm font-sans font-normal"
+                className="text-neutral-300 hover:text-white hover:translate-x-1 transition-[color,transform] duration-300 cursor-pointer block text-left text-sm font-sans font-normal py-0.5"
               >
                 Privacy Policy
               </button>
@@ -88,7 +88,7 @@ export default function Footer({
 
           {/* Right Panel: Social Pills Stacking */}
           <ScrollReveal yOffset={25} duration={0.9} delay={0.2} className="md:col-span-3 space-y-3">
-            <span className="text-[9px] font-mono-tech tracking-[0.25em] text-neutral-500 uppercase block font-semibold">
+            <span className="znx-label block">
               FOLLOW US
             </span>
             <div className="flex flex-row sm:flex-col gap-3 sm:gap-2.5 flex-wrap">
@@ -126,14 +126,22 @@ export default function Footer({
           </ScrollReveal>
         </div>
 
-        <div className="h-[20vw] sm:h-[15vw] md:h-[16vw] lg:h-[18vw] min-h-[75px]" />
-
-        {/* Center-Bottom: ZNX Giant Letters */}
-        <ScrollReveal yOffset={30} duration={1.1} className="absolute bottom-0 left-0 right-0 w-full overflow-hidden select-none pointer-events-none flex items-end justify-center h-[16vw] sm:h-[14vw] md:h-[15vw] min-h-[65px]">
-          <h2 className="text-[27vw] sm:text-[26vw] md:text-[27vw] lg:text-[28vw] font-syne font-extrabold leading-none tracking-tighter text-center text-transparent bg-clip-text bg-gradient-to-b from-white via-neutral-300 to-neutral-600 select-none block translate-y-[44%] sm:translate-y-[48%]">
-            ZNX
-          </h2>
-        </ScrollReveal>
+        {/* Giant ZNX wordmark: full-bleed, sized in vw so it spans the width at every breakpoint,
+            with the bottom of the letters deliberately cropped by the footer edge (em-based, so the
+            crop is identical on mobile and desktop). Rises into place on reveal. */}
+        <div
+          aria-hidden="true"
+          className="-mx-4 sm:-mx-8 md:-mx-12 lg:-mx-16 mt-14 sm:mt-20 overflow-hidden select-none pointer-events-none"
+        >
+          <ScrollReveal yOffset={40} duration={1.1}>
+            <span
+              className="block text-center font-syne font-extrabold leading-[0.8] tracking-[-0.05em] text-transparent bg-clip-text bg-gradient-to-b from-white via-neutral-300 to-neutral-600 whitespace-nowrap"
+              style={{ fontSize: 'clamp(4.5rem, 27vw, 30rem)', marginBottom: '-0.11em' }}
+            >
+              ZNX
+            </span>
+          </ScrollReveal>
+        </div>
       </div>
     </footer>
   );

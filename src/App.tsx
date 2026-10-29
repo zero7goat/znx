@@ -1,5 +1,4 @@
 import { useEffect, useState, useRef, lazy, Suspense } from 'react';
-import Lenis from 'lenis';
 import { motion, AnimatePresence } from 'motion/react';
 import IntroScreen from './components/IntroScreen';
 import Navbar from './components/Navbar';
@@ -21,16 +20,34 @@ const WorksPage = lazy(() => import('./components/WorksPage'));
 const AboutPage = lazy(() => import('./components/AboutPage'));
 const ThreeWorld = lazy(() => import('./components/ThreeWorld'));
 
+type Page = 'home' | 'works' | 'services' | 'about' | 'privacy';
+
+const pageFromHash = (hash: string): Page => {
+  if (hash.startsWith('#/services') || hash.startsWith('#services-page')) return 'services';
+  if (hash === '#/about' || hash === '#about') return 'about';
+  if (hash === '#/privacy' || hash === '#privacy') return 'privacy';
+  if (hash === '#/works' || hash === '#works') return 'works';
+  return 'home';
+};
+
+const TAB_FOR_PAGE: Partial<Record<Page, NavTab>> = { works: 'work', services: 'services', about: 'about' };
+
+// Matches the veil fade-in duration below
+const VEIL_MS = 350;
+const wait = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
+const nextFrame = () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+
 export default function App() {
   const [showIntro, setShowIntro] = useState(true);
   const [activeTab, setActiveTab] = useState<NavTab>('work');
   const [isContactOpen, setIsContactOpen] = useState(false);
-  const [isServicesPageOpen, setIsServicesPageOpen] = useState(false);
-  const [isAboutPageOpen, setIsAboutPageOpen] = useState(false);
-  const [isPrivacyPageOpen, setIsPrivacyPageOpen] = useState(false);
-  const [isWorksPageOpen, setIsWorksPageOpen] = useState(false);
+  const [page, setPage] = useState<Page>('home');
   const [isPageTransitioning, setIsPageTransitioning] = useState(false);
-  const lenisRef = useRef<Lenis | null>(null);
+  const pageRef = useRef<Page>('home');
+  const isServicesPageOpen = page === 'services';
+  const isAboutPageOpen = page === 'about';
+  const isPrivacyPageOpen = page === 'privacy';
+  const isWorksPageOpen = page === 'works';
 
   // Global preloader for all critical website images and lazy route chunks
   useEffect(() => {
@@ -50,187 +67,66 @@ export default function App() {
     }
   }, []);
 
-  // Sync route with window location hash
-  useEffect(() => {
-    const handleHashChange = async () => {
-      const hash = window.location.hash;
-      if (hash.startsWith('#/services') || hash.startsWith('#services-page')) {
-        await preloadRouteAssets('services');
-        setIsServicesPageOpen(true);
-        setIsAboutPageOpen(false);
-        setIsPrivacyPageOpen(false);
-        setIsWorksPageOpen(false);
-        setActiveTab('services');
-        setShowIntro(false);
+  // Single navigation path: fade the veil in, swap the page underneath it, reset scroll, fade out.
+  // `hash` is null when the navigation came from a hashchange (the URL is already correct).
+  const navigate = async (target: Page, hash: string | null, afterSwap?: () => void) => {
+    setIsPageTransitioning(true);
 
-        const match = hash.match(/[?&]service=([^&]+)/) || hash.match(/#service-(.+)/) || hash.match(/#([a-z0-9]+)$/);
-        if (match && match[1] && match[1] !== 'services') {
-          const serviceId = match[1];
-          setTimeout(() => {
-            const el = document.getElementById(serviceId) || document.getElementById(`service-${serviceId}`);
-            if (el) {
-              el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-          }, 350);
-        }
-      } else if (hash === '#/about' || hash === '#about') {
-        await preloadRouteAssets('about');
-        setIsAboutPageOpen(true);
-        setIsServicesPageOpen(false);
-        setIsPrivacyPageOpen(false);
-        setIsWorksPageOpen(false);
-        setActiveTab('about');
-        setShowIntro(false);
-      } else if (hash === '#/privacy' || hash === '#privacy') {
-        await preloadRouteAssets('privacy');
-        setIsPrivacyPageOpen(true);
-        setIsAboutPageOpen(false);
-        setIsServicesPageOpen(false);
-        setIsWorksPageOpen(false);
-        setShowIntro(false);
-      } else if (hash === '#/works' || hash === '#works') {
-        await preloadRouteAssets('works');
-        setIsWorksPageOpen(true);
-        setIsAboutPageOpen(false);
-        setIsServicesPageOpen(false);
-        setIsPrivacyPageOpen(false);
-        setActiveTab('work');
-        setShowIntro(false);
-      } else {
-        setIsServicesPageOpen(false);
-        setIsAboutPageOpen(false);
-        setIsPrivacyPageOpen(false);
-        setIsWorksPageOpen(false);
+    // Preload destination assets while the veil covers the page, and never swap before it's opaque
+    await Promise.all([preloadRouteAssets(target), wait(VEIL_MS)]);
+
+    pageRef.current = target;
+    if (hash !== null && window.location.hash !== hash) {
+      window.location.hash = hash;
+    }
+    setPage(target);
+    if (TAB_FOR_PAGE[target]) setActiveTab(TAB_FOR_PAGE[target]!);
+    if (target !== 'home') setShowIntro(false);
+
+    // Let React commit the new page before touching scroll
+    await nextFrame();
+    await nextFrame();
+    if (afterSwap) {
+      afterSwap();
+    } else {
+      window.scrollTo(0, 0);
+    }
+
+    setIsPageTransitioning(false);
+  };
+
+  // Sync route with window location hash (browser back/forward, links that set the hash)
+  useEffect(() => {
+    const handleHashChange = () => {
+      const target = pageFromHash(window.location.hash);
+      if (target !== pageRef.current) {
+        navigate(target, null);
       }
     };
 
-    handleHashChange();
     window.addEventListener('hashchange', handleHashChange);
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
-  const handleOpenServicesPage = async (serviceId?: string) => {
-    setIsPageTransitioning(true);
-
-    // Preload destination critical assets & fonts while transition curtain is visible
-    await preloadRouteAssets('services');
-
-    setIsServicesPageOpen(true);
-    setIsAboutPageOpen(false);
-    setIsPrivacyPageOpen(false);
-    setIsWorksPageOpen(false);
-    setActiveTab('services');
-    window.location.hash = serviceId ? `#/services?service=${serviceId}` : '#/services';
-
-    if (serviceId) {
-      requestAnimationFrame(() => {
-        const el = document.getElementById(serviceId) || document.getElementById(`service-${serviceId}`);
-        if (el) {
-          const rect = el.getBoundingClientRect();
-          const targetY = rect.top + window.pageYOffset - 80;
-          window.scrollTo(0, targetY);
-          if (lenisRef.current) {
-            lenisRef.current.scrollTo(targetY, { immediate: true });
-          }
-        }
-      });
-    } else {
-      window.scrollTo(0, 0);
-      if (lenisRef.current) {
-        lenisRef.current.scrollTo(0, { immediate: true });
-      }
-    }
-
-    setTimeout(() => {
-      setIsPageTransitioning(false);
-    }, 250);
+  const handleOpenServicesPage = (serviceId?: string) => {
+    // ServicesPage reads ?service= from the hash on mount and positions itself on that section
+    navigate(
+      'services',
+      serviceId ? `#/services?service=${serviceId}` : '#/services',
+      serviceId ? () => {} : undefined
+    );
   };
 
-  const handleOpenWorksPage = async () => {
-    setIsPageTransitioning(true);
+  const handleOpenWorksPage = () => navigate('works', '#/works');
+  const handleOpenPrivacyPage = () => navigate('privacy', '#/privacy');
+  const handleOpenAboutPage = () => navigate('about', '#/about');
 
-    await preloadRouteAssets('works');
-
-    setIsWorksPageOpen(true);
-    setIsServicesPageOpen(false);
-    setIsAboutPageOpen(false);
-    setIsPrivacyPageOpen(false);
-    setActiveTab('work');
-    window.location.hash = '#/works';
-    window.scrollTo(0, 0);
-    if (lenisRef.current) {
-      lenisRef.current.scrollTo(0, { immediate: true });
-    }
-
-    setTimeout(() => {
-      setIsPageTransitioning(false);
-    }, 250);
-  };
-
-  const handleOpenPrivacyPage = async () => {
-    setIsPageTransitioning(true);
-
-    await preloadRouteAssets('privacy');
-
-    setIsPrivacyPageOpen(true);
-    setIsServicesPageOpen(false);
-    setIsAboutPageOpen(false);
-    setIsWorksPageOpen(false);
-    window.location.hash = '#/privacy';
-    window.scrollTo(0, 0);
-    if (lenisRef.current) {
-      lenisRef.current.scrollTo(0, { immediate: true });
-    }
-
-    setTimeout(() => {
-      setIsPageTransitioning(false);
-    }, 250);
-  };
-
-  const handleOpenAboutPage = async () => {
-    setIsPageTransitioning(true);
-
-    await preloadRouteAssets('about');
-
-    setIsAboutPageOpen(true);
-    setIsServicesPageOpen(false);
-    setIsPrivacyPageOpen(false);
-    setIsWorksPageOpen(false);
-    setActiveTab('about');
-    window.location.hash = '#/about';
-    window.scrollTo(0, 0);
-    if (lenisRef.current) {
-      lenisRef.current.scrollTo(0, { immediate: true });
-    }
-
-    setTimeout(() => {
-      setIsPageTransitioning(false);
-    }, 250);
-  };
-
-  const handleBackToHome = async (targetSection?: string) => {
-    setIsPageTransitioning(true);
-
-    await preloadRouteAssets('home');
-
-    setIsServicesPageOpen(false);
-    setIsAboutPageOpen(false);
-    setIsPrivacyPageOpen(false);
-    setIsWorksPageOpen(false);
-    window.location.hash = targetSection ? `#${targetSection}` : '';
-
-    if (targetSection) {
-      smoothScrollToElement(targetSection, 800);
-    } else {
-      window.scrollTo(0, 0);
-      if (lenisRef.current) {
-        lenisRef.current.scrollTo(0, { immediate: true });
-      }
-    }
-
-    setTimeout(() => {
-      setIsPageTransitioning(false);
-    }, 250);
+  const handleBackToHome = (targetSection?: string) => {
+    navigate(
+      'home',
+      targetSection ? `#${targetSection}` : '',
+      targetSection ? () => smoothScrollToElement(targetSection, 800) : undefined
+    );
   };
 
   const handleOpenContact = () => {
@@ -246,50 +142,12 @@ export default function App() {
       handleOpenServicesPage();
     } else if (tab === 'about') {
       handleOpenAboutPage();
+    } else if (page !== 'home') {
+      handleBackToHome(tab);
     } else {
-      if (isServicesPageOpen || isWorksPageOpen || isPrivacyPageOpen || isAboutPageOpen) {
-        handleBackToHome(tab);
-      } else {
-        smoothScrollToElement(tab, 950);
-      }
+      smoothScrollToElement(tab, 950);
     }
   };
-
-  // Initialize Lenis smooth scroll globally across all pages and views
-  useEffect(() => {
-    if (showIntro) return;
-    // Keep native scrolling for users who prefer reduced motion
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
-    const lenis = new Lenis({
-      lerp: 0.085, // Silky smooth fluid momentum synced with compositing
-      duration: 1.2, // Smooth gliding deceleration
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // Natural exponential deceleration
-      smoothWheel: true,
-      wheelMultiplier: 0.85, // Smooth, controlled wheel scrolling
-      touchMultiplier: 1.1,
-    });
-
-    lenisRef.current = lenis;
-    (window as any).lenis = lenis;
-
-    let rafId: number;
-    function raf(time: number) {
-      lenis.raf(time);
-      rafId = requestAnimationFrame(raf);
-    }
-
-    rafId = requestAnimationFrame(raf);
-
-    return () => {
-      cancelAnimationFrame(rafId);
-      lenis.destroy();
-      lenisRef.current = null;
-      if ((window as any).lenis === lenis) {
-        delete (window as any).lenis;
-      }
-    };
-  }, [showIntro]);
 
   // Isolated Progressive Enhancements (Effect 1: WebGL Cloth Simulation, Effect 2: 3D Mouse Parallax)
   useEffect(() => {
@@ -318,10 +176,9 @@ export default function App() {
     };
   }, [showIntro]);
 
-  const isSubpageOpen = isPrivacyPageOpen || isWorksPageOpen || isServicesPageOpen;
 
   return (
-    <div className={`min-h-screen ${isSubpageOpen ? 'bg-[#EBE8E1] text-slate-900' : 'bg-[#05070a] text-white'} font-sans selection:bg-slate-900 selection:text-white relative transition-colors duration-700`}>
+    <div className={`min-h-screen ${isServicesPageOpen ? 'bg-[#FAF8F5] text-neutral-950' : 'bg-[#0a0a0a] text-white'} font-sans selection:bg-white selection:text-black relative`}>
       {/* Cinematic Film Grain Noise Overlay (Desktop only to prevent mobile scroll layer recomposition) */}
       <div 
         className="hidden sm:block fixed inset-0 z-[999999] pointer-events-none opacity-[0.022]"
@@ -345,7 +202,7 @@ export default function App() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed inset-0 z-[99999] bg-[#EBE8E1] flex flex-col items-center justify-center pointer-events-none select-none"
+            className="fixed inset-0 z-[99999] bg-[#0a0a0a] flex flex-col items-center justify-center pointer-events-auto select-none"
           >
             <div className="flex flex-col items-center gap-4">
               <img
@@ -361,10 +218,10 @@ export default function App() {
                     target.src = '/images/Logo.avif';
                   }
                 }}
-                className="h-9 w-auto brightness-0"
+                className="h-9 w-auto brightness-0 invert"
               />
-              <div className="w-16 h-[2px] bg-slate-200 overflow-hidden rounded-full relative">
-                <div className="w-full h-full bg-slate-900 animate-pulse" />
+              <div className="w-16 h-[2px] bg-white/10 overflow-hidden rounded-full relative">
+                <div className="w-full h-full bg-white animate-pulse" />
               </div>
             </div>
           </motion.div>

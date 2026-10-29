@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
-import { motion } from 'motion/react';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import ScrollReveal from './ScrollReveal';
 
 interface ServiceItem {
   id: string;
   number: string;
   name: string;
+  subtitle: string;
 }
 
 interface MajorServicesSectionProps {
@@ -14,11 +14,12 @@ interface MajorServicesSectionProps {
   onOpenWorks?: () => void;
 }
 
+// Subtitles mirror the headings used on the Services page
 const SERVICES: ServiceItem[] = [
-  { id: 'branding', number: '(01)', name: 'Branding' },
-  { id: 'uxui', number: '(02)', name: 'UX/UI Design' },
-  { id: 'webdev', number: '(03)', name: 'Web & Development' },
-  { id: 'motion3d', number: '(04)', name: '3D / Motion' },
+  { id: 'branding', number: '(01)', name: 'Branding', subtitle: 'Brand Strategy' },
+  { id: 'uxui', number: '(02)', name: 'UX/UI Design', subtitle: 'Digital Experience' },
+  { id: 'webdev', number: '(03)', name: 'Web & Development', subtitle: 'Engineering & Build' },
+  { id: 'motion3d', number: '(04)', name: '3D / Motion', subtitle: 'Motion & Visuals' },
 ];
 
 export default function MajorServicesSection({ onOpenServices }: MajorServicesSectionProps) {
@@ -41,6 +42,7 @@ export default function MajorServicesSection({ onOpenServices }: MajorServicesSe
   useEffect(() => {
     if (isTouchDevice) return;
     if (hoveredIndex !== null) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     const interval = setInterval(() => {
       if (document.hidden) return;
@@ -50,62 +52,47 @@ export default function MajorServicesSection({ onOpenServices }: MajorServicesSe
     return () => clearInterval(interval);
   }, [isTouchDevice, hoveredIndex]);
 
+  const openService = (serviceId?: string) => {
+    if (onOpenServices) {
+      onOpenServices(serviceId);
+    } else {
+      window.location.hash = serviceId ? `#/services?service=${serviceId}` : '#/services';
+    }
+  };
+
   return (
     <section
       id="services"
       data-light="false"
-      className="relative z-20 bg-[#05070a] text-white py-24 sm:py-32 px-6 sm:px-12 md:px-20 border-t border-white/15 shadow-[0_-60px_140px_rgba(0,0,0,0.98)] select-none flex items-center justify-center min-h-screen"
-      style={{ color: '#ffffff', backgroundColor: '#05070a' }}
+      className="relative z-20 bg-[#0a0a0a] text-white py-24 sm:py-32 px-6 sm:px-12 md:px-20 border-t border-white/10 shadow-[0_-40px_80px_rgba(0,0,0,0.55)] select-none flex items-center justify-center min-h-screen"
     >
       {/* Anchor for About navigation */}
       <div id="about" className="absolute -top-20 left-0 pointer-events-none opacity-0" />
 
-      <div className="max-w-7xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
-        
-        {/* Left Column: Typography & Button */}
-        <div className="lg:col-span-5 flex flex-col items-start text-left pt-2">
-          <ScrollReveal yOffset={25} duration={0.9}>
-            <span
-              className="text-[11px] sm:text-[13px] font-manrope tracking-[0.25em] uppercase font-bold block mb-1 text-red-500"
-              style={{ color: '#ef4444' }}
-            >
-              WHAT I DO
-            </span>
-            
-            <h2
-              className="text-4xl sm:text-6xl md:text-7xl font-bodoni font-bold tracking-tight leading-none mt-3 mb-6 uppercase text-white"
-              style={{ color: '#ffffff' }}
-            >
-              Services
-            </h2>
+      <div className="max-w-7xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
 
-            <p
-              className="text-[16px] sm:text-[18px] leading-relaxed max-w-sm font-manrope tracking-normal text-white/90"
-              style={{ color: '#ffffff' }}
-            >
+        {/* Left Column: Typography & Button */}
+        <div className="lg:col-span-5 flex flex-col items-start text-left">
+          <ScrollReveal yOffset={25} duration={0.9}>
+            <span className="znx-eyebrow mb-3">WHAT I DO</span>
+
+            <h2 className="znx-heading text-white mb-6">Services</h2>
+
+            <p className="text-base sm:text-lg leading-relaxed max-w-sm text-neutral-300">
               From concept to final cut, I offer end-to-end creative solutions for brands, artists, and businesses looking to tell their story visually.
             </p>
 
             <div className="mt-8">
-              <button
-                onClick={() => {
-                  if (onOpenServices) {
-                    onOpenServices();
-                  } else {
-                    window.location.hash = '#/services';
-                  }
-                }}
-                className="group bg-white text-black px-10 py-4 rounded-none text-xs font-mono-tech font-bold tracking-[0.2em] uppercase flex items-center gap-2.5 shadow-xl hover:bg-neutral-200 active:scale-95 transition-all cursor-pointer"
-              >
-                <span className="text-black font-bold">VIEW ALL SERVICES</span>
-                <ArrowRight className="w-4 h-4 text-black transition-transform duration-300 group-hover:translate-x-1" />
+              <button onClick={() => openService()} className="znx-btn znx-btn-primary">
+                <span>VIEW ALL SERVICES</span>
+                <ArrowRight className="w-4 h-4" />
               </button>
             </div>
           </ScrollReveal>
         </div>
 
-        {/* Right Column: Stacked Services List */}
-        <div className="lg:col-span-7 w-full border-t border-white/10">
+        {/* Right Column: Editorial services list */}
+        <ul className="lg:col-span-7 w-full border-t border-white/10">
           {SERVICES.map((service, idx) => {
             const isHighlighted = !isTouchDevice && (
               hoveredIndex !== null
@@ -114,54 +101,51 @@ export default function MajorServicesSection({ onOpenServices }: MajorServicesSe
             );
 
             return (
-              <motion.div
-                key={service.id}
-                onClick={() => {
-                  if (onOpenServices) {
-                    onOpenServices(service.id);
-                  } else {
-                    window.location.hash = `#/services?service=${service.id}`;
-                  }
-                }}
-                initial={{ opacity: 0, y: 15 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: idx * 0.08 }}
-                onMouseEnter={() => !isTouchDevice && setHoveredIndex(idx)}
-                onMouseLeave={() => !isTouchDevice && setHoveredIndex(null)}
-                className="group relative py-7 sm:py-9 border-b border-white/10 flex items-center justify-center overflow-hidden cursor-pointer"
-              >
-                {/* Bottom-to-Top Glass Slide Fill Layer (desktop only) */}
-                <div
-                  aria-hidden="true"
-                  className={`absolute inset-0 bg-white/[0.1] pointer-events-none transform transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] z-0 ${
-                    isHighlighted
-                      ? 'translate-y-0'
-                      : 'translate-y-full'
-                  }`}
-                />
-
-                <div className="relative z-10 flex items-center justify-center gap-4 text-center w-full">
-                  {/* Number tag e.g. (01) */}
-                  <span
-                    style={{ color: '#ffffff', opacity: isHighlighted ? 1 : 0.65 }}
-                    className="text-[11px] sm:text-[13px] font-manrope font-bold tracking-widest transition-opacity duration-300 text-white"
+              <li key={service.id} className="border-b border-white/10">
+                <ScrollReveal yOffset={15} duration={0.7} staggerIndex={idx}>
+                  <button
+                    type="button"
+                    onClick={() => openService(service.id)}
+                    onMouseEnter={() => !isTouchDevice && setHoveredIndex(idx)}
+                    onMouseLeave={() => !isTouchDevice && setHoveredIndex(null)}
+                    className="group relative w-full py-6 sm:py-8 px-2 sm:px-4 flex items-center gap-4 sm:gap-6 text-left overflow-hidden cursor-pointer"
                   >
-                    {service.number}
-                  </span>
+                    {/* Bottom-to-top fill layer (desktop highlight) */}
+                    <span
+                      aria-hidden="true"
+                      className={`absolute inset-0 bg-white/[0.06] pointer-events-none transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                        isHighlighted ? 'translate-y-0' : 'translate-y-full'
+                      }`}
+                    />
 
-                  {/* Service Title - Clean Sharp White Text, Stationary, No Zooming */}
-                  <span
-                    style={{ color: '#ffffff' }}
-                    className="text-[22px] sm:text-[28px] md:text-[32px] font-manrope font-bold tracking-tight leading-tight block text-white"
-                  >
-                    {service.name}
-                  </span>
-                </div>
-              </motion.div>
+                    <span
+                      className={`relative font-mono-tech text-[11px] sm:text-xs tracking-widest transition-colors duration-300 ${
+                        isHighlighted ? 'text-[#ef4444]' : 'text-neutral-500'
+                      }`}
+                    >
+                      {service.number}
+                    </span>
+
+                    <span className="relative flex-1 min-w-0 flex flex-col gap-2">
+                      <span className="font-syne font-bold text-[1.5rem] sm:text-[2rem] md:text-[2.25rem] tracking-tight leading-none text-white">
+                        {service.name}
+                      </span>
+                      <span className="znx-label">{service.subtitle}</span>
+                    </span>
+
+                    <ArrowUpRight
+                      className={`relative w-5 h-5 shrink-0 transition-[transform,opacity,color] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                        isHighlighted
+                          ? 'opacity-100 translate-x-0 text-white'
+                          : 'opacity-40 -translate-x-1 text-neutral-500 group-active:opacity-100'
+                      }`}
+                    />
+                  </button>
+                </ScrollReveal>
+              </li>
             );
           })}
-        </div>
+        </ul>
 
       </div>
     </section>

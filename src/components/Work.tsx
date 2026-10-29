@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect, WheelEvent } from 'react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
 import ShowreelModal from './ShowreelModal';
 import ScrollReveal from './ScrollReveal';
+import { useCoverRecede } from '../utils/useCoverRecede';
 
 interface WorkItem {
   id: string;
@@ -80,6 +81,8 @@ interface WorkShowcaseProps {
 
 export default function WorkShowcase({ onOpenWorks }: WorkShowcaseProps) {
   const [activeIndex, setActiveIndex] = useState(0);
+  // Pinned while the Services section slides over it
+  const { markerRef, recedeStyle } = useCoverRecede();
   const [selectedVideo, setSelectedVideo] = useState<{ isOpen: boolean; url: string; title: string }>({
     isOpen: false,
     url: '',
@@ -104,13 +107,15 @@ export default function WorkShowcase({ onOpenWorks }: WorkShowcaseProps) {
   const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
-    if (isHovered) return;
+    // Pause autoplay while hovered or while a video is playing
+    if (isHovered || selectedVideo.isOpen) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const interval = setInterval(() => {
       if (document.hidden) return;
       setActiveIndex((prev) => (prev + 1) % WORKS.length);
     }, 5000); // Elegant, slow 5-second automatic progression
     return () => clearInterval(interval);
-  }, [isHovered]);
+  }, [isHovered, selectedVideo.isOpen]);
 
   // Mobile Touch Handlers - NEVER block vertical scroll
   const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
@@ -178,22 +183,20 @@ export default function WorkShowcase({ onOpenWorks }: WorkShowcaseProps) {
   };
 
   return (
-    <section id="work" data-light="false" className="sticky top-0 [@media(max-height:700px)]:relative z-10 bg-[#05070a] text-white min-h-screen flex flex-col justify-center py-10 sm:py-14 md:py-16 px-4 sm:px-8 border-none overflow-hidden select-none">
-      <div className="max-w-7xl mx-auto w-full">
+    <>
+    <section
+      id="work"
+      data-light="false"
+      className="sticky top-0 [@media(max-height:700px)]:relative z-10 bg-[#0a0a0a] text-white min-h-screen flex flex-col justify-center pt-24 pb-10 sm:pt-28 sm:pb-14 px-4 sm:px-8 border-none overflow-hidden select-none shadow-[0_-40px_80px_rgba(0,0,0,0.55)]"
+    >
+      <motion.div style={recedeStyle} className="max-w-7xl mx-auto w-full">
         
         <ScrollReveal yOffset={25} duration={0.9}>
           {/* Eyebrow Tag - Exactly synced with Services WHAT I DO typography */}
-          <div className="flex items-center justify-center gap-1.5 mb-2">
-            <span
-              className="text-[11px] sm:text-[13px] font-manrope tracking-[0.25em] uppercase font-bold block text-red-500"
-              style={{ color: '#ef4444' }}
-            >
-              SELECTED WORK
-            </span>
-          </div>
+          <span className="znx-eyebrow text-center mb-3">SELECTED WORK</span>
 
           {/* Main Section Header */}
-          <h2 className="text-4xl sm:text-6xl md:text-7xl font-bodoni font-bold tracking-tight text-white text-center uppercase mb-8 sm:mb-12">
+          <h2 className="znx-heading text-white text-center mb-6 sm:mb-10">
             FEATURED WORK
           </h2>
         </ScrollReveal>
@@ -210,7 +213,7 @@ export default function WorkShowcase({ onOpenWorks }: WorkShowcaseProps) {
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
           onWheel={handleWheel}
-          className="relative w-screen left-1/2 -translate-x-1/2 overflow-hidden h-[200px] sm:h-[290px] md:h-[370px] flex items-center justify-center my-4 py-4 cursor-grab active:cursor-grabbing select-none"
+          className="relative w-screen left-1/2 -translate-x-1/2 overflow-hidden h-[200px] sm:h-[280px] md:h-[340px] flex items-center justify-center my-2 py-4 cursor-grab active:cursor-grabbing select-none"
           style={{ perspective: '1200px', touchAction: 'pan-y' }}
         >
           {WORKS.map((work, index) => {
@@ -316,31 +319,47 @@ export default function WorkShowcase({ onOpenWorks }: WorkShowcaseProps) {
           })}
         </div>
 
-        {/* Carousel Pagination Controls & Counter */}
-        <div className="flex items-center justify-center gap-5 mt-6 mb-2">
+        {/* Active project caption + pagination: prev · (counter, title, metadata) · next */}
+        <div className="mx-auto mt-5 flex w-full max-w-2xl items-center justify-between gap-4">
           <button
             onClick={prevSlide}
             aria-label="Previous work"
-            className="w-8 h-8 rounded-none border border-white/10 flex items-center justify-center text-white/40 hover:bg-white hover:text-black hover:border-white transition-all"
+            className="w-10 h-10 shrink-0 rounded-full border border-white/20 flex items-center justify-center text-white/60 hover:bg-white hover:text-black hover:border-white active:scale-95 transition-[background-color,color,border-color,transform] duration-300"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
 
-          <span className="text-xs font-mono-tech tracking-widest text-white/50 font-medium">
-            {String(activeIndex + 1).padStart(2, '0')} / {String(WORKS.length).padStart(2, '0')}
-          </span>
+          <div className="relative min-h-[3.75rem] flex-1 text-center" aria-live="polite">
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div
+                key={currentWork.id}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                className="flex flex-col items-center gap-1.5"
+              >
+                <span className="znx-label">
+                  {String(activeIndex + 1).padStart(2, '0')} / {String(WORKS.length).padStart(2, '0')} · {currentWork.category} · {currentWork.year}
+                </span>
+                <span className="font-syne font-bold text-base sm:text-xl tracking-tight text-white leading-tight">
+                  {currentWork.title}
+                </span>
+              </motion.div>
+            </AnimatePresence>
+          </div>
 
           <button
             onClick={nextSlide}
             aria-label="Next work"
-            className="w-8 h-8 rounded-none border border-white/10 flex items-center justify-center text-white/40 hover:bg-white hover:text-black hover:border-white transition-all"
+            className="w-10 h-10 shrink-0 rounded-full border border-white/20 flex items-center justify-center text-white/60 hover:bg-white hover:text-black hover:border-white active:scale-95 transition-[background-color,color,border-color,transform] duration-300"
           >
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>
 
-        {/* View All Works CTA Button - Exactly synced with Services VIEW ALL SERVICES button */}
-        <div className="flex justify-center mt-6">
+        {/* View All Works CTA */}
+        <div className="flex justify-center mt-7">
           <button
             onClick={() => {
               if (onOpenWorks) {
@@ -349,13 +368,13 @@ export default function WorkShowcase({ onOpenWorks }: WorkShowcaseProps) {
                 window.location.hash = '#/works';
               }
             }}
-            className="group bg-white text-black px-10 py-4 rounded-none text-xs font-mono-tech font-bold tracking-[0.2em] uppercase flex items-center gap-2.5 shadow-xl hover:bg-neutral-200 active:scale-95 transition-all cursor-pointer"
+            className="znx-btn znx-btn-primary"
           >
-            <span className="text-black font-bold">VIEW ALL WORKS</span>
-            <ArrowRight className="w-4 h-4 text-black transition-transform duration-300 group-hover:translate-x-1" />
+            <span>VIEW ALL WORKS</span>
+            <ArrowRight className="w-4 h-4" />
           </button>
         </div>
-      </div>
+      </motion.div>
 
       {/* Video Modal Player */}
       <ShowreelModal
@@ -365,6 +384,9 @@ export default function WorkShowcase({ onOpenWorks }: WorkShowcaseProps) {
         title={selectedVideo.title}
       />
     </section>
+    {/* Marks where the next section starts; drives the recede while it covers this one */}
+    <div ref={markerRef} aria-hidden="true" />
+    </>
   );
 }
 

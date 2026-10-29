@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, useMotionValue, useSpring } from 'motion/react';
 import { ArrowUpRight } from 'lucide-react';
 import { smoothScrollTo } from '../utils/smoothScroll';
-import ScrollReveal from './ScrollReveal';
+import { useCoverRecede } from '../utils/useCoverRecede';
 
 interface HeroSectionProps {
   onOpenShowreel?: () => void;
@@ -34,6 +34,8 @@ function FlipBlock({
 export default function HeroSection({ onOpenShowreel }: HeroSectionProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [isPlayingVideo, setIsPlayingVideo] = useState(false);
+  // Hero stays pinned and recedes while the Work section slides over it
+  const { markerRef, recedeStyle } = useCoverRecede();
 
   const xValue = useMotionValue(0);
   const yValue = useMotionValue(0);
@@ -75,10 +77,11 @@ export default function HeroSection({ onOpenShowreel }: HeroSectionProps) {
   };
 
   return (
-    <section 
-      id="hero" 
-      data-light="false" 
-      className="relative min-h-screen text-white flex flex-col justify-between pt-24 pb-12 px-6 sm:px-12 overflow-hidden select-none bg-transparent"
+    <>
+    <section
+      id="hero"
+      data-light="false"
+      className="sticky top-0 z-0 [@media(max-height:600px)]:relative min-h-screen text-white flex flex-col justify-between pt-24 pb-12 px-6 sm:px-12 overflow-hidden select-none bg-transparent"
     >
       {/* Background Subtle Grid / Accents */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.03] bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:32px_32px]" />
@@ -131,7 +134,7 @@ export default function HeroSection({ onOpenShowreel }: HeroSectionProps) {
       </div>
 
       {/* Main Hero Content Container */}
-      <div className="relative max-w-7xl mx-auto w-full flex-1 flex flex-col items-center justify-center my-auto py-12">
+      <motion.div style={recedeStyle} className="relative max-w-7xl mx-auto w-full flex-1 flex flex-col items-center justify-center my-auto py-12">
         <div className="relative w-full max-w-4xl flex flex-col items-center justify-center">
           
           {/* Big Static Background Typography Behind Showreel Image (Light gray, all caps, reduced opacity, zero animation lag) */}
@@ -146,14 +149,9 @@ export default function HeroSection({ onOpenShowreel }: HeroSectionProps) {
 
           {/* Central Media Container — Smooth 3D Perspective Mouse-Parallax for PC only (.parallax-bg-wrapper) */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{
-              type: 'spring',
-              stiffness: 160,
-              damping: 18,
-              mass: 0.4
-            }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
             onMouseMove={handleMouseMove}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
@@ -221,26 +219,27 @@ export default function HeroSection({ onOpenShowreel }: HeroSectionProps) {
             )}
           </motion.div>
         </div>
-      </div>
+      </motion.div>
 
-      {/* Hero Bottom Navigation Hint */}
+      {/* Hero Bottom Bar: studio labels framing the scroll cue (labels reuse the Services page copy) */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.8 }}
-        className="relative z-10 w-full flex flex-col items-center gap-2 text-center text-white/60"
+        transition={{ delay: 0.6, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        className="relative z-10 w-full max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 items-end gap-4"
       >
-        <span className="text-[11px] font-mono-tech tracking-[0.25em] uppercase text-white/40">
-          scroll down to explore
-        </span>
-        <motion.div
-          animate={{ y: [0, 5, 0] }}
-          transition={{ repeat: Infinity, duration: 1.8, ease: 'easeInOut' }}
-          className="w-1 h-5 rounded-full bg-white/20 overflow-hidden"
-        >
-          <div className="w-full h-1/2 bg-white/70 rounded-full" />
-        </motion.div>
+        <span className="znx-label hidden md:block text-left">ZNX Studio · Designing for the internet</span>
+        <div className="flex flex-col items-center gap-2 text-center">
+          <span className="znx-label text-white/40">scroll down to explore</span>
+          <div className="znx-scroll-cue w-1 h-5 rounded-full bg-white/20 overflow-hidden">
+            <div className="w-full h-1/2 bg-white/70 rounded-full" />
+          </div>
+        </div>
+        <span className="znx-label hidden md:block text-right">Branding &amp; Motion</span>
       </motion.div>
     </section>
+    {/* Marks where the next section starts; drives the recede while it covers this one */}
+    <div ref={markerRef} aria-hidden="true" />
+    </>
   );
 }
