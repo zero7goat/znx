@@ -72,7 +72,15 @@ export default function ScrollReveal({
 
     observer.observe(el);
 
+    // Safety net: if the observer never reports (rare browser/embedding quirks), reveal anything that
+    // is on screen or already scrolled past after a short wait, so content can't stay invisible
+    const fallback = window.setTimeout(() => {
+      const rect = el.getBoundingClientRect();
+      if (rect.top < window.innerHeight) setIsVisible(true);
+    }, 1500);
+
     return () => {
+      window.clearTimeout(fallback);
       observer.disconnect();
     };
   }, [once, threshold, rootMargin]);

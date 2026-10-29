@@ -94,9 +94,6 @@ export const CRITICAL_ROUTE_ASSETS: Record<string, string[]> = {
   ],
   services: [
     '/Logo.png',
-    '/images/bigimg.avif',
-    '/images/smallimg.avif',
-    '/images/1221.avif',
     'https://i.pinimg.com/1200x/2b/89/1f/2b891f6e5c20c30901939bd83d7d5e77.jpg',
     'https://i.pinimg.com/736x/0c/8e/1c/0c8e1c3cca5be58498a8df4106c4bc9c.jpg',
   ],

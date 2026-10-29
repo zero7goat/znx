@@ -5,7 +5,8 @@ import { NavTab } from '../types';
 import { smoothScrollToElement } from '../utils/smoothScroll';
 
 interface NavbarProps {
-  activeTab: NavTab;
+  /** Current page's nav item; null on pages without one (e.g. the homepage) */
+  activeTab: NavTab | null;
   onSelectTab: (tab: NavTab) => void;
   onOpenContact: () => void;
 }
@@ -210,11 +211,14 @@ export default function Navbar({ activeTab, onSelectTab, onOpenContact }: Navbar
                     key={tab.id}
                     variants={mobileItemVariants}
                     onClick={() => handleTabClick(tab.id)}
+                    aria-current={activeTab === tab.id ? 'page' : undefined}
                     style={{ touchAction: 'manipulation' }}
-                    className="text-left text-base font-sans font-semibold tracking-wide text-neutral-200 hover:text-white uppercase flex items-center justify-between border-b border-white/[0.04] py-2 transition-colors active:text-white"
+                    className={`text-left text-base font-sans font-semibold tracking-wide hover:text-white uppercase flex items-center justify-between border-b border-white/[0.04] py-2 transition-colors active:text-white ${
+                      activeTab === tab.id ? 'text-white' : 'text-neutral-400'
+                    }`}
                   >
                     <span>{tab.label}</span>
-                    <span className="text-[10px] font-mono-tech text-neutral-500 font-normal">
+                    <span className={`text-[10px] font-mono-tech font-normal ${activeTab === tab.id ? 'text-[#ef4444]' : 'text-neutral-500'}`}>
                       0{idx + 1}
                     </span>
                   </motion.button>
@@ -322,6 +326,7 @@ export default function Navbar({ activeTab, onSelectTab, onOpenContact }: Navbar
                     return (
                       <button
                         key={tab.id}
+                        aria-current={isActive ? 'page' : undefined}
                         onClick={(e) => {
                           e.stopPropagation();
                           handleTabClick(tab.id);
@@ -350,6 +355,7 @@ export default function Navbar({ activeTab, onSelectTab, onOpenContact }: Navbar
                     return (
                       <button
                         key={tab.id}
+                        aria-current={isActive ? 'page' : undefined}
                         onClick={(e) => {
                           e.stopPropagation();
                           handleTabClick(tab.id);

@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, useScroll, useTransform } from 'motion/react';
-import { ArrowUpRight, ArrowDownRight, ChevronRight } from 'lucide-react';
-import { smoothScrollTo } from '../utils/smoothScroll';
+import { ArrowUpRight, ChevronRight } from 'lucide-react';
 import { NavTab } from '../types';
 import Footer from './Footer';
 import ScrollReveal from './ScrollReveal';
@@ -126,87 +125,6 @@ const SERVICES_DATA: ServiceCategory[] = [
   },
 ];
 
-const HERO_IMAGE_SOURCES = [
-  '/images/bigimg.avif',
-  'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=800&auto=format&fit=crop',
-  '/images/smallimg.avif',
-  'https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?q=80&w=800&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=800&auto=format&fit=crop',
-  '/images/1221.avif',
-  'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=800&auto=format&fit=crop',
-];
-
-const HeroImageCycler = React.memo(function HeroImageCycler() {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isDecoded, setIsDecoded] = useState(false);
-  const [sources, setSources] = useState(HERO_IMAGE_SOURCES);
-
-  useEffect(() => {
-    let mounted = true;
-
-    // Asynchronously pre-decode all images into GPU memory before activating the cycler
-    const decodePromises = HERO_IMAGE_SOURCES.map((src) => {
-      return new Promise<boolean>((resolve) => {
-        const img = new Image();
-        img.src = src;
-        if (typeof img.decode === 'function') {
-          img.decode().then(() => resolve(true)).catch(() => resolve(false));
-        } else {
-          img.onload = () => resolve(true);
-          img.onerror = () => resolve(false);
-        }
-      });
-    });
-
-    Promise.all(decodePromises).then((results) => {
-      if (mounted) {
-        // Drop images that failed to load so the cycle never flashes an empty frame
-        setSources(HERO_IMAGE_SOURCES.filter((_, i) => results[i]));
-        setIsDecoded(true);
-      }
-    });
-
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!isDecoded || sources.length < 2) return;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
-    // Cycle image every 220ms with GPU hardware-accelerated crossfade
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % sources.length);
-    }, 220);
-
-    return () => clearInterval(interval);
-  }, [isDecoded, sources.length]);
-
-  return (
-    <div className="w-full h-full relative overflow-hidden bg-neutral-950">
-      {sources.map((src, idx) => {
-        const isActive = idx === currentIndex;
-        return (
-          <img
-            key={src + idx}
-            src={src}
-            alt="ZNX Studio Showcase"
-            className={`absolute inset-0 w-full h-full object-cover object-center pointer-events-none transition-opacity duration-200 ease-out transform-gpu ${
-              isActive ? 'opacity-100 z-10' : 'opacity-0 z-0'
-            }`}
-            style={{
-              willChange: 'opacity',
-              transform: 'translateZ(0)',
-            }}
-          />
-        );
-      })}
-    </div>
-  );
-});
-
 export default function ServicesPage({
   onBackToHome,
   onSelectTab,
@@ -297,68 +215,8 @@ export default function ServicesPage({
 
       </header>
 
-      {/* 2. INTRO: what the studio offers, the cycling showcase, and an index into the four services */}
-      <section className="w-full max-w-[1400px] mx-auto px-6 sm:px-12 md:px-16 pt-10 sm:pt-16 pb-6 sm:pb-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-end">
-          <div className="lg:col-span-7">
-            <ScrollReveal yOffset={20} duration={1}>
-              <span className="znx-eyebrow mb-5">Services · Design with intention</span>
-            </ScrollReveal>
-            <ScrollReveal yOffset={24} duration={1.1} delay={0.1}>
-              <h1 className="font-bodoni font-normal text-white tracking-tight leading-[1.02] text-[clamp(2.75rem,1.4rem+5vw,6.25rem)] [text-wrap:balance]">
-                Design, digital experiences <span className="italic text-neutral-400">&amp;</span> the technology behind them.
-              </h1>
-            </ScrollReveal>
-            <ScrollReveal yOffset={20} duration={1} delay={0.2}>
-              <p className="mt-6 sm:mt-8 max-w-xl text-base sm:text-lg leading-relaxed text-neutral-300">
-                ZNX is an independent studio for brands that want to be seen and used. We shape identities, design interfaces, build fast websites and bring them to life with motion, as one team from first idea to launch.
-              </p>
-            </ScrollReveal>
-          </div>
-
-          <div className="lg:col-span-5">
-            <ScrollReveal yOffset={30} duration={1.1} delay={0.15}>
-              <div className="relative w-full aspect-[4/3] lg:aspect-[4/5] max-h-[560px] overflow-hidden rounded-2xl border border-white/10 bg-neutral-950">
-                <HeroImageCycler />
-              </div>
-              <div className="mt-3 flex items-center justify-between gap-4">
-                <span className="znx-label">ZNX Studio · Designing for the internet</span>
-                <span className="znx-label">(2026)</span>
-              </div>
-            </ScrollReveal>
-          </div>
-        </div>
-
-        {/* Service index: jumps to each service below */}
-        <ScrollReveal yOffset={20} duration={1} delay={0.1}>
-          <nav aria-label="Services" className="mt-14 sm:mt-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 border-t border-white/10">
-            {SERVICES_DATA.map((service, idx) => (
-              <a
-                key={service.id}
-                href={`#/services?service=${service.id}`}
-                onClick={(e) => {
-                  e.preventDefault();
-                  const el = document.getElementById(service.id);
-                  if (el) smoothScrollTo(el.getBoundingClientRect().top + window.scrollY - 80, 1000);
-                }}
-                className="group flex items-start justify-between gap-4 py-5 sm:py-6 sm:pr-6 border-b border-white/10"
-              >
-                <span className="flex flex-col gap-2">
-                  <span className="font-mono-tech text-[11px] tracking-widest text-neutral-500 transition-colors duration-300 group-hover:text-[#ef4444]">
-                    ({String(idx + 1).padStart(2, '0')})
-                  </span>
-                  <span className="font-syne font-bold text-xl sm:text-2xl tracking-tight text-white">{service.title}</span>
-                  <span className="znx-label">{service.subtitle}</span>
-                </span>
-                <ArrowDownRight className="mt-1 w-5 h-5 shrink-0 text-neutral-500 transition-[color,transform] duration-300 group-hover:text-white group-hover:translate-x-0.5 group-hover:translate-y-0.5" />
-              </a>
-            ))}
-          </nav>
-        </ScrollReveal>
-      </section>
-
-      {/* 5. ALL SERVICES SHOWCASE BLOCKS (Stacked Layout) */}
-      <section className="w-full max-w-[1400px] mx-auto px-6 sm:px-12 md:px-16 pt-16 sm:pt-24 pb-24 sm:pb-36 flex flex-col gap-24 sm:gap-32">
+      {/* 2. SERVICES SHOWCASE BLOCKS (first section after the header) */}
+      <section className="w-full max-w-[1400px] mx-auto px-6 sm:px-12 md:px-16 pt-8 sm:pt-12 pb-24 sm:pb-36 flex flex-col gap-24 sm:gap-32">
         {SERVICES_DATA.map((service) => {
           const isRightAligned = service.align === 'right';
 

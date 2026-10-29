@@ -138,13 +138,15 @@ export default function HeroSection({ onOpenShowreel }: HeroSectionProps) {
         <div className="relative w-full max-w-4xl flex flex-col items-center justify-center">
           
           {/* Big "SHOWREEL" typography. From lg up it sits behind the image and peeks out at both sides
-              (the word is ~6em wide, wider than the image). Below lg the image is as wide as the word,
-              so it would be fully hidden: there it stacks above the image instead, sized to fit. */}
+              (the word is ~6em wide, wider than the image). Below lg it sits above the image and the image
+              deliberately overlaps its lower half: with line-height 1, Satoshi Black's caps span
+              0.125em-0.885em, so a -0.5em bottom margin puts the image edge through the middle of the letters
+              (em-based, so the overlap is the same at every width). */}
           <div 
             aria-hidden="true"
-            className="relative mb-3 sm:mb-5 lg:mb-0 lg:absolute lg:inset-0 flex items-center justify-center pointer-events-none select-none z-0 overflow-visible"
+            className="relative -mb-[0.5em] lg:mb-0 lg:absolute lg:inset-0 flex items-center justify-center pointer-events-none select-none z-0 overflow-visible text-[14.5vw] md:text-[11vw] lg:text-[11.5rem] leading-none"
           >
-            <span className="text-[14.5vw] md:text-[11vw] lg:text-[11.5rem] font-sans font-black tracking-wider uppercase text-neutral-300 opacity-40 lg:opacity-25 select-none leading-none whitespace-nowrap">
+            <span className="font-sans font-black tracking-wider uppercase leading-none whitespace-nowrap select-none text-transparent bg-clip-text bg-[linear-gradient(105deg,#fafafa_0%,#a3a3a3_55%,#ef4444_100%)] lg:opacity-30">
               SHOWREEL
             </span>
           </div>

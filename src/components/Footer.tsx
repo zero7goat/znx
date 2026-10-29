@@ -63,7 +63,7 @@ export default function Footer({
             <span className="znx-label block">
               EXPLORE
             </span>
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col items-start gap-2.5">
               <button
                 onClick={() => {
                   if (onOpenWorks) {
@@ -72,7 +72,7 @@ export default function Footer({
                     window.location.hash = '#/works';
                   }
                 }}
-                className="text-neutral-300 hover:text-white hover:translate-x-1 transition-[color,transform] duration-300 cursor-pointer block text-left text-sm font-sans font-normal py-0.5"
+                className="znx-link-underline text-neutral-300 hover:text-white transition-colors duration-300 cursor-pointer text-left text-sm font-sans font-normal"
               >
                 Works
               </button>
@@ -84,7 +84,7 @@ export default function Footer({
                     window.location.hash = '#/services';
                   }
                 }}
-                className="text-neutral-300 hover:text-white hover:translate-x-1 transition-[color,transform] duration-300 cursor-pointer block text-left text-sm font-sans font-normal py-0.5"
+                className="znx-link-underline text-neutral-300 hover:text-white transition-colors duration-300 cursor-pointer text-left text-sm font-sans font-normal"
               >
                 Services
               </button>
@@ -96,7 +96,7 @@ export default function Footer({
                     window.location.hash = '#/about';
                   }
                 }}
-                className="text-neutral-300 hover:text-white hover:translate-x-1 transition-[color,transform] duration-300 cursor-pointer block text-left text-sm font-sans font-normal py-0.5"
+                className="znx-link-underline text-neutral-300 hover:text-white transition-colors duration-300 cursor-pointer text-left text-sm font-sans font-normal"
               >
                 About
               </button>
@@ -108,7 +108,7 @@ export default function Footer({
                     window.location.hash = '#/privacy';
                   }
                 }}
-                className="text-neutral-300 hover:text-white hover:translate-x-1 transition-[color,transform] duration-300 cursor-pointer block text-left text-sm font-sans font-normal py-0.5"
+                className="znx-link-underline text-neutral-300 hover:text-white transition-colors duration-300 cursor-pointer text-left text-sm font-sans font-normal"
               >
                 Privacy Policy
               </button>

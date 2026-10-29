@@ -76,11 +76,9 @@ export default function PrivacyPolicyPage({
   }, []);
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+    // No page-level fade: the route veil already covers the swap, and a second fade on top of the
+    // per-section reveals made content flicker
+    <div
       className="min-h-screen bg-[#0a0a0a] text-neutral-100 font-sans selection:bg-white selection:text-black"
     >
       {/* Top Header */}
@@ -143,13 +141,13 @@ export default function PrivacyPolicyPage({
             </h1>
           </ScrollReveal>
 
-          <ScrollReveal yOffset={20} duration={1} delay={0.12}>
+          <ScrollReveal yOffset={20} duration={1} delay={0.06}>
             <p className="text-xs sm:text-sm font-mono-tech text-neutral-400 tracking-wide uppercase mb-6">
               Effective date: October 17, 2026
             </p>
           </ScrollReveal>
 
-          <ScrollReveal yOffset={20} duration={1} delay={0.24}>
+          <ScrollReveal yOffset={20} duration={1} delay={0.12}>
           <p className="text-base sm:text-lg text-neutral-300 font-sans leading-relaxed max-w-3xl">
             This Privacy Policy explains how ZNX Studio collects, uses and protects personal data when you visit <span className="text-white font-normal underline underline-offset-4">studio-znx.com</span> (the "Site") or contact us. Please read it alongside our Cookie Preferences and Terms of Use.
           </p>
@@ -160,7 +158,7 @@ export default function PrivacyPolicyPage({
         <div className="space-y-16 text-neutral-300 font-sans text-sm sm:text-base leading-relaxed">
           
           {/* 1. Who we are */}
-          <ScrollReveal className="space-y-4" yOffset={20} duration={1} delay={0.36}>
+          <ScrollReveal className="space-y-4" yOffset={20} duration={1}>
             <h2 className="text-2xl sm:text-3xl font-syne font-bold text-white tracking-tight">
               Who we are
             </h2>
@@ -176,7 +174,7 @@ export default function PrivacyPolicyPage({
           </ScrollReveal>
 
           {/* 2. What we collect */}
-          <ScrollReveal className="space-y-6" yOffset={20} duration={1} delay={0.48}>
+          <ScrollReveal className="space-y-6" yOffset={20} duration={1}>
             <h2 className="text-2xl sm:text-3xl font-syne font-bold text-white tracking-tight">
               What we collect
             </h2>
@@ -368,6 +366,6 @@ export default function PrivacyPolicyPage({
         onOpenAbout={onOpenAbout}
         onNavigateToHome={onBackToHome}
       />
-    </motion.div>
+    </div>
   );
 }

@@ -18,11 +18,17 @@ const ServicesPage = lazy(() => import('./components/ServicesPage'));
 const PrivacyPolicyPage = lazy(() => import('./components/PrivacyPolicyPage'));
 const WorksPage = lazy(() => import('./components/WorksPage'));
 const AboutPage = lazy(() => import('./components/AboutPage'));
+const ProjectPage = lazy(() => import('./components/ProjectPage'));
 const ThreeWorld = lazy(() => import('./components/ThreeWorld'));
 
-type Page = 'home' | 'works' | 'services' | 'about' | 'privacy';
+type Page = 'home' | 'works' | 'project' | 'services' | 'about' | 'privacy';
+
+const PROJECT_HASH_PREFIX = '#/works/';
+const projectSlugFromHash = (hash: string) =>
+  hash.startsWith(PROJECT_HASH_PREFIX) ? decodeURIComponent(hash.slice(PROJECT_HASH_PREFIX.length).split(/[?#]/)[0]) : '';
 
 const pageFromHash = (hash: string): Page => {
+  if (projectSlugFromHash(hash)) return 'project';
   if (hash.startsWith('#/services') || hash.startsWith('#services-page')) return 'services';
   if (hash === '#/about' || hash === '#about') return 'about';
   if (hash === '#/privacy' || hash === '#privacy') return 'privacy';
@@ -30,7 +36,11 @@ const pageFromHash = (hash: string): Page => {
   return 'home';
 };
 
-const TAB_FOR_PAGE: Partial<Record<Page, NavTab>> = { works: 'work', services: 'services', about: 'about' };
+/** Which nav item is active on each page (none on the homepage) */
+const TAB_FOR_PAGE: Partial<Record<Page, NavTab>> = { works: 'work', project: 'work', services: 'services', about: 'about' };
+
+/** Identifies a distinct screen, so moving between two projects counts as navigation */
+const routeKey = (page: Page, slug: string) => (page === 'project' ? `project:${slug}` : page);
 
 // Matches the veil fade-in duration below
 const VEIL_MS = 350;
@@ -39,11 +49,14 @@ const nextFrame = () => new Promise<void>((resolve) => requestAnimationFrame(() 
 
 export default function App() {
   const [showIntro, setShowIntro] = useState(true);
-  const [activeTab, setActiveTab] = useState<NavTab>('work');
   const [isContactOpen, setIsContactOpen] = useState(false);
   const [page, setPage] = useState<Page>('home');
   const [isPageTransitioning, setIsPageTransitioning] = useState(false);
+  const [projectSlug, setProjectSlug] = useState('');
   const pageRef = useRef<Page>('home');
+  const routeRef = useRef('home');
+  // Scroll position on the Works page, restored when coming back from a project
+  const worksScrollRef = useRef(0);
   const isServicesPageOpen = page === 'services';
   const isAboutPageOpen = page === 'about';
   const isPrivacyPageOpen = page === 'privacy';
@@ -56,15 +69,18 @@ export default function App() {
     import('./components/WorksPage');
     import('./components/AboutPage');
     import('./components/PrivacyPolicyPage');
+    import('./components/ProjectPage');
 
     preloadRouteAssets('home');
   }, []);
 
-  // Clear hash on first load to guarantee loading the homepage
+  // Direct loads / refreshes: open the page the URL points to (e.g. #/works/luella)
+  const initialRouteHandled = useRef(false);
   useEffect(() => {
-    if (window.location.hash && window.location.hash !== '') {
-      window.location.hash = '';
-    }
+    if (initialRouteHandled.current) return;
+    initialRouteHandled.current = true;
+    const target = pageFromHash(window.location.hash);
+    if (target !== 'home') navigate(target, null);
   }, []);
 
   // Single navigation path: fade the veil in, swap the page underneath it, reset scroll, fade out.
@@ -75,13 +91,24 @@ export default function App() {
     // Preload destination assets while the veil covers the page, and never swap before it's opaque
     await Promise.all([preloadRouteAssets(target), wait(VEIL_MS)]);
 
+    const from = pageRef.current;
+    if (from === 'works' && target === 'project') worksScrollRef.current = window.scrollY;
+    const slug = projectSlugFromHash(hash ?? window.location.hash);
+
     pageRef.current = target;
+    routeRef.current = routeKey(target, slug);
     if (hash !== null && window.location.hash !== hash) {
       window.location.hash = hash;
     }
     setPage(target);
-    if (TAB_FOR_PAGE[target]) setActiveTab(TAB_FOR_PAGE[target]!);
+    if (target === 'project') setProjectSlug(slug);
     if (target !== 'home') setShowIntro(false);
+
+    // Returning from a project to Works restores where the visitor was in the grid
+    if (!afterSwap && target === 'works' && from === 'project') {
+      const y = worksScrollRef.current;
+      afterSwap = () => window.scrollTo(0, y);
+    }
 
     // Let React commit the new page before touching scroll
     await nextFrame();
@@ -98,8 +125,9 @@ export default function App() {
   // Sync route with window location hash (browser back/forward, links that set the hash)
   useEffect(() => {
     const handleHashChange = () => {
-      const target = pageFromHash(window.location.hash);
-      if (target !== pageRef.current) {
+      const hash = window.location.hash;
+      const target = pageFromHash(hash);
+      if (routeKey(target, projectSlugFromHash(hash)) !== routeRef.current) {
         navigate(target, null);
       }
     };
@@ -120,6 +148,7 @@ export default function App() {
   const handleOpenWorksPage = () => navigate('works', '#/works');
   const handleOpenPrivacyPage = () => navigate('privacy', '#/privacy');
   const handleOpenAboutPage = () => navigate('about', '#/about');
+  const handleOpenProject = (slug: string) => navigate('project', `${PROJECT_HASH_PREFIX}${encodeURIComponent(slug)}`);
 
   const handleBackToHome = (targetSection?: string) => {
     navigate(
@@ -134,7 +163,6 @@ export default function App() {
   };
 
   const handleSelectTab = (tab: NavTab) => {
-    setActiveTab(tab);
     if (tab === 'work') {
       // Navigate directly to Works page instead of scrolling to works section
       handleOpenWorksPage();
@@ -231,7 +259,7 @@ export default function App() {
       {/* Main Content Router */}
       {!isPrivacyPageOpen && (
         <Navbar
-          activeTab={activeTab}
+          activeTab={TAB_FOR_PAGE[page] ?? null}
           onSelectTab={handleSelectTab}
           onOpenContact={handleOpenContact}
         />
@@ -267,6 +295,22 @@ export default function App() {
             onBackToHome={() => handleBackToHome()}
             onOpenContact={handleOpenContact}
             onOpenPrivacy={handleOpenPrivacyPage}
+            onOpenServices={handleOpenServicesPage}
+            onOpenWorks={handleOpenWorksPage}
+            onOpenAbout={handleOpenAboutPage}
+            onOpenProject={handleOpenProject}
+          />
+        ) : page === 'project' ? (
+          <ProjectPage
+            key={projectSlug}
+            slug={projectSlug}
+            onBackToHome={() => handleBackToHome()}
+            onBackToWorks={handleOpenWorksPage}
+            onOpenProject={handleOpenProject}
+            onOpenContact={handleOpenContact}
+            onOpenPrivacy={handleOpenPrivacyPage}
+            onOpenServices={handleOpenServicesPage}
+            onOpenAbout={handleOpenAboutPage}
           />
         ) : isServicesPageOpen ? (
           <ServicesPage
