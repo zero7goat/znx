@@ -79,22 +79,18 @@ export function preloadFonts(timeoutMs = 1200): Promise<void> {
 export const CRITICAL_ROUTE_ASSETS: Record<string, string[]> = {
   home: [
     '/Logo.png',
-    '/images/Logo.png',
     'https://i.pinimg.com/1200x/ac/64/cc/ac64ccb69f913d9bc4fe99dad224472f.jpg',
-    '/images/work1.jpg',
-    '/images/work2.jpg',
-    '/images/work3.jpg',
+    'https://i.pinimg.com/736x/92/63/90/926390824a8074def2ae2007ca3a313e.jpg',
+    'https://i.pinimg.com/736x/d7/19/ba/d719bab654730c30c30bfd9a900ced9c.jpg',
+    'https://i.pinimg.com/736x/9d/5d/5e/9d5d5ee8ab3092ef3357824732ab003d.jpg',
   ],
   works: [
     '/Logo.png',
-    '/images/work1.jpg',
-    '/images/work2.jpg',
-    '/images/work3.jpg',
-    '/images/work4.jpg',
-    '/images/work5.jpg',
-    '/images/services hero.avif',
-    '/images/hero.avif',
-    '/images/eye.avif',
+    'https://i.pinimg.com/736x/92/63/90/926390824a8074def2ae2007ca3a313e.jpg',
+    'https://i.pinimg.com/736x/d7/19/ba/d719bab654730c30c30bfd9a900ced9c.jpg',
+    'https://i.pinimg.com/736x/9d/5d/5e/9d5d5ee8ab3092ef3357824732ab003d.jpg',
+    'https://i.pinimg.com/736x/82/bc/ca/82bccaa66d035a2229c81ee06d0f017e.jpg',
+    'https://i.pinimg.com/736x/b7/ff/28/b7ff287558a5dade48776e7aef2278b3.jpg',
   ],
   services: [
     '/Logo.png',
@@ -107,7 +103,6 @@ export const CRITICAL_ROUTE_ASSETS: Record<string, string[]> = {
   about: [
     '/Logo.png',
     '/images/1221.avif',
-    '/1221.avif',
   ],
   privacy: [
     '/Logo.png',

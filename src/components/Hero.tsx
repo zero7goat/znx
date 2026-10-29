@@ -188,6 +188,8 @@ export default function HeroSection({ onOpenShowreel }: HeroSectionProps) {
                   alt="Studio Showreel"
                   referrerPolicy="no-referrer"
                   loading="eager"
+                  fetchPriority="high"
+                  decoding="async"
                   className="w-full h-full object-cover object-center select-none rounded-none border-none"
                 />
 

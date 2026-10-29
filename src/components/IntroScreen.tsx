@@ -6,15 +6,8 @@ interface IntroScreenProps {
   onComplete: () => void;
 }
 
-const ASSETS_TO_PRELOAD = Array.from(
-  new Set([
-    ...CRITICAL_ROUTE_ASSETS.home,
-    ...CRITICAL_ROUTE_ASSETS.works,
-    ...CRITICAL_ROUTE_ASSETS.services,
-    ...CRITICAL_ROUTE_ASSETS.about,
-    ...CRITICAL_ROUTE_ASSETS.privacy,
-  ])
-);
+// Only block on what the homepage shows first; other routes preload when navigated to
+const ASSETS_TO_PRELOAD = CRITICAL_ROUTE_ASSETS.home;
 
 export default function IntroScreen({ onComplete }: IntroScreenProps) {
   const [progress, setProgress] = useState(0);

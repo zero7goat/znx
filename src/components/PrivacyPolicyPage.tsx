@@ -8,6 +8,9 @@ import ScrollReveal from './ScrollReveal';
 interface PrivacyPolicyPageProps {
   onBackToHome: (section?: string) => void;
   onOpenContact?: () => void;
+  onOpenServices?: () => void;
+  onOpenWorks?: () => void;
+  onOpenAbout?: () => void;
 }
 
 function SquareProjectButton({ onClick }: { onClick?: () => void }) {
@@ -63,6 +66,9 @@ function SquareProjectButton({ onClick }: { onClick?: () => void }) {
 export default function PrivacyPolicyPage({
   onBackToHome,
   onOpenContact,
+  onOpenServices,
+  onOpenWorks,
+  onOpenAbout,
 }: PrivacyPolicyPageProps) {
   // Scroll to top on mount
   useEffect(() => {
@@ -349,9 +355,13 @@ export default function PrivacyPolicyPage({
 
       {/* Main Page Footer component to maintain 1:1 identical footer design */}
       <Footer 
-        onOpenPrivacy={() => onBackToHome('privacy')}
-        onOpenServices={() => onBackToHome('services')}
-        onOpenWorks={() => onBackToHome('work')}
+        onOpenPrivacy={() => {
+          window.scrollTo(0, 0);
+          (window as any).lenis?.scrollTo(0, { immediate: true });
+        }}
+        onOpenServices={onOpenServices}
+        onOpenWorks={onOpenWorks}
+        onOpenAbout={onOpenAbout}
         onNavigateToHome={onBackToHome}
       />
     </motion.div>

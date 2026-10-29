@@ -207,7 +207,7 @@ function ScrollWord({
   return (
     <motion.span
       style={{ color, opacity }}
-      className="inline-block transition-colors duration-200"
+      className="inline-block"
     >
       {word}
     </motion.span>
@@ -247,7 +247,7 @@ export default function AboutPage({
         .animate-brand-marquee {
           display: flex;
           width: max-content;
-          animation: marqueeRightToLeft 65s linear infinite;
+          animation: marqueeRightToLeft 44s linear infinite;
           will-change: transform;
         }
         .animate-brand-marquee:hover {
@@ -320,7 +320,7 @@ export default function AboutPage({
           >
             <div className="relative w-full max-w-sm sm:max-w-md">
               {/* Image box: preserving natural original image aspect ratio, no cropping or zooming */}
-              <div className="rounded-2xl overflow-hidden bg-neutral-950 relative shadow-2xl pointer-events-auto select-none min-h-[360px] sm:min-h-[440px] aspect-[3/4]">
+              <div className="rounded-2xl overflow-hidden bg-neutral-950 relative shadow-2xl pointer-events-auto select-none aspect-square">
                 <img
                   src="/images/1221.avif"
                   alt="Founder"
@@ -332,7 +332,8 @@ export default function AboutPage({
                       target.src = 'images/1221.avif';
                     }
                   }}
-                  className="w-full h-auto object-contain pointer-events-none rounded-2xl"
+                  decoding="async"
+                  className="w-full h-full object-cover pointer-events-none rounded-2xl"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent pointer-events-none rounded-2xl" />
               </div>
@@ -440,12 +441,12 @@ export default function AboutPage({
 
         {/* Marquee Loop Track */}
         <div className="w-full overflow-hidden cursor-pointer select-none py-4">
-          <div className="animate-brand-marquee flex items-center gap-12 sm:gap-20 md:gap-28 lg:gap-36">
-            {/* Triplicated List for Completely Seamless Infinite Scrolling */}
-            {[...BRAND_LOGOS, ...BRAND_LOGOS, ...BRAND_LOGOS].map((brand, idx) => (
+          <div className="animate-brand-marquee flex items-center">
+            {/* Two identical halves + trailing padding (not gap) so the -50% loop lands exactly on the seam */}
+            {[...BRAND_LOGOS, ...BRAND_LOGOS].map((brand, idx) => (
               <div
                 key={idx}
-                className="flex items-center gap-3.5 sm:gap-4 shrink-0 opacity-80 cursor-pointer"
+                className="flex items-center gap-3.5 sm:gap-4 shrink-0 opacity-80 cursor-pointer pr-12 sm:pr-20 md:pr-28 lg:pr-36"
               >
                 <div className="text-neutral-300">
                   {brand.icon}

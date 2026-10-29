@@ -130,6 +130,12 @@ export function initCardClothSimulation(
     return () => {};
   }
 
+  // WebGL textures need CORS access. Third-party hosts (e.g. Pinterest) don't send CORS
+  // headers, so the texture would always fail — skip instead of creating a WebGL context for nothing.
+  if (new URL(imageSrc, window.location.href).origin !== window.location.origin) {
+    return () => {};
+  }
+
   // Ensure container element is positioned
   const originalPos = window.getComputedStyle(cardElement).position;
   if (originalPos === 'static') {

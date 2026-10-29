@@ -18,7 +18,7 @@ export default function Footer({
   onNavigateToHome,
 }: FooterProps = {}) {
   return (
-    <footer className="w-full bg-[#0a0a0a] text-white select-none overflow-hidden border-t border-white/[0.08] relative z-40 isolation-isolate">
+    <footer className="w-full bg-[#0a0a0a] text-white select-none overflow-hidden border-t border-white/[0.08] relative z-40 isolate">
       <div className="w-full px-4 pt-10 pb-0 md:px-12 md:pt-20 lg:px-16 relative overflow-hidden flex flex-col justify-between">
         <div className="max-w-7xl mx-auto w-full grid grid-cols-1 md:grid-cols-12 gap-8 items-start relative z-10">
           

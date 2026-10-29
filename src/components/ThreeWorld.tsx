@@ -68,7 +68,7 @@ export default function ThreeWorld() {
   const scrollProgRef = useRef(0);
   const smoothProgRef = useRef(0);
   const scrollSpeedRef = useRef(0);
-  const mouseRef = useRef({ x: 0, y: 0, tx: 0, ty: 0 });
+  const mouseRef = useRef({ tx: 0, ty: 0, mx: 0, my: 0 });
 
   useEffect(() => {
     const container = containerRef.current;
@@ -81,6 +81,8 @@ export default function ThreeWorld() {
         navigator.maxTouchPoints > 0 ||
         window.matchMedia('(pointer: coarse)').matches ||
         window.innerWidth < 1024);
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     // ── 1. Create Scene, Camera, and WebGL Renderer ──
     const scene = new THREE.Scene();
@@ -247,9 +249,13 @@ export default function ThreeWorld() {
 
     // ── 7. High-Performance Cached Scroll Stage Measurement ──
     let cachedAnchors: number[] = [0, 800, 1600, 2400];
+    // The canvas is only visible behind the hero; every later section has an opaque background
+    let heroBottom = window.innerHeight;
     const updateAnchors = () => {
       const scrollY = window.scrollY;
       const vpH = window.innerHeight;
+      const heroEl = document.getElementById('hero');
+      heroBottom = heroEl ? heroEl.getBoundingClientRect().bottom + scrollY : vpH;
       const sections = ['top', 'work', 'services'];
       
       cachedAnchors = sections.map((id, index) => {
@@ -292,27 +298,27 @@ export default function ThreeWorld() {
     measureScrollProgress();
 
     window.addEventListener('scroll', measureScrollProgress, { passive: true });
-    window.addEventListener('resize', () => {
-      updateAnchors();
-      measureScrollProgress();
-    }, { passive: true });
 
     // ── 8. Core Animation Frame Loop ──
     let lastTime = 0;
     let animFrameId: number;
-
-    const clock = new THREE.Clock();
+    const startTime = performance.now();
+    const camPos = new THREE.Vector3();
+    const camTarget = new THREE.Vector3();
 
     const animate = (time: number) => {
       animFrameId = requestAnimationFrame(animate);
 
-      // Instant idle pause when tab or app is hidden/minimized
-      if (document.hidden) return;
+      // Idle when the tab is hidden or the hero (the only place the canvas shows) is scrolled away
+      if (document.hidden || window.scrollY > heroBottom) {
+        lastTime = time;
+        return;
+      }
 
       const dt = Math.min(0.1, (time - lastTime) / 1000); // Guard against giant frame skips
       lastTime = time;
 
-      const elapsed = clock.getElapsedTime();
+      const elapsed = reduceMotion ? 0 : (time - startTime) / 1000;
 
       // Damp-interpolate scroll progress to create luxurious, lag-free momentum
       const oldProg = smoothProgRef.current;
@@ -328,9 +334,6 @@ export default function ThreeWorld() {
 
       // ── Position Camera dynamically along spline curves ──
       const normalizedU = smoothProgRef.current / (CAM_WAYPOINTS.length - 1);
-      
-      const camPos = new THREE.Vector3();
-      const camTarget = new THREE.Vector3();
 
       curveP.getPoint(normalizedU, camPos);
       curveT.getPoint(normalizedU, camTarget);
@@ -388,7 +391,9 @@ export default function ThreeWorld() {
       }
 
       // Animate background particles
-      if (!isMobile) {
+      if (reduceMotion) {
+        // keep particles static
+      } else if (!isMobile) {
         // Slowly drift background dust particles downward on desktop
         const posAttr = pGeo.getAttribute('position') as THREE.BufferAttribute;
         const positions = posAttr.array as Float32Array;
@@ -415,18 +420,21 @@ export default function ThreeWorld() {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
+      updateAnchors();
       measureScrollProgress();
     };
 
     window.addEventListener('resize', handleResize, { passive: true });
+    // Section heights settle after fonts/images load; re-measure once the page is ready
+    window.addEventListener('load', updateAnchors);
 
     // ── 13. Component Cleanup ──
     return () => {
       cancelAnimationFrame(animFrameId);
       window.removeEventListener('mousemove', handlePointerMove);
       window.removeEventListener('scroll', measureScrollProgress);
-      window.removeEventListener('resize', measureScrollProgress);
       window.removeEventListener('resize', handleResize);
+      window.removeEventListener('load', updateAnchors);
       container.removeChild(renderer.domElement);
       renderer.dispose();
       scene.clear();

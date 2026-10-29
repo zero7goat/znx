@@ -11,7 +11,7 @@ interface ScrollRevealProps {
   scale?: number; // scale multiplier when hidden (e.g. 0.97)
   staggerIndex?: number; // multiplier for staggered lists (e.g. 0, 1, 2...)
   staggerStep?: number; // stagger step in seconds (default: 0.08s)
-  once?: boolean; // if true, stays visible once entered. default false for reversible!
+  once?: boolean; // if true (default), stays visible once entered; false makes it reversible
   threshold?: number; // IntersectionObserver threshold
   rootMargin?: string; // IntersectionObserver rootMargin
   inline?: boolean; // render as inline-block span if needed
@@ -27,7 +27,7 @@ export default function ScrollReveal({
   scale = 1,
   staggerIndex = 0,
   staggerStep = 0.08,
-  once = false,
+  once = true,
   threshold = 0.08,
   rootMargin = '0px 0px -5% 0px',
   inline = false,
@@ -53,6 +53,7 @@ export default function ScrollReveal({
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             setIsVisible(true);
+            if (once) observer.disconnect();
           } else {
             if (!once) {
               setIsVisible(false);
@@ -82,7 +83,8 @@ export default function ScrollReveal({
       ? 'translate3d(0, 0, 0) scale(1)'
       : `translate3d(${xOffset}px, ${yOffset}px, 0) scale(${scale})`,
     transition: `transform ${duration}s cubic-bezier(0.16, 1, 0.3, 1) ${totalDelay}s, opacity ${duration}s cubic-bezier(0.16, 1, 0.3, 1) ${totalDelay}s`,
-    willChange: 'transform, opacity',
+    // Only hint the compositor while the element is waiting to animate in
+    willChange: isVisible ? 'auto' : 'transform, opacity',
   };
 
   if (inline) {

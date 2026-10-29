@@ -79,7 +79,7 @@ const WORK_IMAGES: WorkItem[] = [
     category: 'Brand Identity & Product Design',
     type: 'Brand Identity',
     domain: 'Finance',
-    src: '/images/work1.jpg',
+    src: 'https://i.pinimg.com/736x/92/63/90/926390824a8074def2ae2007ca3a313e.jpg',
     fallback: 'https://i.pinimg.com/736x/92/63/90/926390824a8074def2ae2007ca3a313e.jpg',
     videoUrl: 'https://www.youtube.com/embed/mTx4bWhHkB4?autoplay=1&enablejsapi=1&rel=0&modestbranding=1&controls=1',
   },
@@ -89,7 +89,7 @@ const WORK_IMAGES: WorkItem[] = [
     category: 'Digital Architecture & UI',
     type: 'UI/UX',
     domain: 'Technology',
-    src: '/images/work2.jpg',
+    src: 'https://i.pinimg.com/736x/d7/19/ba/d719bab654730c30c30bfd9a900ced9c.jpg',
     fallback: 'https://i.pinimg.com/736x/d7/19/ba/d719bab654730c30c30bfd9a900ced9c.jpg',
     videoUrl: 'https://www.youtube.com/embed/mTx4bWhHkB4?autoplay=1&enablejsapi=1&rel=0&modestbranding=1&controls=1',
   },
@@ -99,7 +99,7 @@ const WORK_IMAGES: WorkItem[] = [
     category: 'Global Brand Campaign',
     type: 'Campaigns',
     domain: 'Entertainment',
-    src: '/images/work3.jpg',
+    src: 'https://i.pinimg.com/736x/9d/5d/5e/9d5d5ee8ab3092ef3357824732ab003d.jpg',
     fallback: 'https://i.pinimg.com/736x/9d/5d/5e/9d5d5ee8ab3092ef3357824732ab003d.jpg',
     videoUrl: 'https://www.youtube.com/embed/mTx4bWhHkB4?autoplay=1&enablejsapi=1&rel=0&modestbranding=1&controls=1',
   },
@@ -109,7 +109,7 @@ const WORK_IMAGES: WorkItem[] = [
     category: '3D Motion & Real Estate',
     type: 'Motion & Film',
     domain: 'Real Estate',
-    src: '/images/work4.jpg',
+    src: 'https://i.pinimg.com/736x/82/bc/ca/82bccaa66d035a2229c81ee06d0f017e.jpg',
     fallback: 'https://i.pinimg.com/736x/82/bc/ca/82bccaa66d035a2229c81ee06d0f017e.jpg',
     videoUrl: 'https://www.youtube.com/embed/mTx4bWhHkB4?autoplay=1&enablejsapi=1&rel=0&modestbranding=1&controls=1',
   },
@@ -119,7 +119,7 @@ const WORK_IMAGES: WorkItem[] = [
     category: 'Design Systems & Craft',
     type: 'Websites',
     domain: 'Consumer Brands',
-    src: '/images/work5.jpg',
+    src: 'https://i.pinimg.com/736x/b7/ff/28/b7ff287558a5dade48776e7aef2278b3.jpg',
     fallback: 'https://i.pinimg.com/736x/b7/ff/28/b7ff287558a5dade48776e7aef2278b3.jpg',
     videoUrl: 'https://www.youtube.com/embed/mTx4bWhHkB4?autoplay=1&enablejsapi=1&rel=0&modestbranding=1&controls=1',
   },
@@ -129,7 +129,7 @@ const WORK_IMAGES: WorkItem[] = [
     category: 'Cinematography & Health',
     type: 'Motion & Film',
     domain: 'Health',
-    src: '/images/services hero.avif',
+    src: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=1200',
     fallback: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=1200',
     videoUrl: 'https://www.youtube.com/embed/mTx4bWhHkB4?autoplay=1&enablejsapi=1&rel=0&modestbranding=1&controls=1',
   },
@@ -139,7 +139,7 @@ const WORK_IMAGES: WorkItem[] = [
     category: 'High Fashion & Direction',
     type: 'Brand Identity',
     domain: 'Consumer Brands',
-    src: '/images/hero.avif',
+    src: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=1200',
     fallback: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=1200',
     videoUrl: 'https://www.youtube.com/embed/mTx4bWhHkB4?autoplay=1&enablejsapi=1&rel=0&modestbranding=1&controls=1',
   },
@@ -149,7 +149,7 @@ const WORK_IMAGES: WorkItem[] = [
     category: 'Conceptual Illustration',
     type: 'Illustration',
     domain: 'Professional Services',
-    src: '/images/eye.avif',
+    src: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&q=80&w=1200',
     fallback: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&q=80&w=1200',
     videoUrl: 'https://www.youtube.com/embed/mTx4bWhHkB4?autoplay=1&enablejsapi=1&rel=0&modestbranding=1&controls=1',
   },
@@ -159,7 +159,7 @@ const WORK_IMAGES: WorkItem[] = [
     category: 'Interactive SaaS Experiences',
     type: 'Digital Experiences',
     domain: 'SaaS',
-    src: '/images/cursor.avif',
+    src: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&q=80&w=1200',
     fallback: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&q=80&w=1200',
     videoUrl: 'https://www.youtube.com/embed/mTx4bWhHkB4?autoplay=1&enablejsapi=1&rel=0&modestbranding=1&controls=1',
   },
@@ -169,7 +169,7 @@ const WORK_IMAGES: WorkItem[] = [
     category: 'Fintech & Mobile Apps',
     type: 'Mobile Apps',
     domain: 'Finance',
-    src: '/images/work1.jpg',
+    src: 'https://i.pinimg.com/736x/92/63/90/926390824a8074def2ae2007ca3a313e.jpg',
     fallback: 'https://i.pinimg.com/736x/92/63/90/926390824a8074def2ae2007ca3a313e.jpg',
     videoUrl: 'https://www.youtube.com/embed/mTx4bWhHkB4?autoplay=1&enablejsapi=1&rel=0&modestbranding=1&controls=1',
   },
@@ -179,7 +179,7 @@ const WORK_IMAGES: WorkItem[] = [
     category: 'Health Product Design',
     type: 'Mobile Apps',
     domain: 'Health',
-    src: '/images/work2.jpg',
+    src: 'https://i.pinimg.com/736x/d7/19/ba/d719bab654730c30c30bfd9a900ced9c.jpg',
     fallback: 'https://i.pinimg.com/736x/d7/19/ba/d719bab654730c30c30bfd9a900ced9c.jpg',
     videoUrl: 'https://www.youtube.com/embed/mTx4bWhHkB4?autoplay=1&enablejsapi=1&rel=0&modestbranding=1&controls=1',
   },
@@ -189,7 +189,7 @@ const WORK_IMAGES: WorkItem[] = [
     category: 'Audio Brand Direction',
     type: 'Brand Identity',
     domain: 'Entertainment',
-    src: '/images/work3.jpg',
+    src: 'https://i.pinimg.com/736x/9d/5d/5e/9d5d5ee8ab3092ef3357824732ab003d.jpg',
     fallback: 'https://i.pinimg.com/736x/9d/5d/5e/9d5d5ee8ab3092ef3357824732ab003d.jpg',
     videoUrl: 'https://www.youtube.com/embed/mTx4bWhHkB4?autoplay=1&enablejsapi=1&rel=0&modestbranding=1&controls=1',
   },
@@ -199,7 +199,7 @@ const WORK_IMAGES: WorkItem[] = [
     category: '3D Spatial Visualization',
     type: 'Digital Experiences',
     domain: 'Real Estate',
-    src: '/images/work4.jpg',
+    src: 'https://i.pinimg.com/736x/82/bc/ca/82bccaa66d035a2229c81ee06d0f017e.jpg',
     fallback: 'https://i.pinimg.com/736x/82/bc/ca/82bccaa66d035a2229c81ee06d0f017e.jpg',
     videoUrl: 'https://www.youtube.com/embed/mTx4bWhHkB4?autoplay=1&enablejsapi=1&rel=0&modestbranding=1&controls=1',
   },
@@ -209,7 +209,7 @@ const WORK_IMAGES: WorkItem[] = [
     category: 'System Architecture & UI',
     type: 'UI/UX',
     domain: 'SaaS',
-    src: '/images/work5.jpg',
+    src: 'https://i.pinimg.com/736x/b7/ff/28/b7ff287558a5dade48776e7aef2278b3.jpg',
     fallback: 'https://i.pinimg.com/736x/b7/ff/28/b7ff287558a5dade48776e7aef2278b3.jpg',
     videoUrl: 'https://www.youtube.com/embed/mTx4bWhHkB4?autoplay=1&enablejsapi=1&rel=0&modestbranding=1&controls=1',
   },
@@ -219,7 +219,7 @@ const WORK_IMAGES: WorkItem[] = [
     category: 'Motion Visuals & Tech',
     type: 'Motion & Film',
     domain: 'Technology',
-    src: '/images/services hero.avif',
+    src: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=1200',
     fallback: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=1200',
     videoUrl: 'https://www.youtube.com/embed/mTx4bWhHkB4?autoplay=1&enablejsapi=1&rel=0&modestbranding=1&controls=1',
   },
@@ -229,7 +229,7 @@ const WORK_IMAGES: WorkItem[] = [
     category: 'Digital Editorial & Web',
     type: 'Websites',
     domain: 'Professional Services',
-    src: '/images/hero.avif',
+    src: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=1200',
     fallback: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=1200',
     videoUrl: 'https://www.youtube.com/embed/mTx4bWhHkB4?autoplay=1&enablejsapi=1&rel=0&modestbranding=1&controls=1',
   },
@@ -239,7 +239,7 @@ const WORK_IMAGES: WorkItem[] = [
     category: 'Product Branding & Health',
     type: 'Brand Identity',
     domain: 'Health',
-    src: '/images/work1.jpg',
+    src: 'https://i.pinimg.com/736x/92/63/90/926390824a8074def2ae2007ca3a313e.jpg',
     fallback: 'https://i.pinimg.com/736x/92/63/90/926390824a8074def2ae2007ca3a313e.jpg',
     videoUrl: 'https://www.youtube.com/embed/mTx4bWhHkB4?autoplay=1&enablejsapi=1&rel=0&modestbranding=1&controls=1',
   },
@@ -249,7 +249,7 @@ const WORK_IMAGES: WorkItem[] = [
     category: 'SaaS Architecture & Tech',
     type: 'Websites',
     domain: 'SaaS',
-    src: '/images/work2.jpg',
+    src: 'https://i.pinimg.com/736x/d7/19/ba/d719bab654730c30c30bfd9a900ced9c.jpg',
     fallback: 'https://i.pinimg.com/736x/d7/19/ba/d719bab654730c30c30bfd9a900ced9c.jpg',
     videoUrl: 'https://www.youtube.com/embed/mTx4bWhHkB4?autoplay=1&enablejsapi=1&rel=0&modestbranding=1&controls=1',
   },
@@ -259,7 +259,7 @@ const WORK_IMAGES: WorkItem[] = [
     category: 'Creative Direction & Brands',
     type: 'Campaigns',
     domain: 'Consumer Brands',
-    src: '/images/work3.jpg',
+    src: 'https://i.pinimg.com/736x/9d/5d/5e/9d5d5ee8ab3092ef3357824732ab003d.jpg',
     fallback: 'https://i.pinimg.com/736x/9d/5d/5e/9d5d5ee8ab3092ef3357824732ab003d.jpg',
     videoUrl: 'https://www.youtube.com/embed/mTx4bWhHkB4?autoplay=1&enablejsapi=1&rel=0&modestbranding=1&controls=1',
   },
@@ -269,7 +269,7 @@ const WORK_IMAGES: WorkItem[] = [
     category: 'Spatial Illustration & Motion',
     type: 'Illustration',
     domain: 'Real Estate',
-    src: '/images/work4.jpg',
+    src: 'https://i.pinimg.com/736x/82/bc/ca/82bccaa66d035a2229c81ee06d0f017e.jpg',
     fallback: 'https://i.pinimg.com/736x/82/bc/ca/82bccaa66d035a2229c81ee06d0f017e.jpg',
     videoUrl: 'https://www.youtube.com/embed/mTx4bWhHkB4?autoplay=1&enablejsapi=1&rel=0&modestbranding=1&controls=1',
   },
@@ -279,7 +279,7 @@ const WORK_IMAGES: WorkItem[] = [
     category: 'Craft Systems & Technology',
     type: 'UI/UX',
     domain: 'Technology',
-    src: '/images/work5.jpg',
+    src: 'https://i.pinimg.com/736x/b7/ff/28/b7ff287558a5dade48776e7aef2278b3.jpg',
     fallback: 'https://i.pinimg.com/736x/b7/ff/28/b7ff287558a5dade48776e7aef2278b3.jpg',
     videoUrl: 'https://www.youtube.com/embed/mTx4bWhHkB4?autoplay=1&enablejsapi=1&rel=0&modestbranding=1&controls=1',
   },
@@ -289,7 +289,7 @@ const WORK_IMAGES: WorkItem[] = [
     category: 'Digital Experiences & Archive',
     type: 'Digital Experiences',
     domain: 'Health',
-    src: '/images/services hero.avif',
+    src: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=1200',
     fallback: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=1200',
     videoUrl: 'https://www.youtube.com/embed/mTx4bWhHkB4?autoplay=1&enablejsapi=1&rel=0&modestbranding=1&controls=1',
   },
@@ -357,7 +357,7 @@ export default function WorksPage({
   const isExpanded = activeDropdown !== 'none';
 
   return (
-    <div className="min-h-screen bg-[#070707] text-white font-sans select-none flex flex-col justify-between relative overflow-x-hidden">
+    <div className="min-h-screen bg-[#070707] text-white font-sans select-none flex flex-col justify-between relative overflow-x-clip">
       
       {/* 1. TOP HEADER (STAYS AT THE TOP OF THE PAGE, SCROLLS NATURALLY, NO LOGO) */}
       <header className="w-full px-4 sm:px-8 py-6 flex items-center justify-between bg-transparent relative z-40">
@@ -444,7 +444,7 @@ export default function WorksPage({
       {/* 3. STICKY FILTER BAR WITH FLOATING POPUP BELOW (NO SHAPE MORPHING, STATIONARY PILL) */}
       <div
         ref={filterRef}
-        className="sticky top-6 z-50 w-full flex flex-col items-center justify-start px-2 sm:px-4 mb-6 sm:mb-8 pointer-events-none"
+        className="sticky top-20 sm:top-24 z-40 w-full flex flex-col items-center justify-start px-2 sm:px-4 mb-6 sm:mb-8 pointer-events-none"
       >
         {/* Fixed Pill Filter Bar - Completely stationary, clean dark background */}
         <div className="pointer-events-auto bg-[#181818] text-[10px] sm:text-xs font-mono-tech tracking-wider uppercase text-slate-300 shadow-2xl shadow-black/90 rounded-full py-2.5 sm:py-3.5 px-4 sm:px-8 flex items-center justify-center gap-2 sm:gap-6 whitespace-nowrap h-10 sm:h-12 outline-none select-none">
@@ -592,8 +592,10 @@ export default function WorksPage({
                       src={item.src}
                       alt={item.title}
                       referrerPolicy="no-referrer"
+                      loading="lazy"
+                      decoding="async"
                       onError={(e) => {
-                        e.currentTarget.src = item.fallback;
+                        if (e.currentTarget.src !== item.fallback) e.currentTarget.src = item.fallback;
                       }}
                       className="w-full h-full object-cover object-center pointer-events-none select-none"
                     />
@@ -637,6 +639,7 @@ export default function WorksPage({
           <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
             <img
               src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1800&q=80"
+              loading="lazy"
               alt="Landscape background"
               referrerPolicy="no-referrer"
               className="w-full h-full object-cover object-right sm:object-center opacity-35 mix-blend-luminosity"

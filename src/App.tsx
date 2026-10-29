@@ -11,7 +11,6 @@ import Footer from './components/Footer';
 import ContactDrawer from './components/ContactDrawer';
 import { NavTab } from './types';
 import { smoothScrollToElement } from './utils/smoothScroll';
-import { initAllCardClothSimulations } from './utils/clothSimulation';
 import { initMouseParallax } from './utils/parallaxPerspective';
 import { preloadRouteAssets } from './utils/assetPreloader';
 
@@ -259,6 +258,8 @@ export default function App() {
   // Initialize Lenis smooth scroll globally across all pages and views
   useEffect(() => {
     if (showIntro) return;
+    // Keep native scrolling for users who prefer reduced motion
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     const lenis = new Lenis({
       lerp: 0.085, // Silky smooth fluid momentum synced with compositing
@@ -295,7 +296,12 @@ export default function App() {
     if (showIntro) return;
 
     // Effect 1: Interactive WebGL Cloth Simulation for homepage cards
-    const cleanupCloth = initAllCardClothSimulations('.custom-hover-card');
+    // (loaded on demand so three.js stays out of the initial bundle)
+    let cleanupCloth = () => {};
+    let cancelled = false;
+    import('./utils/clothSimulation').then(({ initAllCardClothSimulations }) => {
+      if (!cancelled) cleanupCloth = initAllCardClothSimulations('.custom-hover-card');
+    });
 
     // Effect 2: Smooth 3D Perspective Mouse-Parallax for Showreel
     const cleanupParallax = initMouseParallax({
@@ -306,6 +312,7 @@ export default function App() {
     });
 
     return () => {
+      cancelled = true;
       cleanupCloth();
       cleanupParallax();
     };
@@ -317,7 +324,7 @@ export default function App() {
     <div className={`min-h-screen ${isSubpageOpen ? 'bg-[#EBE8E1] text-slate-900' : 'bg-[#05070a] text-white'} font-sans selection:bg-slate-900 selection:text-white relative transition-colors duration-700`}>
       {/* Cinematic Film Grain Noise Overlay (Desktop only to prevent mobile scroll layer recomposition) */}
       <div 
-        className="hidden sm:block fixed inset-0 z-[999999] pointer-events-none opacity-[0.022] mix-blend-overlay"
+        className="hidden sm:block fixed inset-0 z-[999999] pointer-events-none opacity-[0.022]"
         style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`
         }}
@@ -378,6 +385,9 @@ export default function App() {
           <PrivacyPolicyPage
             onBackToHome={() => handleBackToHome()}
             onOpenContact={handleOpenContact}
+            onOpenServices={handleOpenServicesPage}
+            onOpenWorks={handleOpenWorksPage}
+            onOpenAbout={handleOpenAboutPage}
           />
         ) : isAboutPageOpen ? (
           <AboutPage

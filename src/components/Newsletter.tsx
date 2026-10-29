@@ -6,7 +6,7 @@ interface ProjectInquiryProps {
 
 export default function Newsletter({ onOpenContact }: ProjectInquiryProps) {
   return (
-    <section id="newsletter" className="relative z-30 w-full bg-[#05070a] text-white py-20 sm:py-28 md:py-36 px-6 sm:px-12 md:px-20 overflow-hidden select-none isolation-isolate">
+    <section id="newsletter" className="relative z-30 w-full bg-[#05070a] text-white py-20 sm:py-28 md:py-36 px-6 sm:px-12 md:px-20 overflow-hidden select-none isolate">
       {/* Background Graphic resembling majestic forest / rocky surface */}
       <div 
         className="absolute inset-0 bg-cover bg-center opacity-55 mix-blend-luminosity pointer-events-none transform-none transition-none"
@@ -39,19 +39,20 @@ export default function Newsletter({ onOpenContact }: ProjectInquiryProps) {
           delay={0.1}
           className="w-full md:w-auto self-end md:self-center pt-6 md:pt-0"
         >
-          <div 
+          <button
+            type="button"
             onClick={() => onOpenContact?.()}
             className="group flex items-center gap-4 cursor-pointer"
           >
-            <div className="flex items-center gap-2.5 pb-1 border-b border-white/25 group-hover:border-white transition-colors duration-500">
+            <span className="flex items-center gap-2.5 pb-1 border-b border-white/25 group-hover:border-white transition-colors duration-500">
               <span className="text-white text-xs sm:text-sm font-semibold font-manrope uppercase">
                 →
               </span>
               <span className="text-white text-xs sm:text-sm font-semibold tracking-[0.15em] font-manrope uppercase whitespace-nowrap">
                 GET IN TOUCH
               </span>
-            </div>
-          </div>
+            </span>
+          </button>
         </ScrollReveal>
 
       </div>

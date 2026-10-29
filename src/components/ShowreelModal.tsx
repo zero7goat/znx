@@ -18,7 +18,7 @@ export default function ShowreelModal({ isOpen, onClose, videoUrl, title }: Show
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[200] bg-black/95 backdrop-blur-2xl flex items-center justify-center p-4 sm:p-12 overflow-hidden"
+          className="fixed inset-0 z-[200] bg-black/95 flex items-center justify-center p-4 sm:p-12 overflow-hidden"
         >
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}

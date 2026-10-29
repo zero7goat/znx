@@ -25,7 +25,7 @@ const WORKS: WorkItem[] = [
     category: 'Digital Editorial',
     year: '2026',
     description: 'Clean architectural showcase featuring high-contrast digital devices, minimalist layouts, and luxury serif typography.',
-    image: '/images/work1.jpg',
+    image: 'https://i.pinimg.com/736x/92/63/90/926390824a8074def2ae2007ca3a313e.jpg',
     videoUrl: 'https://www.youtube.com/embed/mTx4bWhHkB4?autoplay=1&enablejsapi=1&rel=0&modestbranding=1&controls=1',
   },
   {
@@ -36,7 +36,7 @@ const WORKS: WorkItem[] = [
     category: 'Cinematography',
     year: '2026',
     description: 'High-contrast studio portraiture exploring deep shadows, atmospheric lighting, and architectural framing.',
-    image: '/images/work2.jpg',
+    image: 'https://i.pinimg.com/736x/d7/19/ba/d719bab654730c30c30bfd9a900ced9c.jpg',
     videoUrl: 'https://www.youtube.com/embed/mTx4bWhHkB4?autoplay=1&enablejsapi=1&rel=0&modestbranding=1&controls=1',
   },
   {
@@ -47,7 +47,7 @@ const WORKS: WorkItem[] = [
     category: 'Spatial Design',
     year: '2025',
     description: 'Minimalist structural showcase with high-contrast monochrome palettes and modern grid alignment.',
-    image: '/images/work3.jpg',
+    image: 'https://i.pinimg.com/736x/9d/5d/5e/9d5d5ee8ab3092ef3357824732ab003d.jpg',
     videoUrl: 'https://www.youtube.com/embed/mTx4bWhHkB4?autoplay=1&enablejsapi=1&rel=0&modestbranding=1&controls=1',
   },
   {
@@ -58,7 +58,7 @@ const WORKS: WorkItem[] = [
     category: 'Digital Platform',
     year: '2025',
     description: 'Next-generation digital experience engineered with high precision typography and sleek visual direction.',
-    image: '/images/work4.jpg',
+    image: 'https://i.pinimg.com/736x/82/bc/ca/82bccaa66d035a2229c81ee06d0f017e.jpg',
     videoUrl: 'https://www.youtube.com/embed/mTx4bWhHkB4?autoplay=1&enablejsapi=1&rel=0&modestbranding=1&controls=1',
   },
   {
@@ -69,7 +69,7 @@ const WORKS: WorkItem[] = [
     category: 'Design System',
     year: '2025',
     description: 'Bespoke UI design system featuring refined layout grids, subtle typography, and smooth interactive states.',
-    image: '/images/work5.jpg',
+    image: 'https://i.pinimg.com/736x/b7/ff/28/b7ff287558a5dade48776e7aef2278b3.jpg',
     videoUrl: 'https://www.youtube.com/embed/mTx4bWhHkB4?autoplay=1&enablejsapi=1&rel=0&modestbranding=1&controls=1',
   },
 ];
@@ -178,7 +178,7 @@ export default function WorkShowcase({ onOpenWorks }: WorkShowcaseProps) {
   };
 
   return (
-    <section id="work" data-light="false" className="sticky top-0 z-10 bg-[#05070a] text-white min-h-screen flex flex-col justify-center py-10 sm:py-16 md:py-20 px-4 sm:px-8 border-none overflow-hidden select-none">
+    <section id="work" data-light="false" className="sticky top-0 [@media(max-height:700px)]:relative z-10 bg-[#05070a] text-white min-h-screen flex flex-col justify-center py-10 sm:py-14 md:py-16 px-4 sm:px-8 border-none overflow-hidden select-none">
       <div className="max-w-7xl mx-auto w-full">
         
         <ScrollReveal yOffset={25} duration={0.9}>
@@ -193,7 +193,7 @@ export default function WorkShowcase({ onOpenWorks }: WorkShowcaseProps) {
           </div>
 
           {/* Main Section Header */}
-          <h2 className="text-4xl sm:text-6xl md:text-7xl font-bodoni font-bold tracking-tight text-white text-center uppercase mb-12 sm:mb-16">
+          <h2 className="text-4xl sm:text-6xl md:text-7xl font-bodoni font-bold tracking-tight text-white text-center uppercase mb-8 sm:mb-12">
             FEATURED WORK
           </h2>
         </ScrollReveal>
@@ -210,7 +210,7 @@ export default function WorkShowcase({ onOpenWorks }: WorkShowcaseProps) {
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
           onWheel={handleWheel}
-          className="relative w-screen left-1/2 -translate-x-1/2 overflow-hidden h-[200px] sm:h-[290px] md:h-[370px] flex items-center justify-center my-6 py-4 cursor-grab active:cursor-grabbing select-none"
+          className="relative w-screen left-1/2 -translate-x-1/2 overflow-hidden h-[200px] sm:h-[290px] md:h-[370px] flex items-center justify-center my-4 py-4 cursor-grab active:cursor-grabbing select-none"
           style={{ perspective: '1200px', touchAction: 'pan-y' }}
         >
           {WORKS.map((work, index) => {
@@ -293,18 +293,8 @@ export default function WorkShowcase({ onOpenWorks }: WorkShowcaseProps) {
                   src={work.image}
                   alt={work.title}
                   referrerPolicy="no-referrer"
-                  onError={(e) => {
-                    const fallbackMap: Record<string, string> = {
-                      '/images/work1.jpg': 'https://i.pinimg.com/736x/92/63/90/926390824a8074def2ae2007ca3a313e.jpg',
-                      '/images/work2.jpg': 'https://i.pinimg.com/736x/d7/19/ba/d719bab654730c30c30bfd9a900ced9c.jpg',
-                      '/images/work3.jpg': 'https://i.pinimg.com/736x/9d/5d/5e/9d5d5ee8ab3092ef3357824732ab003d.jpg',
-                      '/images/work4.jpg': 'https://i.pinimg.com/736x/82/bc/ca/82bccaa66d035a2229c81ee06d0f017e.jpg',
-                      '/images/work5.jpg': 'https://i.pinimg.com/736x/b7/ff/28/b7ff287558a5dade48776e7aef2278b3.jpg',
-                    };
-                    if (fallbackMap[work.image]) {
-                      e.currentTarget.src = fallbackMap[work.image];
-                    }
-                  }}
+                  decoding="async"
+                  draggable={false}
                   className="w-full h-full object-cover object-center pointer-events-none select-none rounded-none border-0 shadow-none outline-none ring-0"
                 />
 
@@ -327,7 +317,7 @@ export default function WorkShowcase({ onOpenWorks }: WorkShowcaseProps) {
         </div>
 
         {/* Carousel Pagination Controls & Counter */}
-        <div className="flex items-center justify-center gap-5 mt-8 mb-4">
+        <div className="flex items-center justify-center gap-5 mt-6 mb-2">
           <button
             onClick={prevSlide}
             aria-label="Previous work"

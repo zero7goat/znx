@@ -133,38 +133,35 @@ const HERO_IMAGE_SOURCES = [
   'https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?q=80&w=800&auto=format&fit=crop',
   'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=800&auto=format&fit=crop',
   '/images/1221.avif',
-  'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?q=80&w=800&auto=format&fit=crop',
   'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=800&auto=format&fit=crop',
 ];
 
 const HeroImageCycler = React.memo(function HeroImageCycler() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isDecoded, setIsDecoded] = useState(false);
+  const [sources, setSources] = useState(HERO_IMAGE_SOURCES);
 
   useEffect(() => {
     let mounted = true;
 
     // Asynchronously pre-decode all images into GPU memory before activating the cycler
     const decodePromises = HERO_IMAGE_SOURCES.map((src) => {
-      return new Promise<void>((resolve) => {
+      return new Promise<boolean>((resolve) => {
         const img = new Image();
         img.src = src;
-        const htmlImg = img as HTMLImageElement;
-        if (typeof htmlImg.decode === 'function') {
-          htmlImg.decode().then(() => resolve()).catch(() => resolve());
+        if (typeof img.decode === 'function') {
+          img.decode().then(() => resolve(true)).catch(() => resolve(false));
         } else {
-          if (htmlImg.complete) {
-            resolve();
-          } else {
-            htmlImg.onload = () => resolve();
-            htmlImg.onerror = () => resolve();
-          }
+          img.onload = () => resolve(true);
+          img.onerror = () => resolve(false);
         }
       });
     });
 
-    Promise.all(decodePromises).then(() => {
+    Promise.all(decodePromises).then((results) => {
       if (mounted) {
+        // Drop images that failed to load so the cycle never flashes an empty frame
+        setSources(HERO_IMAGE_SOURCES.filter((_, i) => results[i]));
         setIsDecoded(true);
       }
     });
@@ -175,19 +172,20 @@ const HeroImageCycler = React.memo(function HeroImageCycler() {
   }, []);
 
   useEffect(() => {
-    if (!isDecoded) return;
+    if (!isDecoded || sources.length < 2) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     // Cycle image every 220ms with GPU hardware-accelerated crossfade
     const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % HERO_IMAGE_SOURCES.length);
+      setCurrentIndex((prev) => (prev + 1) % sources.length);
     }, 220);
 
     return () => clearInterval(interval);
-  }, [isDecoded]);
+  }, [isDecoded, sources.length]);
 
   return (
     <div className="w-full h-full relative overflow-hidden bg-slate-950">
-      {HERO_IMAGE_SOURCES.map((src, idx) => {
+      {sources.map((src, idx) => {
         const isActive = idx === currentIndex;
         return (
           <img
@@ -243,74 +241,6 @@ export default function ServicesPage({
       }
     }
   }, []);
-
-  const [hasMouse, setHasMouse] = useState(false);
-  const [isMobileTablet, setIsMobileTablet] = useState(true);
-
-  useEffect(() => {
-    const checkPointer = () => {
-      const fineMouse = window.matchMedia('(pointer: fine)').matches && window.matchMedia('(hover: hover)').matches;
-      const isMobile = window.innerWidth <= 1024 || !fineMouse;
-      setHasMouse(fineMouse && !isMobile);
-      setIsMobileTablet(isMobile);
-    };
-    checkPointer();
-    window.addEventListener('resize', checkPointer);
-    return () => window.removeEventListener('resize', checkPointer);
-  }, []);
-
-  // Image links requested by user
-  const BIG_IMAGE_URL = '/images/bigimg.avif';
-  const [bigImgSrc, setBigImgSrc] = useState(BIG_IMAGE_URL);
-  const [isContentLoaded, setIsContentLoaded] = useState(false);
-
-  // Preload all critical assets before revealing page
-  useEffect(() => {
-    let mounted = true;
-    const urlsToPreload = [
-      BIG_IMAGE_URL,
-      '/images/roselogo.png',
-      ...SERVICES_DATA.map((s) => s.image),
-      'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1800&q=80',
-    ];
-
-    let loadedCount = 0;
-    const total = urlsToPreload.length;
-
-    const checkComplete = () => {
-      loadedCount++;
-      if (loadedCount >= total && mounted) {
-        setIsContentLoaded(true);
-      }
-    };
-
-    urlsToPreload.forEach((src) => {
-      const img = new Image();
-      img.src = src;
-      if (img.complete) {
-        checkComplete();
-      } else {
-        img.onload = checkComplete;
-        img.onerror = checkComplete;
-      }
-    });
-
-    const failsafe = setTimeout(() => {
-      if (mounted) setIsContentLoaded(true);
-    }, 1500);
-
-    return () => {
-      mounted = false;
-      clearTimeout(failsafe);
-    };
-  }, []);
-
-  const handleBigImgError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-    const target = e.currentTarget;
-    if (!target.src.endsWith('/images/bigimg.avif')) {
-      target.src = '/images/bigimg.avif';
-    }
-  };
 
   // Direct, frame-accurate background color interpolation for White (#FAF8F5), Red (#ef4444), and Black (#0a0a0a)
   const containerRef = useRef<HTMLDivElement>(null);
@@ -380,7 +310,7 @@ export default function ServicesPage({
   return (
     <div
       ref={containerRef}
-      style={{ backgroundColor: '#FAF8F5', transition: 'background-color 300ms ease-out' }}
+      style={{ backgroundColor: '#FAF8F5' }}
       className="min-h-screen text-slate-950 font-sans select-none flex flex-col justify-between overflow-x-hidden relative"
     >
       <style>{`
@@ -525,7 +455,9 @@ export default function ServicesPage({
                     src={service.image}
                     alt={service.title}
                     referrerPolicy="no-referrer"
-                    className="w-full h-full object-cover object-center"
+                    loading="lazy"
+                    decoding="async"
+                    className="absolute inset-0 w-full h-full object-cover object-center"
                   />
                 </div>
 
