@@ -1,67 +1,14 @@
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
+import { liquidField, liquidFalloff } from '../utils/liquidField';
 
 // ── Cinematic Camera Waypoints (Synchronized with remaining sections: Hero, Work, Services, Footer) ──
 const CAM_WAYPOINTS = [
   { p: [0.0, 3.5, 12.0],  t: [0.0, 0.0, 0.0],    fov: 38 }, // 0: Hero (Central 3D ZNX core wireframe)
-  { p: [1.8, 1.2, 2.8],   t: [-2.2, 0.3, -2.5],  fov: 42 }, // 1: Portfolio/Work (Close fly-past of floating 3D project planes)
+  { p: [1.8, 1.2, 2.8],   t: [-2.2, 0.3, -2.5],  fov: 42 }, // 1: Portfolio/Work (close fly-past)
   { p: [3.2, 0.2, -7.5],  t: [-2.4, 0.2, -12.0], fov: 46 }, // 2: Services (Panning across futuristic node geometry)
   { p: [0.0, 6.5, -14.0], t: [0.0, 10.5, -24.0], fov: 40 }, // 3: Footer/CTA (Looking up towards starry skies)
 ];
-
-// ── Custom Shader for Floating 3D Image Planes (Warp/distort dynamically on scroll momentum) ──
-const ImagePlaneShader = {
-  vertexShader: `
-    uniform float uTime;
-    uniform float uScrollSpeed;
-    uniform float uHover;
-    varying vec2 vUv;
-    varying float vDistortion;
-
-    void main() {
-      vUv = uv;
-      vec3 pos = position;
-      
-      // Calculate dynamic bend distortion based on scroll momentum speed and grid position
-      float dist = sin(uv.y * 3.14159) * uScrollSpeed * 0.15;
-      pos.z += dist;
-      
-      // Add a touch of hover float depth push
-      pos.z += uHover * 0.25 * sin(uTime * 2.0 + uv.x * 5.0);
-      
-      vDistortion = dist;
-      gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
-    }
-  `,
-  fragmentShader: `
-    uniform sampler2D uTexture;
-    uniform float uHover;
-    varying vec2 vUv;
-    varying float vDistortion;
-
-    void main() {
-      // Aberrate colors slightly based on scroll distortion/warp momentum
-      vec2 aberratedUv = vUv;
-      aberratedUv.x += vDistortion * 0.04;
-      
-      vec4 colR = texture2D(uTexture, aberratedUv + vec2(vDistortion * 0.02, 0.0));
-      vec4 colG = texture2D(uTexture, aberratedUv);
-      vec4 colB = texture2D(uTexture, aberratedUv - vec2(vDistortion * 0.02, 0.0));
-      vec4 tex = vec4(colR.r, colG.g, colB.b, colG.a);
-      
-      // Tint towards pure white on hover to create a luxury focus shine
-      vec4 hoverTint = vec4(1.0, 1.0, 1.0, tex.a);
-      vec4 finalCol = mix(tex, hoverTint, uHover * 0.12);
-      
-      // Apply soft vignette shadow to the image plane borders
-      float borderDist = length(vUv - 0.5);
-      float vig = smoothstep(0.7, 0.45, borderDist);
-      finalCol.rgb *= mix(0.5, 1.0, vig);
-      
-      gl_FragColor = finalCol;
-    }
-  `
-};
 
 interface ThreeWorldProps {
   /** Keep rendering at every scroll position (pages where the canvas stays visible as a backdrop) */
@@ -72,7 +19,6 @@ export default function ThreeWorld({ fullPage = false }: ThreeWorldProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollProgRef = useRef(0);
   const smoothProgRef = useRef(0);
-  const scrollSpeedRef = useRef(0);
   const mouseRef = useRef({ tx: 0, ty: 0, mx: 0, my: 0 });
   // Read inside the render loop so switching pages never rebuilds the scene
   const fullPageRef = useRef(fullPage);
@@ -117,7 +63,8 @@ export default function ThreeWorld({ fullPage = false }: ThreeWorldProps) {
       stencil: false,
     });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.0 : 2.0));
+    // A soft, fogged particle field gains nothing visible above 1.5x, but costs 1.8x the pixels at 2x
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.0 : 1.5));
     renderer.setClearColor(0x0a0a0a, 1);
     renderer.domElement.style.position = 'absolute';
     renderer.domElement.style.inset = '0';
@@ -144,58 +91,6 @@ export default function ThreeWorld({ fullPage = false }: ThreeWorldProps) {
     const curveP = new THREE.CatmullRomCurve3(pointsP, false, 'catmullrom', 0.42);
     const curveT = new THREE.CatmullRomCurve3(pointsT, false, 'catmullrom', 0.42);
 
-    // ── 5. Load Floating Portfolio Image Planes (Work Section) ──
-    const textureLoader = new THREE.TextureLoader();
-    const planeGroup = new THREE.Group();
-    scene.add(planeGroup);
-
-    const workImages = [
-      '/images/work1.jpg',
-      '/images/work2.jpg',
-      '/images/work3.jpg',
-      '/images/work4.jpg',
-      '/images/work5.jpg',
-    ];
-
-    // Coordinates flanking the camera path during Section 2 (Work fly-past)
-    const planePositions = [
-      { pos: [-1.4, 0.4, -0.5],  rot: [0, 0.4, 0],   w: 1.8, h: 1.1 },
-      { pos: [1.8, -0.2, -1.8],  rot: [0, -0.5, 0],  w: 1.6, h: 1.0 },
-      { pos: [-1.9, 0.8, -3.2],  rot: [0, 0.6, 0],   w: 1.9, h: 1.2 },
-      { pos: [2.0, 0.3, -4.8],   rot: [0, -0.4, 0],  w: 1.7, h: 1.1 },
-      { pos: [-1.2, -0.5, -6.5], rot: [0, 0.3, 0],   w: 1.8, h: 1.1 },
-    ];
-
-    const planeMeshes: THREE.Mesh[] = [];
-
-    planePositions.forEach((posConfig, index) => {
-      const imgPath = workImages[index];
-      textureLoader.load(imgPath, (texture) => {
-        // Use custom vertex and fragment shaders for Kage-like fluid distortion
-        const mat = new THREE.ShaderMaterial({
-          vertexShader: ImagePlaneShader.vertexShader,
-          fragmentShader: ImagePlaneShader.fragmentShader,
-          uniforms: {
-            uTexture: { value: texture },
-            uScrollSpeed: { value: 0.0 },
-            uTime: { value: 0.0 },
-            uHover: { value: 0.0 },
-          },
-          transparent: true,
-          side: THREE.DoubleSide,
-        });
-
-        const geo = new THREE.PlaneGeometry(posConfig.w, posConfig.h, 16, 16);
-        const mesh = new THREE.Mesh(geo, mat);
-        mesh.position.set(posConfig.pos[0], posConfig.pos[1], posConfig.pos[2]);
-        mesh.rotation.set(posConfig.rot[0], posConfig.rot[1], posConfig.rot[2]);
-        mesh.name = `work-plane-${index}`;
-
-        planeGroup.add(mesh);
-        planeMeshes.push(mesh);
-      });
-    });
-
     // ── 6. Floating Dust/Star Particle System (High-End Atmosphere) ──
     const pCount = isMobile ? 120 : 800;
     const pGeo = new THREE.BufferGeometry();
@@ -217,19 +112,71 @@ export default function ThreeWorld({ fullPage = false }: ThreeWorldProps) {
       fog: true,
     });
 
+    // Liquid cursor: the particles move with the same water field that distorts the page (see
+    // utils/liquidField), replacing a full-screen SVG filter pass over this canvas. Each particle's
+    // screen-space shift is computed on the CPU (800 particles x a few dozen stamps, only while the water
+    // moves) and added after projection; the shader itself gains a single vec2 add and no loops.
+    const liquidShift = new Float32Array(pCount * 2);
+    const liquidAttr = new THREE.BufferAttribute(liquidShift, 2);
+    pGeo.setAttribute('aLiquid', liquidAttr);
+    const viewport = new THREE.Vector2(window.innerWidth, window.innerHeight);
+    pMat.onBeforeCompile = (shader) => {
+      shader.uniforms.uViewport = { value: viewport };
+      shader.vertexShader = shader.vertexShader
+        .replace('#include <common>', `#include <common>
+attribute vec2 aLiquid;
+uniform vec2 uViewport;`)
+        .replace('#include <project_vertex>', `#include <project_vertex>
+gl_Position.xy += vec2(aLiquid.x / uViewport.x, -aLiquid.y / uViewport.y) * 2.0 * gl_Position.w;`);
+    };
+
+    const viewProj = new THREE.Matrix4();
+    const projected = new THREE.Vector3();
+    let liquidWasActive = false;
+    const updateLiquidShift = () => {
+      const count = liquidField.count;
+      if (count === 0) {
+        if (liquidWasActive) {
+          liquidShift.fill(0);
+          liquidAttr.needsUpdate = true;
+        }
+        liquidWasActive = false;
+        return;
+      }
+      liquidWasActive = true;
+      particles.updateMatrixWorld();
+      camera.updateMatrixWorld();
+      viewProj.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse).multiply(particles.matrixWorld);
+      const positions = pGeo.getAttribute('position').array as Float32Array;
+      const { stamps, radii } = liquidField;
+      for (let p = 0; p < pCount; p++) {
+        projected.set(positions[p * 3], positions[p * 3 + 1], positions[p * 3 + 2]).applyMatrix4(viewProj);
+        let sx = 0;
+        let sy = 0;
+        if (projected.z < 1) {
+          const px = (projected.x * 0.5 + 0.5) * viewport.x;
+          const py = (0.5 - projected.y * 0.5) * viewport.y;
+          for (let i = 0; i < count; i++) {
+            const r = Math.hypot(px - stamps[i * 4], py - stamps[i * 4 + 1]) / radii[i];
+            if (r >= 1) continue;
+            const w = liquidFalloff(r);
+            sx += stamps[i * 4 + 2] * w;
+            sy += stamps[i * 4 + 3] * w;
+          }
+        }
+        liquidShift[p * 2] = sx;
+        liquidShift[p * 2 + 1] = sy;
+      }
+      liquidAttr.needsUpdate = true;
+    };
+
     const particles = new THREE.Points(pGeo, pMat);
     scene.add(particles);
 
-    // ── 9. Interactive Raycasting & Pointer Handlers (Desktop Only) ──
-    const raycaster = new THREE.Raycaster();
-    const pointer = new THREE.Vector2();
-
+    // ── 9. Pointer Handlers (Desktop Only) ──
     const handlePointerMove = (e: MouseEvent) => {
-      pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
-      pointer.y = -(e.clientY / window.innerHeight) * 2 + 1;
-
-      mouseRef.current.tx = pointer.x;
-      mouseRef.current.ty = pointer.y;
+      mouseRef.current.tx = (e.clientX / window.innerWidth) * 2 - 1;
+      mouseRef.current.ty = -(e.clientY / window.innerHeight) * 2 + 1;
     };
 
     if (!isMobile) {
@@ -358,11 +305,30 @@ export default function ThreeWorld({ fullPage = false }: ThreeWorldProps) {
     const camPos = new THREE.Vector3();
     const camTarget = new THREE.Vector3();
 
+    // Render-on-change: each new canvas frame costs a full-resolution (antialiased) resolve and composite
+    // on the GPU, measured at ~6ms/frame on integrated graphics, which kept the GPU saturated at 144Hz
+    // even with nothing moving. The camera re-renders every frame while it moves (mouse parallax, scroll);
+    // when it is still, only the slow particle drift (~2px/s) changes, so ~30 renders/s look identical.
+    const STILL_FRAME_MS = 33;
+    const CAM_EPSILON_SQ = 1e-6; // ~0.1px of camera travel at hero distance
+    const renderedCamPos = new THREE.Vector3(Infinity, 0, 0);
+    const renderedCamTarget = new THREE.Vector3();
+    let renderedFov = 0;
+    let lastRenderTime = -Infinity;
+    let pendingDrift = 0; // seconds of particle drift not yet applied
+    let forceRender = true; // first frame, resizes and resuming after being covered/hidden
+
+    let isIdle = false;
     const animate = (time: number) => {
       animFrameId = requestAnimationFrame(animate);
 
       // Idle when the tab is hidden, or on the homepage once the canvas is fully covered
-      if (document.hidden || (!fullPageRef.current && window.scrollY > coverEnd)) {
+      const idleNow = document.hidden || (!fullPageRef.current && window.scrollY > coverEnd);
+      if (idleNow !== isIdle) {
+        isIdle = idleNow;
+        if (!idleNow) forceRender = true; // show the current state at once when uncovered
+      }
+      if (idleNow) {
         lastTime = time;
         return;
       }
@@ -373,12 +339,7 @@ export default function ThreeWorld({ fullPage = false }: ThreeWorldProps) {
       const elapsed = reduceMotion ? 0 : (time - startTime) / 1000;
 
       // Damp-interpolate scroll progress to create luxurious, lag-free momentum
-      const oldProg = smoothProgRef.current;
       smoothProgRef.current += (scrollProgRef.current - smoothProgRef.current) * 4.5 * dt;
-
-      // Extract scroll speed to drive shader warp distortion
-      const speed = Math.abs(smoothProgRef.current - oldProg) / (dt || 0.016);
-      scrollSpeedRef.current += (speed - scrollSpeedRef.current) * 3.5 * dt;
 
       // Hand-held camera drift (parallax damp-mapping)
       mouseRef.current.mx += (mouseRef.current.tx - mouseRef.current.mx) * 2.5 * dt;
@@ -404,48 +365,28 @@ export default function ThreeWorld({ fullPage = false }: ThreeWorldProps) {
       camera.fov = aspect < 1.0 ? targetFov * 1.25 : targetFov;
       camera.updateProjectionMatrix();
 
-      // Pass time and scroll speed values to Image Plane shaders
-      planeMeshes.forEach((mesh) => {
-        const mat = mesh.material as THREE.ShaderMaterial;
-        if (mat && mat.uniforms) {
-          mat.uniforms.uTime.value = elapsed;
-          // Apply a dampened velocity limit to the warp bend
-          mat.uniforms.uScrollSpeed.value = THREE.MathUtils.clamp(scrollSpeedRef.current, 0, 15);
-        }
-      });
-
-      // ── Raycasting to handle image plane hovers (Desktop Only) ──
-      if (!isMobile) {
-        raycaster.setFromCamera(pointer, camera);
-        const intersects = raycaster.intersectObjects(planeGroup.children);
-
-        // Dim hovers gently back to 0
-        planeMeshes.forEach((mesh) => {
-          const mat = mesh.material as THREE.ShaderMaterial;
-          if (mat && mat.uniforms) {
-            mat.uniforms.uHover.value += (0.0 - mat.uniforms.uHover.value) * 5.0 * dt;
-          }
-        });
-
-        if (intersects.length > 0) {
-          const hoveredMesh = intersects[0].object as THREE.Mesh;
-          const mat = hoveredMesh.material as THREE.ShaderMaterial;
-          if (mat && mat.uniforms) {
-            // Smoothly elevate hover intensity
-            mat.uniforms.uHover.value += (1.0 - mat.uniforms.uHover.value) * 8.0 * dt;
-          }
-        }
-      }
+      // Skip this frame when nothing visible has changed since the last render (see STILL_FRAME_MS)
+      pendingDrift += dt;
+      const cameraMoved =
+        camera.position.distanceToSquared(renderedCamPos) > CAM_EPSILON_SQ ||
+        camTarget.distanceToSquared(renderedCamTarget) > CAM_EPSILON_SQ ||
+        camera.fov !== renderedFov;
+      // Liquid cursor active (or just settled: one more frame clears the displacement)
+      const liquidChanged = liquidField.count > 0 || liquidWasActive;
+      // With reduced motion the particles never move, so only camera changes need a new frame
+      const driftDue = !reduceMotion && time - lastRenderTime >= STILL_FRAME_MS;
+      if (!forceRender && !cameraMoved && !liquidChanged && !driftDue) return;
 
       // Animate background particles
       if (reduceMotion) {
         // keep particles static
       } else if (!isMobile) {
-        // Slowly drift background dust particles downward on desktop
+        // Slowly drift background dust particles downward on desktop (all drift since the last render)
         const posAttr = pGeo.getAttribute('position') as THREE.BufferAttribute;
         const positions = posAttr.array as Float32Array;
+        const fall = 0.02 * pendingDrift;
         for (let i = 1; i < positions.length; i += 3) {
-          positions[i] -= 0.02 * dt; // vertical float down
+          positions[i] -= fall; // vertical float down
           if (positions[i] < -10) {
             positions[i] = 10; // Reset particles that fall off the screen
           }
@@ -456,8 +397,16 @@ export default function ThreeWorld({ fullPage = false }: ThreeWorldProps) {
         particles.rotation.y = elapsed * 0.015;
       }
 
+      updateLiquidShift();
+
       // Render the scene!
       renderer.render(scene, camera);
+      renderedCamPos.copy(camera.position);
+      renderedCamTarget.copy(camTarget);
+      renderedFov = camera.fov;
+      lastRenderTime = time;
+      pendingDrift = 0;
+      forceRender = false;
     };
 
     animFrameId = requestAnimationFrame(animate);
@@ -467,8 +416,10 @@ export default function ThreeWorld({ fullPage = false }: ThreeWorldProps) {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
+      viewport.set(window.innerWidth, window.innerHeight);
       updateAnchors();
       measureScrollProgress();
+      forceRender = true; // setSize clears the drawing buffer
     };
 
     window.addEventListener('resize', handleResize, { passive: true });

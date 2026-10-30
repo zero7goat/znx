@@ -266,7 +266,7 @@ export default function Navbar({ activeTab, onSelectTab, onOpenContact }: Navbar
       </AnimatePresence>
 
       {/* DESKTOP FLOATING NAVBAR (sm:flex) */}
-      <header className="hidden sm:block fixed top-6 sm:top-8 left-1/2 -translate-x-1/2 z-50 pointer-events-auto select-none">
+      <header data-liquid className="hidden sm:block fixed top-6 sm:top-8 left-1/2 -translate-x-1/2 z-50 pointer-events-auto select-none">
         <div ref={navRef} className="relative flex items-center justify-center">
           <motion.nav
             layout

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import ScrollReveal from './ScrollReveal';
 
@@ -26,6 +26,18 @@ export default function MajorServicesSection({ onOpenServices }: MajorServicesSe
   const [isTouchDevice, setIsTouchDevice] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+  // Off-screen rows would still run their highlight transitions (a style recalc every frame for
+  // ~0.5s of every cycle), so the auto-cycle only advances while the section is on screen
+  const inViewRef = useRef(true);
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el || typeof IntersectionObserver === 'undefined') return;
+    const observer = new IntersectionObserver(([entry]) => (inViewRef.current = entry.isIntersecting));
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const checkTouch = () => {
@@ -45,7 +57,7 @@ export default function MajorServicesSection({ onOpenServices }: MajorServicesSe
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     const interval = setInterval(() => {
-      if (document.hidden) return;
+      if (document.hidden || !inViewRef.current) return;
       setActiveIndex((prev) => (prev + 1) % SERVICES.length);
     }, 2800);
 
@@ -62,9 +74,10 @@ export default function MajorServicesSection({ onOpenServices }: MajorServicesSe
 
   return (
     <section
+      ref={sectionRef}
       id="services"
       data-light="false"
-      className="relative z-20 bg-[#0a0a0a] text-white py-24 sm:py-32 px-6 sm:px-12 md:px-20 border-t border-white/10 shadow-[0_-40px_80px_rgba(0,0,0,0.55)] select-none flex items-center justify-center min-h-screen"
+      className="relative bg-[#0a0a0a] text-white py-24 sm:py-32 px-6 sm:px-10 lg:px-12 border-t border-white/10 select-none"
     >
       {/* Anchor for About navigation */}
       <div id="about" className="absolute -top-20 left-0 pointer-events-none opacity-0" />
@@ -73,21 +86,22 @@ export default function MajorServicesSection({ onOpenServices }: MajorServicesSe
 
         {/* Left Column: Typography & Button */}
         <div className="lg:col-span-5 flex flex-col items-start text-left">
-          <ScrollReveal yOffset={25} duration={0.9}>
-            <span className="znx-eyebrow mb-3">WHAT I DO</span>
-
-            <h2 className="znx-heading text-white mb-6">Services</h2>
-
+          <ScrollReveal variant="mask" duration={1.1}>
+            <span className="znx-eyebrow">What I do</span>
+          </ScrollReveal>
+          <ScrollReveal variant="mask" duration={1.2} delay={0.08} className="mt-3 mb-6">
+            <h2 className="znx-heading text-white">Services</h2>
+          </ScrollReveal>
+          <ScrollReveal yOffset={20} duration={1.1} delay={0.18}>
             <p className="text-base sm:text-lg leading-relaxed max-w-sm text-neutral-300">
               From concept to final cut, I offer end-to-end creative solutions for brands, artists, and businesses looking to tell their story visually.
             </p>
-
-            <div className="mt-8">
-              <button onClick={() => openService()} className="znx-btn znx-btn-primary">
-                <span>VIEW ALL SERVICES</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </div>
+          </ScrollReveal>
+          <ScrollReveal yOffset={16} duration={1} delay={0.26} className="mt-8">
+            <button onClick={() => openService()} className="znx-btn znx-btn-primary">
+              <span>View all services</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
           </ScrollReveal>
         </div>
 
@@ -102,7 +116,7 @@ export default function MajorServicesSection({ onOpenServices }: MajorServicesSe
 
             return (
               <li key={service.id} className="border-b border-white/10">
-                <ScrollReveal yOffset={15} duration={0.7} staggerIndex={idx}>
+                <ScrollReveal variant="clip" yOffset={20} duration={1.1} staggerIndex={idx} staggerStep={0.1}>
                   <button
                     type="button"
                     onClick={() => openService(service.id)}

@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
-import { motion, useMotionValue, useSpring } from 'motion/react';
+import React, { useEffect, useRef, useState } from 'react';
+import { motion, useMotionValue, useReducedMotion, useSpring } from 'motion/react';
 import { ArrowUpRight } from 'lucide-react';
 import { smoothScrollTo } from '../utils/smoothScroll';
-import { useCoverRecede } from '../utils/useCoverRecede';
 
 interface HeroSectionProps {
   onOpenShowreel?: () => void;
+  /** False while the intro loader still covers the page */
+  introDone?: boolean;
 }
 
 function FlipBlock({
@@ -31,42 +32,66 @@ function FlipBlock({
   );
 }
 
-export default function HeroSection({ onOpenShowreel }: HeroSectionProps) {
-  const [isHovered, setIsHovered] = useState(false);
+export default function HeroSection({ onOpenShowreel, introDone = true }: HeroSectionProps) {
   const [isPlayingVideo, setIsPlayingVideo] = useState(false);
   // Hero stays pinned and recedes while the Work section slides over it
-  const { markerRef, recedeStyle } = useCoverRecede();
+  const reduceMotion = useReducedMotion();
+  // Entrance waits for the intro loader to lift (it covers the hero on first load)
+  const entrance = introDone ? 'shown' : 'hidden';
+  const ease = [0.16, 1, 0.3, 1] as const;
+
+  // Replay the scroll cue's short bob each time the hero scrolls back into view
+  const scrollCueRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const cue = scrollCueRef.current;
+    if (!cue || typeof IntersectionObserver === 'undefined') return;
+    let wasVisible = true; // the CSS animation already plays on first load
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && !wasVisible) {
+        cue.style.animation = 'none';
+        void cue.offsetWidth; // restart the animation from its first frame
+        cue.style.animation = '';
+      }
+      wasVisible = entry.isIntersecting;
+    });
+    observer.observe(cue);
+    return () => observer.disconnect();
+  }, []);
 
   const xValue = useMotionValue(0);
   const yValue = useMotionValue(0);
 
   // Smooth spring motion values for play button follower
-  const playXSpring = useSpring(xValue, { damping: 25, stiffness: 100, mass: 0.5 });
-  const playYSpring = useSpring(yValue, { damping: 25, stiffness: 100, mass: 0.5 });
+  const playXSpring = useSpring(xValue, { damping: 25, stiffness: 100, mass: 0.5, restDelta: 0.5 });
+  const playYSpring = useSpring(yValue, { damping: 25, stiffness: 100, mass: 0.5, restDelta: 0.5 });
+
+  // The media's centre is measured once per hover (in page coordinates, so scrolling doesn't stale it)
+  // instead of a media query plus a forced layout read on every mouse move
+  const followCentreRef = useRef<{ x: number; y: number } | null>(null);
+  const measureFollowCentre = (el: HTMLElement) => {
+    const isDesktop = window.innerWidth >= 1024 && window.matchMedia('(pointer: fine)').matches;
+    if (!isDesktop) return null;
+    const rect = el.getBoundingClientRect();
+    return { x: rect.left + window.scrollX + rect.width / 2, y: rect.top + window.scrollY + rect.height / 2 };
+  };
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const isDesktop = typeof window !== 'undefined' && window.innerWidth >= 1024 && window.matchMedia('(pointer: fine)').matches;
-    if (!isDesktop || isPlayingVideo) return;
+    if (isPlayingVideo) return;
+    const centre = followCentreRef.current ?? (followCentreRef.current = measureFollowCentre(e.currentTarget));
+    if (!centre) return;
 
-    const rect = e.currentTarget.getBoundingClientRect();
-    const mouseXOffset = e.clientX - rect.left - rect.width / 2;
-    const mouseYOffset = e.clientY - rect.top - rect.height / 2;
-    
-    xValue.set(mouseXOffset * 0.6);
-    yValue.set(mouseYOffset * 0.6);
+    xValue.set((e.pageX - centre.x) * 0.6);
+    yValue.set((e.pageY - centre.y) * 0.6);
   };
 
   const handleMouseLeave = () => {
-    setIsHovered(false);
+    followCentreRef.current = null;
     xValue.set(0);
     yValue.set(0);
   };
 
-  const handleMouseEnter = () => {
-    const isDesktop = typeof window !== 'undefined' && window.innerWidth >= 1024 && window.matchMedia('(pointer: fine)').matches;
-    if (isDesktop) {
-      setIsHovered(true);
-    }
+  const handleMouseEnter = (e: React.MouseEvent<HTMLDivElement>) => {
+    followCentreRef.current = measureFollowCentre(e.currentTarget);
   };
 
   const handleShowreelClick = () => {
@@ -77,18 +102,18 @@ export default function HeroSection({ onOpenShowreel }: HeroSectionProps) {
   };
 
   return (
-    <>
     <section
       id="hero"
       data-light="false"
-      className="sticky top-0 z-0 [@media(max-height:500px)]:relative min-h-svh text-white flex flex-col justify-between pt-24 pb-12 px-6 sm:px-12 overflow-hidden select-none bg-transparent"
+      className="relative min-h-svh text-white flex flex-col justify-between pt-24 pb-12 px-6 sm:px-12 overflow-hidden select-none bg-transparent"
     >
       {/* Background Subtle Grid / Accents */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.03] bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:32px_32px]" />
 
-      {/* Ambient Breathing Lighting Glows (Static on mobile for maximum GPU performance) */}
-      <div className="absolute top-[20%] left-[15%] w-96 h-96 rounded-full bg-amber-500/5 blur-[100px] pointer-events-none z-0 hidden sm:block" />
-      <div className="absolute bottom-[30%] right-[10%] w-80 h-80 rounded-full bg-orange-500/5 blur-[90px] pointer-events-none z-0 hidden sm:block" />
+      {/* Ambient lighting glows: soft radial gradients (same look as a blurred disc, without a blur
+          filter that would be recomputed whenever the hero is re-composited, e.g. under the ripple) */}
+      <div className="absolute top-[20%] left-[15%] -mt-28 -ml-28 w-[38rem] h-[38rem] bg-[radial-gradient(closest-side,rgba(245,158,11,0.05),rgba(245,158,11,0.03)_45%,transparent)] pointer-events-none z-0 hidden sm:block" />
+      <div className="absolute bottom-[30%] right-[10%] -mb-24 -mr-24 w-[32rem] h-[32rem] bg-[radial-gradient(closest-side,rgba(249,115,22,0.05),rgba(249,115,22,0.03)_45%,transparent)] pointer-events-none z-0 hidden sm:block" />
 
       {/* Top Hero Bar */}
       <div className="absolute top-0 left-0 right-0 z-20 px-6 py-6 sm:px-12 flex items-center justify-between pointer-events-auto">
@@ -134,28 +159,37 @@ export default function HeroSection({ onOpenShowreel }: HeroSectionProps) {
       </div>
 
       {/* Main Hero Content Container */}
-      <motion.div style={recedeStyle} className="relative max-w-7xl mx-auto w-full flex-1 flex flex-col items-center justify-center my-auto py-12">
+      <div className="relative max-w-7xl mx-auto w-full flex-1 flex flex-col items-center justify-center my-auto py-12">
         <div className="relative w-full max-w-4xl flex flex-col items-center justify-center">
           
           {/* Big "SHOWREEL" typography. From lg up it sits behind the image and peeks out at both sides
               (the word is ~6em wide, wider than the image). Below lg it sits above the image and the image
-              deliberately overlaps its lower half: with line-height 1, Satoshi Black's caps span
-              0.125em-0.885em, so a -0.5em bottom margin puts the image edge through the middle of the letters
-              (em-based, so the overlap is the same at every width). */}
+              deliberately overlaps its lower half: with line-height 1, Inter Black's caps span ~0.14em-0.86em,
+              so a -0.5em bottom margin puts the image edge through the middle of the letters (em-based, so the
+              overlap is the same at every width). Entrance: the word rises from behind its own edge. */}
           <div 
             aria-hidden="true"
             className="relative -mb-[0.5em] lg:mb-0 lg:absolute lg:inset-0 flex items-center justify-center pointer-events-none select-none z-0 overflow-visible text-[14.5vw] md:text-[11vw] lg:text-[11.5rem] leading-none"
           >
-            <span className="font-sans font-black tracking-wider uppercase leading-none whitespace-nowrap select-none text-transparent bg-clip-text bg-[linear-gradient(105deg,#fafafa_0%,#a3a3a3_55%,#ef4444_100%)] lg:opacity-30">
-              SHOWREEL
+            <span className="block overflow-hidden pb-[0.06em] -mb-[0.06em]">
+              <motion.span
+                className="block font-sans font-black tracking-wide uppercase leading-none whitespace-nowrap select-none text-transparent bg-clip-text bg-[linear-gradient(105deg,#fafafa_0%,#a3a3a3_55%,#ef4444_100%)] lg:opacity-30"
+                variants={{ hidden: { y: '105%' }, shown: { y: '0%' } }}
+                initial={reduceMotion ? false : 'hidden'}
+                animate={entrance}
+                transition={{ duration: 1.3, ease, delay: 0.25 }}
+              >
+                SHOWREEL
+              </motion.span>
             </span>
           </div>
 
           {/* Central Media Container — Smooth 3D Perspective Mouse-Parallax for PC only (.parallax-bg-wrapper) */}
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+            variants={{ hidden: { clipPath: 'inset(100% 0% 0% 0%)' }, shown: { clipPath: 'inset(0% 0% 0% 0%)' } }}
+            initial={reduceMotion ? false : 'hidden'}
+            animate={entrance}
+            transition={{ duration: 1.4, ease }}
             onMouseMove={handleMouseMove}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
@@ -203,12 +237,8 @@ export default function HeroSection({ onOpenShowreel }: HeroSectionProps) {
                   }}
                   className="absolute inset-0 flex items-center justify-center bg-transparent pointer-events-none z-20"
                 >
-                  <div 
-                    className="transform transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] filter drop-shadow-[0_10px_10px_rgba(0,0,0,0.4)]"
-                    style={{ 
-                      transform: isHovered ? 'scale(1.15)' : 'scale(1)',
-                    }}
-                  >
+                  {/* Hover scale is pure CSS (.znx-play-icon): no React re-render of the hero per hover */}
+                  <div className="znx-play-icon transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] filter drop-shadow-[0_10px_10px_rgba(0,0,0,0.4)]">
                     <svg 
                       className="w-16 h-16 sm:w-20 sm:h-20 fill-white stroke-white" 
                       viewBox="0 0 24 24"
@@ -223,30 +253,25 @@ export default function HeroSection({ onOpenShowreel }: HeroSectionProps) {
             )}
           </motion.div>
         </div>
-      </motion.div>
+      </div>
 
       {/* Hero Bottom Bar: studio labels framing the scroll cue (labels reuse the Services page copy) */}
       <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        variants={{ hidden: { opacity: 0, y: 12 }, shown: { opacity: 1, y: 0 } }}
+        initial={reduceMotion ? false : 'hidden'}
+        animate={entrance}
+        transition={{ delay: 0.7, duration: 1, ease }}
         className="relative z-10 w-full max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 items-end gap-4"
       >
         <span className="znx-label hidden md:block text-left">ZNX Studio · Designing for the internet</span>
         <div className="flex flex-col items-center gap-2 text-center">
           <span className="znx-label text-white/40">scroll down to explore</span>
-          <div className="znx-scroll-cue w-1 h-5 rounded-full bg-white/20 overflow-hidden">
+          <div ref={scrollCueRef} className="znx-scroll-cue w-1 h-5 rounded-full bg-white/20 overflow-hidden">
             <div className="w-full h-1/2 bg-white/70 rounded-full" />
           </div>
         </div>
         <span className="znx-label hidden md:block text-right">Branding &amp; Motion</span>
       </motion.div>
     </section>
-    {/* Marks where the next section starts; drives the recede while it covers this one */}
-    {/* Hold: transparent runway that keeps the pinned hero fully visible and centred for part of a
-        screen before Featured Work starts sliding over it (svh so mobile browser bars don't skew it) */}
-    <div aria-hidden="true" className="h-[45svh] pointer-events-none [@media(max-height:500px)]:hidden" />
-    <div ref={markerRef} aria-hidden="true" />
-    </>
   );
 }

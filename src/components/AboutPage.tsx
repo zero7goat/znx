@@ -553,8 +553,8 @@ export default function AboutPage({
       <section className="px-4 md:px-12 lg:px-16 max-w-7xl mx-auto py-16">
         <ScrollReveal yOffset={35} duration={0.95}>
           <div className="bg-[#0c0c0c] border border-white/10 rounded-2xl p-8 sm:p-14 md:p-16 text-center relative overflow-hidden shadow-md shadow-black/20">
-            <div className="absolute -top-24 -left-24 w-72 h-72 bg-white/5 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-white/5 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -top-40 -left-40 w-[26rem] h-[26rem] bg-[radial-gradient(closest-side,rgba(255,255,255,0.05),rgba(255,255,255,0.03)_50%,transparent)] pointer-events-none" />
+            <div className="absolute -bottom-40 -right-40 w-[26rem] h-[26rem] bg-[radial-gradient(closest-side,rgba(255,255,255,0.05),rgba(255,255,255,0.03)_50%,transparent)] pointer-events-none" />
 
             <h2 className="text-3xl sm:text-5xl lg:text-6xl font-syne font-bold text-white max-w-3xl mx-auto leading-tight">
               Ready to push boundaries together?

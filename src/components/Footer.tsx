@@ -156,9 +156,9 @@ export default function Footer({
         </div>
 
         {/* Giant ZNX wordmark: full-bleed, sized in vw so it spans the width at every breakpoint.
-            The footer edge deliberately crops the lower half of the letters: with line-height 1, Syne's
-            baseline sits at 0.825em and its cap height is 0.64em, so a -0.47em bottom margin leaves just
-            over the top half visible (em-based, so the crop is identical on every screen).
+            The footer edge deliberately crops the lower half of the letters: with line-height 1, a -0.47em
+            bottom margin leaves just over the top half visible (em-based, so the crop is identical on every screen). Inter's metrics give
+            the same result: baseline 0.865em, cap height 0.73em.
             Reveal: the word rises from behind that edge. The observer watches the unclipped, untransformed
             wrapper, not the moving text, so it reliably fires the first time the footer is reached. */}
         <div
@@ -169,7 +169,8 @@ export default function Footer({
           <span
             className="block text-center font-syne font-extrabold leading-none tracking-[-0.05em] text-transparent bg-clip-text bg-gradient-to-b from-white via-neutral-300 to-neutral-600 whitespace-nowrap transition-[transform,opacity] duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
             style={{
-              fontSize: 'clamp(4.5rem, 27vw, 30rem)',
+              // "ZNX" is ~2.06em wide in Inter ExtraBold (with the tracking below), so 41vw spans ~85% of the width
+              fontSize: 'clamp(6rem, 41vw, 42rem)',
               marginBottom: '-0.47em',
               transform: isWordmarkVisible ? 'translateY(0)' : 'translateY(55%)',
               opacity: isWordmarkVisible ? 1 : 0,

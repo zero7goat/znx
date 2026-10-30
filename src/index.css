@@ -1,62 +1,64 @@
 @import "tailwindcss";
 
-/* Map Tailwind's font-sans / font-serif / font-mono to the brand typefaces
-   (otherwise they fall back to system fonts and clash with Satoshi/Bodoni).
-   Satoshi itself is loaded from index.html. */
+/* ── Typography ──
+   One family site-wide: Inter, the closest openly licensed match to Apple's SF Pro (which can't be
+   licensed for the web). Loaded from index.html with display=swap; falls back to the platform UI fonts.
+   Every legacy font role (sans/serif/mono and the old per-typeface classes) maps to the same stack, so
+   the whole site stays on one cohesive system. */
 @theme {
-  --font-sans: 'Satoshi', ui-sans-serif, system-ui, sans-serif;
-  --font-serif: 'Bodoni Moda', ui-serif, Georgia, serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-serif: var(--font-sans);
+  --font-mono: var(--font-sans);
+}
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    font-optical-sizing: auto;
+    text-rendering: optimizeLegibility;
+  }
+  /* Headings: tighter tracking as size grows, balanced line breaks */
+  h1, h2, h3, h4 {
+    letter-spacing: -0.022em;
+    text-wrap: balance;
+  }
+  p, li, dd {
+    text-wrap: pretty;
+  }
 }
 
 @layer utilities {
-  .font-satoshi {
-    font-family: 'Satoshi', sans-serif;
-  }
-  .font-pinyon {
-    font-family: 'Pinyon Script', cursive;
-  }
+  /* Legacy typeface classes, kept so existing markup works; all resolve to the one system */
+  .font-satoshi,
+  .font-sans-main,
+  .font-manrope,
+  .font-syne,
+  .font-bodoni,
+  .font-instrument,
+  .font-serif-display,
+  .font-italiana,
+  .font-cormorant,
+  .font-pinyon,
   .font-caveat {
-    font-family: 'Caveat', cursive;
+    font-family: var(--font-sans);
   }
-  .font-syne {
-    font-family: 'Syne', sans-serif;
-  }
+  /* Former monospace labels: same family with tabular figures */
   .font-mono-tech {
-    font-family: 'JetBrains Mono', monospace;
-  }
-  .font-sans-main {
-    font-family: 'Satoshi', sans-serif;
-  }
-  .font-manrope {
-    font-family: 'Satoshi', sans-serif;
-  }
-  .font-serif-display {
-    font-family: 'DM Serif Display', serif;
-  }
-  .font-instrument {
-    font-family: 'Instrument Serif', serif;
-  }
-  .font-bodoni {
-    font-family: 'Bodoni Moda', serif;
-  }
-  .font-italiana {
-    font-family: 'Italiana', serif;
-  }
-  .font-cormorant {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: var(--font-sans);
+    font-feature-settings: 'tnum' 1;
   }
 }
 
-/* ── ZNX shared design language (taken from the About page) ──
-   Eyebrow: small red Satoshi label · Heading: Bodoni Moda uppercase · Buttons: mono pill */
+/* ── ZNX shared design language ──
+   Eyebrow: small red label · Heading: semibold, tightly tracked · Display: hero-scale headline ·
+   Label: small caps-style meta text · Buttons: pill */
 @layer components {
   .znx-eyebrow {
     display: block;
-    font-family: 'Satoshi', sans-serif;
+    font-family: var(--font-sans);
     font-size: 0.75rem;
     font-weight: 600;
-    letter-spacing: 0.2em;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
     color: #ef4444;
   }
@@ -67,19 +69,30 @@
   }
 
   .znx-heading {
-    font-family: 'Bodoni Moda', serif;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: -0.025em;
-    line-height: 1.05;
-    font-size: clamp(2.5rem, 1.6rem + 4vw, 4.5rem);
+    font-family: var(--font-sans);
+    font-weight: 600;
+    letter-spacing: -0.035em;
+    line-height: 1.04;
+    font-size: clamp(2.25rem, 1.45rem + 3.2vw, 4.25rem);
+    text-wrap: balance;
+  }
+
+  /* Hero-scale page headline (Works, project pages): big, semibold, tightly tracked, capped on mobile */
+  .znx-display {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    letter-spacing: -0.045em;
+    line-height: 0.98;
+    font-size: clamp(3rem, 1.5rem + 6vw, 6.5rem);
     text-wrap: balance;
   }
 
   .znx-label {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: var(--font-sans);
+    font-feature-settings: 'tnum' 1;
     font-size: 0.6875rem;
-    letter-spacing: 0.2em;
+    font-weight: 500;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
     color: #737373;
   }
@@ -91,11 +104,10 @@
     gap: 0.5rem;
     border-radius: 9999px;
     padding: 0.875rem 2rem;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: -0.005em;
     white-space: nowrap;
     cursor: pointer;
     transition:
@@ -170,7 +182,7 @@ body {
   overflow-x: clip;
   position: relative;
   overscroll-behavior: auto;
-  font-family: 'Satoshi', sans-serif;
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -201,8 +213,17 @@ body {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(5px); }
 }
+/* A few bobs whenever the hero comes into view (restarted from Hero), not an endless loop: any running
+   animation costs a main-thread style recalc every frame, which an idle page shouldn't pay for */
 .znx-scroll-cue {
-  animation: znx-scroll-cue 1.8s ease-in-out infinite;
+  animation: znx-scroll-cue 1.8s ease-in-out 4;
+}
+
+/* Showreel play icon grows on hover, desktop mouse only (as before), without a React re-render */
+@media (hover: hover) and (pointer: fine) and (min-width: 1024px) {
+  .parallax-bg-wrapper:hover .znx-play-icon {
+    transform: scale(1.15);
+  }
 }
 
 /* Footer-style text link: a 1px underline draws in from the left on hover/focus and exits to the
@@ -227,4 +248,33 @@ body {
 .znx-link-underline:focus-visible::after {
   transform: scaleX(1);
   transform-origin: left center;
+}
+
+/* Horizontal drag rail (Featured Work): grab cursor over the rail and its cards, grabbing while
+   dragging; no scrollbar chrome, no text selection or image ghost-dragging mid-drag.
+   Touch devices keep their normal cursor-less native scrolling. */
+.znx-rail {
+  cursor: grab;
+  scrollbar-width: none;
+  scroll-behavior: auto;
+}
+.znx-rail::-webkit-scrollbar {
+  display: none;
+}
+.znx-rail a,
+.znx-rail img {
+  cursor: inherit;
+  -webkit-user-drag: none;
+}
+.znx-rail.is-dragging {
+  cursor: grabbing;
+  user-select: none;
+}
+.znx-rail.is-dragging * {
+  pointer-events: none;
+}
+@media (hover: none) {
+  .znx-rail {
+    cursor: auto;
+  }
 }

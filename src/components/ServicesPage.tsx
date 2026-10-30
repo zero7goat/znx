@@ -232,7 +232,7 @@ export default function ServicesPage({
               {/* Clean Translucent Black and Gray Gradient Title */}
               <div className={`w-full mb-3 sm:mb-5 text-center ${isRightAligned ? 'sm:text-right' : 'sm:text-left'}`}>
                 <h3
-                  className="inline-block text-[2.5rem] sm:text-7xl md:text-8xl lg:text-[8.5rem] font-syne font-bold bg-gradient-to-r from-white via-neutral-300 to-neutral-600 bg-clip-text text-transparent tracking-tight leading-[1.05] pb-[0.08em] select-none text-center"
+                  className="inline-block text-[2.5rem] sm:text-7xl md:text-8xl lg:text-[8.5rem] font-semibold tracking-[-0.045em] bg-gradient-to-r from-white via-neutral-300 to-neutral-600 bg-clip-text text-transparent leading-[1.05] pb-[0.08em] select-none text-center"
                   style={{
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
@@ -324,8 +324,8 @@ export default function ServicesPage({
       <section className="px-4 md:px-12 lg:px-16 max-w-7xl mx-auto py-16">
         <ScrollReveal yOffset={35} duration={0.9}>
           <div className="bg-[#0c0c0c] border border-white/10 rounded-2xl p-8 sm:p-14 md:p-16 text-center relative overflow-hidden shadow-md shadow-black/20">
-            <div className="absolute -top-24 -left-24 w-72 h-72 bg-white/5 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-white/5 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -top-40 -left-40 w-[26rem] h-[26rem] bg-[radial-gradient(closest-side,rgba(255,255,255,0.05),rgba(255,255,255,0.03)_50%,transparent)] pointer-events-none" />
+            <div className="absolute -bottom-40 -right-40 w-[26rem] h-[26rem] bg-[radial-gradient(closest-side,rgba(255,255,255,0.05),rgba(255,255,255,0.03)_50%,transparent)] pointer-events-none" />
 
             <h2 className="text-3xl sm:text-5xl lg:text-6xl font-syne font-bold text-white max-w-3xl mx-auto leading-tight">
               Ready to push boundaries together?

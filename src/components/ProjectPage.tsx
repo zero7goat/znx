@@ -2,6 +2,7 @@ import { ArrowLeft, ArrowRight } from 'lucide-react';
 import Footer from './Footer';
 import ScrollReveal from './ScrollReveal';
 import SubpageHeader from './SubpageHeader';
+import TazProjectPage from './TazProjectPage';
 import { PROJECTS, getProjectBySlug } from '../data/projects';
 
 interface ProjectPageProps {
@@ -55,6 +56,21 @@ export default function ProjectPage({
     />
   );
 
+  // Projects with a bespoke case study use their own layout on the same route
+  if (project?.caseStudy === 'taz') {
+    return (
+      <TazProjectPage
+        project={project}
+        onBackToHome={onBackToHome}
+        onBackToWorks={onBackToWorks}
+        onOpenContact={onOpenContact}
+        onOpenPrivacy={onOpenPrivacy}
+        onOpenServices={onOpenServices}
+        onOpenAbout={onOpenAbout}
+      />
+    );
+  }
+
   if (!project || !previous || !next) {
     return (
       <div className="min-h-screen bg-[#0a0a0a] text-white font-sans flex flex-col">
@@ -94,7 +110,7 @@ export default function ProjectPage({
               <span className="znx-eyebrow mb-4">{project.type}</span>
             </ScrollReveal>
             <ScrollReveal yOffset={24} duration={1} delay={0.1}>
-              <h1 className="font-serif font-normal text-white tracking-tight leading-[1.02] text-[clamp(3rem,1.5rem+6vw,7.5rem)] [text-wrap:balance]">
+              <h1 className="znx-display text-white">
                 {project.title}
               </h1>
             </ScrollReveal>
@@ -157,7 +173,7 @@ export default function ProjectPage({
               <div className="relative flex w-full items-end justify-between gap-4 p-5 sm:p-6">
                 <div className="min-w-0">
                   <span className="znx-label text-neutral-300">{label}</span>
-                  <p className="mt-1 truncate font-syne font-bold text-xl sm:text-2xl tracking-tight text-white">{item.title}</p>
+                  <p className="mt-1 truncate text-xl sm:text-2xl font-semibold tracking-tight text-white">{item.title}</p>
                 </div>
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/30 text-white transition-colors duration-300 group-hover:bg-white group-hover:text-black">
                   {icon}

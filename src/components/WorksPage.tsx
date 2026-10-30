@@ -120,8 +120,8 @@ export default function WorksPage({
           <span className="znx-eyebrow mb-4">Selected Work</span>
         </ScrollReveal>
         <ScrollReveal yOffset={24} duration={1.1} delay={0.08}>
-          <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-[7.2rem] font-serif tracking-tight leading-[1.05] text-white font-normal max-w-6xl mx-auto">
-            The work beh<span className="font-serif italic font-normal -mx-0.5">i</span>nd
+          <h1 className="znx-display text-white max-w-6xl mx-auto">
+            The work beh<span className="italic">i</span>nd
             <br />
             the growth
           </h1>
@@ -265,7 +265,7 @@ export default function WorksPage({
               </ul>
             ) : (
               <div className="flex flex-col items-center justify-center gap-5 rounded-lg border border-white/10 px-6 py-24 text-center">
-                <p className="font-serif text-3xl sm:text-4xl text-white">No projects in this combination yet</p>
+                <p className="text-2xl sm:text-3xl font-semibold tracking-tight text-white">No projects in this combination yet</p>
                 <p className="max-w-md text-sm text-neutral-400">
                   Try another industry or type of work, or browse everything.
                 </p>

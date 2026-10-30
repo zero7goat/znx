@@ -13,9 +13,23 @@ export interface Project {
   /** Industry, used by the Works filter */
   domain: string;
   image: string;
+  /** Projects with a full bespoke case-study layout instead of the standard detail page */
+  caseStudy?: 'taz';
 }
 
 export const PROJECTS: Project[] = [
+  {
+    // Real ZNX product: local-first personal vault (see TazProjectPage). Cover is an illustrative
+    // brand composition, not a product screenshot.
+    id: 23,
+    slug: 'taz',
+    title: 'TAZ',
+    category: 'Personal Vault Application',
+    type: 'Digital Experiences',
+    domain: 'Technology',
+    image: '/images/taz/taz-cover.svg',
+    caseStudy: 'taz',
+  },
   {
     id: 1,
     slug: 'luella',

@@ -5,9 +5,11 @@ import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import Work from './components/Work';
 import Services from './components/Services';
+import Pricing from './components/Pricing';
 import Newsletter from './components/Newsletter';
 import Footer from './components/Footer';
 import ContactDrawer from './components/ContactDrawer';
+import LiquidCursor from './components/LiquidCursor';
 import { NavTab } from './types';
 import { smoothScrollToElement } from './utils/smoothScroll';
 import { initMouseParallax } from './utils/parallaxPerspective';
@@ -273,6 +275,8 @@ export default function App() {
         </Suspense>
       )}
 
+      {/* Page content: the liquid ripple (LiquidCursor) distorts blocks inside data-liquid elements */}
+      <div data-liquid>
       <Suspense fallback={null}>
         {isPrivacyPageOpen ? (
           <PrivacyPolicyPage
@@ -323,13 +327,16 @@ export default function App() {
           <>
             <main id="top">
               {/* Section 1: Hero */}
-              <Hero />
+              <Hero introDone={!showIntro} />
 
               {/* Section 2: Work */}
-              <Work onOpenWorks={handleOpenWorksPage} />
+              <Work onOpenWorks={handleOpenWorksPage} onOpenProject={handleOpenProject} />
 
               {/* Section 3: Services */}
               <Services onOpenServices={handleOpenServicesPage} onOpenWorks={handleOpenWorksPage} />
+
+              {/* Section 4: Pricing */}
+              <Pricing onOpenContact={handleOpenContact} />
             </main>
 
             {/* Newsletter & Footer */}
@@ -344,6 +351,10 @@ export default function App() {
           </>
         )}
       </Suspense>
+      </div>
+
+      {/* Desktop-only liquid ripple over the page content (no layer of its own; off on touch, small screens, reduced motion) */}
+      <LiquidCursor />
 
       {/* Modals & Drawers */}
       <ContactDrawer
