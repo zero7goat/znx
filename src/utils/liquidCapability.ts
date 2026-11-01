@@ -16,6 +16,9 @@ import { createLiquidFilter, makeBlobMap, tintValues } from './liquidFilter';
  * can see (thermal throttling, other apps taking the GPU later).
  */
 
+// Master switch: false turns the liquid effect off for every device and skips the check
+const LIQUID_ENABLED = false;
+
 const MIN_CORES = 4;
 const MIN_MEMORY_GB = 4;
 const SOFTWARE_GPU = /swiftshader|llvmpipe|software|basic render/i;
@@ -159,7 +162,9 @@ export async function checkLiquidCapability(outer: HTMLElement, inner: HTMLEleme
   started = true;
 
   let decision: Decision;
-  if (!isLiquidEligible() || !isChromium()) {
+  if (!LIQUID_ENABLED) {
+    decision = { ok: false, reason: 'switched off' };
+  } else if (!isLiquidEligible() || !isChromium()) {
     decision = { ok: false, reason: 'not applicable on this device or browser' };
   } else {
     const floor = hardwareFloor();
