@@ -74,6 +74,23 @@ export function preloadFonts(timeoutMs = 1200): Promise<void> {
 }
 
 /**
+ * Every image the mounted page is going to show (img elements, lazy ones included, plus CSS backgrounds).
+ * Read from the DOM so this list can't drift from the page.
+ */
+export function collectPageImages(root: ParentNode = document): string[] {
+  const urls = new Set<string>();
+  root.querySelectorAll('img').forEach((img) => {
+    const src = img.currentSrc || img.src;
+    if (src) urls.add(src);
+  });
+  root.querySelectorAll<HTMLElement>('[style*="background"]').forEach((el) => {
+    const match = el.style.backgroundImage.match(/url\(["']?(https?:[^"')]+|\/[^"')]+)["']?\)/);
+    if (match) urls.add(match[1]);
+  });
+  return Array.from(urls);
+}
+
+/**
  * Map of critical above-the-fold assets per route
  */
 export const CRITICAL_ROUTE_ASSETS: Record<string, string[]> = {

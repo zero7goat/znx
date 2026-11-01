@@ -5,7 +5,8 @@
  *
  * Written by LiquidCursor once per animation frame, read by ThreeWorld; plain mutable data, no React.
  */
-export const MAX_LIQUID_STAMPS = 24;
+// Every stamp is a filter pass, so this sets the GPU cost of a full wake
+export const MAX_LIQUID_STAMPS = 10;
 
 export const liquidField = {
   /** Number of live stamps (0 = water is still) */

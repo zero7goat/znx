@@ -51,6 +51,8 @@ const nextFrame = () => new Promise<void>((resolve) => requestAnimationFrame(() 
 
 export default function App() {
   const [showIntro, setShowIntro] = useState(true);
+  // Direct links load their page behind the intro; it scans the page for assets once that has mounted
+  const [pageMounted, setPageMounted] = useState(() => pageFromHash(window.location.hash) === 'home');
   const [isContactOpen, setIsContactOpen] = useState(false);
   const [page, setPage] = useState<Page>('home');
   const [isPageTransitioning, setIsPageTransitioning] = useState(false);
@@ -104,7 +106,6 @@ export default function App() {
     }
     setPage(target);
     if (target === 'project') setProjectSlug(slug);
-    if (target !== 'home') setShowIntro(false);
 
     // Returning from a project to Works restores where the visitor was in the grid
     if (!afterSwap && target === 'works' && from === 'project') {
@@ -122,6 +123,7 @@ export default function App() {
     }
 
     setIsPageTransitioning(false);
+    setPageMounted(true);
   };
 
   // Sync route with window location hash (browser back/forward, links that set the hash)
@@ -219,7 +221,7 @@ export default function App() {
 
       <AnimatePresence>
         {showIntro && (
-          <IntroScreen onComplete={() => setShowIntro(false)} />
+          <IntroScreen pageMounted={pageMounted} usesSnow={page === 'home' || isServicesPageOpen} onComplete={() => setShowIntro(false)} />
         )}
       </AnimatePresence>
 
