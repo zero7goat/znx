@@ -237,8 +237,10 @@ export default function WorksPage({
                         aria-label={`${project.title}: ${project.category}`}
                         className="relative group block w-full aspect-[16/10] sm:aspect-[16/10.2] rounded-md sm:rounded-lg"
                       >
-                        {/* Image: on hover/focus the bottom edge crops up to reveal the caption (no zoom) */}
-                        <div className="relative w-full h-full overflow-hidden rounded-md sm:rounded-lg bg-[#111] transition-[clip-path] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] [clip-path:inset(0_0_0_0)] group-hover:[clip-path:inset(0_0_2.5rem_0)] group-focus-visible:[clip-path:inset(0_0_2.5rem_0)] [@media(hover:none)]:[clip-path:inset(0_0_2.5rem_0)]">
+                        {/* Image: on hover/focus the bottom edge crops up to reveal the caption (no zoom). The crop is a strip in the
+                            page colour sliding up over the image: a transform runs on the GPU, whereas animating clip-path
+                            repainted the image every frame and dropped frames when cards passed under the cursor mid-scroll. */}
+                        <div className="relative w-full h-full overflow-hidden rounded-md sm:rounded-lg bg-[#111]">
                           <img
                             src={project.image}
                             alt=""
@@ -246,6 +248,10 @@ export default function WorksPage({
                             loading="lazy"
                             decoding="async"
                             className="w-full h-full object-cover object-center pointer-events-none select-none"
+                          />
+                          <div
+                            aria-hidden="true"
+                            className="absolute inset-x-0 bottom-0 h-10 bg-[#0a0a0a] translate-y-full transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-y-0 group-focus-visible:translate-y-0 [@media(hover:none)]:translate-y-0"
                           />
                         </div>
 

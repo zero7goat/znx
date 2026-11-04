@@ -13,7 +13,7 @@ import LiquidCursor from './components/LiquidCursor';
 import { NavTab } from './types';
 import { smoothScrollToElement } from './utils/smoothScroll';
 import { initMouseParallax } from './utils/parallaxPerspective';
-import { preloadRouteAssets } from './utils/assetPreloader';
+import { preloadRouteAssets, preloadImages, collectPageImages } from './utils/assetPreloader';
 
 // Lazy-loaded routes and heavy WebGL components
 const ServicesPage = lazy(() => import('./components/ServicesPage'));
@@ -124,6 +124,12 @@ export default function App() {
 
     setIsPageTransitioning(false);
     setPageMounted(true);
+
+    // Below-the-fold images are lazy, so they would otherwise download and decode while the visitor scrolls
+    // (stutter on the first visit). Warm them once the page is on screen, in idle time.
+    const warm = () => preloadImages(collectPageImages(), 8000);
+    if ('requestIdleCallback' in window) requestIdleCallback(warm, { timeout: 1500 });
+    else setTimeout(warm, 300);
   };
 
   // Sync route with window location hash (browser back/forward, links that set the hash)

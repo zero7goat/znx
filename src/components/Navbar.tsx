@@ -266,7 +266,9 @@ export default function Navbar({ activeTab, onSelectTab, onOpenContact }: Navbar
       </AnimatePresence>
 
       {/* DESKTOP FLOATING NAVBAR (sm:flex) */}
-      <header data-liquid className="hidden sm:block fixed top-6 sm:top-8 left-1/2 -translate-x-1/2 z-50 pointer-events-auto select-none">
+      {/* layoutScroll: the header is position:fixed, so the pill's layout animation must not count page scroll.
+          Without it, a route change (which resets scroll to 0) made the pill glide up from the old scroll offset. */}
+      <motion.header layoutScroll data-liquid className="hidden sm:block fixed top-6 sm:top-8 left-1/2 -translate-x-1/2 z-50 pointer-events-auto select-none">
         <div ref={navRef} className="relative flex items-center justify-center">
           <motion.nav
             layout
@@ -400,7 +402,7 @@ export default function Navbar({ activeTab, onSelectTab, onOpenContact }: Navbar
             </AnimatePresence>
           </motion.nav>
         </div>
-      </header>
+      </motion.header>
     </>
   );
 }
